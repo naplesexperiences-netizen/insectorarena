@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Insectron Arena">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="28%" r="78%">
+      <stop offset="0" stop-color="#25344d"/>
+      <stop offset="1" stop-color="#0d1117"/>
+    </radialGradient>
+    <linearGradient id="shell" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd782"/>
+      <stop offset=".55" stop-color="#ffc24b"/>
+      <stop offset="1" stop-color="#8c6415"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <g stroke="#0a0e15" stroke-width="15" stroke-linejoin="round" stroke-linecap="round">
+    <!-- zampe -->
+    <g fill="none" stroke-width="17">
+      <path d="M150 300 q-28 6 -44 30"/><path d="M362 300 q28 6 44 30"/>
+      <path d="M144 344 q-30 2 -48 22"/><path d="M368 344 q30 2 48 22"/>
+      <path d="M156 386 q-26 10 -38 34"/><path d="M356 386 q26 10 38 34"/>
+    </g>
+    <!-- corno biforcuto -->
+    <path d="M204 216 q-8 -84 40 -128 l12 26 l12 -26 q48 44 40 128 q-52 20 -104 0z" fill="#ffd782"/>
+    <!-- torace -->
+    <path d="M190 224 q66 -30 132 0 q10 26 0 42 h-132 q-10 -16 0 -42z" fill="url(#shell)"/>
+    <!-- elitre -->
+    <ellipse cx="256" cy="352" rx="112" ry="100" fill="url(#shell)"/>
+    <path d="M256 252 v208" stroke="#0a0e15" stroke-width="13" opacity=".75" fill="none"/>
+  </g>
+  <path d="M170 322 q30 -62 86 -68 q56 6 86 68" fill="none" stroke="#ffe7b4" stroke-width="11" stroke-linecap="round" opacity=".5"/>
+  <ellipse cx="205" cy="312" rx="28" ry="19" fill="#ffffff" opacity=".2"/>
+  <circle cx="214" cy="240" r="11" fill="#0a0e15"/><circle cx="298" cy="240" r="11" fill="#0a0e15"/>
+  <circle cx="218" cy="236" r="4" fill="#fff" opacity=".9"/><circle cx="302" cy="236" r="4" fill="#fff" opacity=".9"/>
+</svg>

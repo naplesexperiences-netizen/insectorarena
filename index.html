@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d1117">
+<title>Insectron Arena — Battaglia tattica a turni</title>
+<meta name="description" content="Battaglia tattica a turni 5v5 su griglia: cinque pedine, un Re da proteggere, tredici mosse speciali. Human vs PC, Human vs Human sullo stesso schermo, o PC vs PC per guardarla giocare. Gratis nel browser, senza installare nulla. Demo Experiences Srl.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Insectron Arena">
+<meta property="og:locale" content="it_IT">
+<meta property="og:title" content="Insectron Arena — Battaglia tattica a turni">
+<meta property="og:description" content="Cinque pedine, un campo 5×7, un Re da proteggere. Gioca nel browser, senza installare nulla.">
+<meta property="og:url" content="https://naplesexperiences-netizen.github.io/insectorarena/">
+<meta property="og:image" content="https://naplesexperiences-netizen.github.io/insectorarena/img/social-card.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Insectron Arena: il campo di gioco con una mossa ad area in corso, accanto al titolo e al pulsante Gioca ora.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Insectron Arena — Battaglia tattica a turni">
+<meta name="twitter:description" content="Cinque pedine, un campo 5×7, un Re da proteggere. Gioca nel browser, senza installare nulla.">
+<meta name="twitter:image" content="https://naplesexperiences-netizen.github.io/insectorarena/img/social-card.png">
+<meta name="twitter:image:alt" content="Il campo di Insectron Arena durante una mossa ad area.">
+<style>
+html{color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117; --panel:#1b2332; --panel2:#232d40; --line:#2f3b52;
+  --text:#e8edf5; --muted:#93a1b8; --accent:#ffc24b; --accent2:#4bc3ff; --ok:#5ddb8f;
+  --r:14px; --font:'Trebuchet MS',Verdana,sans-serif;
+}
+body{
+  background:var(--bg);
+  background-image:radial-gradient(ellipse at 50% -20%,#1d2a3f 0%,transparent 55%);
+  color:var(--text);font-family:var(--font);line-height:1.65;
+  -webkit-font-smoothing:antialiased;touch-action:manipulation;
+  -webkit-tap-highlight-color:rgba(75,195,255,.25);
+}
+h1,h2,h3{text-wrap:balance;line-height:1.2}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:8px}
+a{color:var(--accent2)}
+.skip{position:absolute;left:-9999px;top:0;background:var(--accent);color:#231a04;padding:10px 16px;border-radius:0 0 8px 0;font-weight:bold;z-index:20}
+.skip:focus{left:0}
+.wrap{max-width:1000px;margin:0 auto;padding:0 20px}
+
+/* ---- hero ---- */
+header.hero{padding:64px 0 48px;text-align:center}
+.eyebrow{
+  display:inline-block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:6px 15px;margin-bottom:22px
+}
+header.hero h1{font-size:clamp(2.1rem,6vw,3.4rem);letter-spacing:.5px}
+header.hero h1 span{color:var(--accent)}
+.pitch{font-size:clamp(1rem,2.4vw,1.2rem);color:var(--muted);max-width:620px;margin:16px auto 0}
+.cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:32px}
+.btn{
+  display:inline-block;text-decoration:none;font-weight:bold;font-size:1rem;
+  padding:14px 30px;border-radius:11px;border:1px solid var(--line);
+  background:var(--panel2);color:var(--text);
+  transition:background .15s,border-color .15s,transform .15s
+}
+.btn:hover{background:#2e3b52;border-color:#4a5c7d;transform:translateY(-1px)}
+.btn.play{background:var(--accent);color:#231a04;border-color:#e0a83b;font-size:1.08rem}
+.btn.play:hover{background:#ffd06e}
+.meta{margin-top:18px;font-size:.8rem;color:var(--muted)}
+
+/* ---- sezioni ---- */
+section{padding:44px 0;border-top:1px solid var(--line)}
+section h2{font-size:1.5rem;color:var(--accent);margin-bottom:8px}
+section .sub{color:var(--muted);margin-bottom:26px;max-width:680px}
+figure{margin:0 0 26px}
+figure img{
+  width:100%;height:auto;display:block;border-radius:var(--r);
+  border:1px solid var(--line);background:var(--panel)
+}
+figcaption{font-size:.82rem;color:var(--muted);margin-top:9px;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.card h3{font-size:1rem;color:var(--text);margin-bottom:7px}
+.card p{font-size:.88rem;color:var(--muted)}
+.shots{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+table{border-collapse:collapse;width:100%;font-size:.88rem;margin-top:8px}
+th,td{border-bottom:1px solid var(--line);padding:9px 10px;text-align:left}
+th{color:var(--muted);font-weight:normal;font-size:.8rem}
+td.num{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:bold}
+ul.clean{list-style:none;display:grid;gap:10px}
+ul.clean li{padding-left:22px;position:relative;font-size:.9rem;color:var(--muted)}
+ul.clean li::before{content:"▸";position:absolute;left:0;color:var(--accent2)}
+ul.clean b{color:var(--text)}
+.note{
+  background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:0 var(--r) var(--r) 0;padding:18px 20px;font-size:.87rem;color:var(--muted)
+}
+.note b{color:var(--text)}
+footer{padding:40px 0 56px;border-top:1px solid var(--line);font-size:.78rem;color:var(--muted)}
+footer p{margin-bottom:9px}
+.fine{text-align:center;padding:52px 0}
+@media(max-width:700px){
+  .shots{grid-template-columns:1fr}
+  header.hero{padding:44px 0 36px}
+}
+</style>
+<link rel="canonical" href="https://naplesexperiences-netizen.github.io/insectorarena/">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="icon" href="./favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Insectron">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<!-- Statistiche di visita: incollare qui lo snippet scelto (Cloudflare Web
+     Analytics e' gratuito e senza cookie, quindi non richiede banner).
+     Finche' questa riga resta un commento, il sito non traccia nessuno. -->
+</head>
+<body>
+<a class="skip" href="#contenuto">Salta al contenuto</a>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Prototipo giocabile</span>
+    <h1>INSECTRON <span>ARENA</span></h1>
+    <p class="pitch">
+      Cinque pedine, un campo 5×7, un Re da proteggere. Se cade il tuo, hai perso.
+      Battaglia tattica a turni: tredici mosse speciali, nessuna uguale all'altra.
+      Contro il computer, in due sullo stesso schermo, o computer contro computer.
+    </p>
+    <div class="cta">
+      <a class="btn play" href="gioca.html">Gioca ora</a>
+      <a class="btn" href="#comesigioca">Come si gioca</a>
+    </div>
+    <p class="meta">Gratis, nel browser · nessuna installazione, nessun account · funziona anche da telefono · tre modalità, due giocatori compresi</p>
+  </div>
+</header>
+
+<main id="contenuto">
+
+<section>
+  <div class="wrap">
+    <figure>
+      <img src="img/battaglia.png" width="812" height="722"
+           alt="La scacchiera durante una Sickle Dance: un'onda verde si espande dalla mantide e tre avversari attorno mostrano i danni subiti.">
+      <figcaption>La Mantide falcia tutti gli avversari attorno a sé. I numeri sono i danni, l'onda è l'area colpita.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="comesigioca">
+  <div class="wrap">
+    <h2>Come si gioca</h2>
+    <p class="sub">Le regole stanno in un minuto. La profondità arriva dalle mosse speciali, tutte diverse.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>Scegli la squadra</h3>
+        <p>Cinque Insector da un roster di 34, ognuno con la mossa speciale della propria famiglia. Uno di loro è il Re: se muore, la partita finisce.</p>
+      </div>
+      <div class="card">
+        <h3>Schiera le pedine</h3>
+        <p>Le posizioni le decidi tu, entro le due file più vicine. Le unità lente davanti, il Re coperto dietro.</p>
+      </div>
+      <div class="card">
+        <h3>Un movimento, un'azione</h3>
+        <p>Ogni pedina si sposta una volta per turno e poi può attaccare o usare la speciale. Attaccare chiude il suo turno.</p>
+      </div>
+      <div class="card">
+        <h3>Butta fuori chi ti ostacola</h3>
+        <p>Spingere un avversario oltre il bordo lo elimina all'istante, a prescindere dai punti vita. Vale anche contro il Re.</p>
+      </div>
+      <div class="card">
+        <h3>Sta' in diagonale</h3>
+        <p>Quasi tutte le mosse speciali colpiscono solo in orizzontale e verticale. Mettersi in diagonale è una difesa vera.</p>
+      </div>
+      <div class="card">
+        <h3>Scegli chi gioca</h3>
+        <p>È la prima cosa che vedi: <b>Human vs PC</b> per il torneo, <b>Human vs Human</b> sullo stesso dispositivo, <b>PC vs PC</b> per guardarla giocare da sola. Col computer in campo scegli anche quanto è bravo.</p>
+      </div>
+      <div class="card">
+        <h3>In due, a turno</h3>
+        <p>Ognuno sceglie squadra e Re in privato e schiera al coperto, poi ci si passa lo schermo. La scacchiera ruota a ogni consegna: chi gioca ha sempre le sue pedine davanti. Nessun account, niente connessione.</p>
+      </div>
+      <div class="card">
+        <h3>Sali di rank</h3>
+        <p>Sei livelli di torneo, da E a S. Ognuno sblocca una generazione di Insector più forte — e avversari che ragionano meglio.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Qualche schermata</h2>
+    <p class="sub">Tutta la grafica è disegnata da codice: non c'è un solo file immagine dentro al gioco. Zampe, riflessi e animazioni compresi.</p>
+    <div class="shots">
+      <figure>
+        <img src="img/roster.png" width="1148" height="879" loading="lazy"
+             alt="Schermata di selezione: il roster degli Insector con statistiche, e a destra la squadra in costruzione con il Re designato.">
+        <figcaption>Il roster. All'inizio sono disponibili solo le sette forme base.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/schieramento.png" width="812" height="722" loading="lazy"
+             alt="Fase di schieramento: le due file più vicine al giocatore sono illuminate in azzurro con caselle libere segnate da un cerchio tratteggiato.">
+        <figcaption>Lo schieramento. Le caselle illuminate sono quelle dove puoi piazzare.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/modalita.png" width="1148" height="340" loading="lazy"
+             alt="Schermata di scelta: tre carte affiancate, Human contro PC, Human contro Human e PC contro PC, ognuna con le icone di chi gioca, e sotto il selettore della difficoltà.">
+        <figcaption>La prima schermata del gioco. Le icone dicono a colpo d'occhio chi muove le due squadre.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/due-giocatori.png" width="1220" height="760" loading="lazy"
+             alt="Partita in due: una schermata di consegna copre il campo e chiede di passare il dispositivo al secondo giocatore.">
+        <figcaption>In due sullo stesso schermo: fra un turno e l'altro il campo viene coperto.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+
+<section>
+  <div class="wrap">
+    <h2>Com'è stato verificato</h2>
+    <p class="sub">L'equilibrio non è a occhio: è misurato. Ogni regola ha un test che la controlla.</p>
+    <table>
+      <caption class="sub" style="text-align:left;caption-side:top">Curva di difficoltà del torneo, 500 partite simulate per rank</caption>
+      <tr><th>Rank</th><th>Avversari</th><th>Vittorie del giocatore</th></tr>
+      <tr><td>E</td><td>Principianti</td><td class="num">98%</td></tr>
+      <tr><td>D</td><td>Normali</td><td class="num">95%</td></tr>
+      <tr><td>C</td><td>Normali</td><td class="num">81%</td></tr>
+      <tr><td>B</td><td>Esperti</td><td class="num">55%</td></tr>
+      <tr><td>A</td><td>Esperti</td><td class="num">60%</td></tr>
+      <tr><td>S</td><td>Campioni</td><td class="num">17%</td></tr>
+    </table>
+    <ul class="clean" style="margin-top:26px">
+      <li><b>1800 battaglie simulate</b> a ogni modifica delle regole, per tenere l'equilibrio sotto controllo.</li>
+      <li><b>222 controlli automatici</b> su meccaniche, schieramento, movimento, difficoltà, accessibilità, scelta della modalità, partita in due, rotazione della scacchiera e animazione delle pedine.</li>
+      <li><b>Si gioca anche solo da tastiera.</b> La scacchiera è una griglia ARIA: frecce per muoversi, Invio per selezionare, e ogni casella ha un nome parlato per chi usa uno screen reader.</li>
+    </ul>
+  </div>
+</section>
+
+<div class="fine">
+  <div class="wrap">
+    <a class="btn play" href="gioca.html">Entra in arena</a>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Demo prodotta da <b>Experiences Srl</b>.</p>
+  </div>
+</footer>
+<script>
+/* Service worker: da qui in poi il gioco resta disponibile anche senza rete e
+   si puo' aggiungere alla schermata home come un'app. Su file:// o sui browser
+   che non lo supportano semplicemente non succede niente. */
+if ("serviceWorker" in navigator){
+  addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
+}
+</script>
+</body>
+</html>

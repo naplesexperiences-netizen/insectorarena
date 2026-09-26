@@ -1,0 +1,26 @@
+{
+  "name": "Insectron Arena",
+  "short_name": "Insectron",
+  "description": "Battaglia tattica a turni 5v5 su griglia: cinque pedine, un Re da proteggere, tredici mosse speciali. Demo prodotta da Experiences Srl.",
+  "lang": "it",
+  "dir": "ltr",
+  "start_url": "./gioca.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0d1117",
+  "theme_color": "#0d1117",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "screenshots": [
+    { "src": "./img/battaglia.png", "sizes": "812x722", "type": "image/png", "form_factor": "narrow",
+      "label": "Una Sickle Dance colpisce tre avversari attorno alla mantide" },
+    { "src": "./img/roster.png", "sizes": "1148x879", "type": "image/png", "form_factor": "wide",
+      "label": "Scelta della squadra dal roster degli Insector" }
+  ]
+}

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://naplesexperiences-netizen.github.io/insectorarena/sitemap.xml
