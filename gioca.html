@@ -382,6 +382,31 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
   position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
   padding:20px;background:rgba(7,11,18,.94);backdrop-filter:blur(3px)
 }
+/* --- finestra del salvataggio --- */
+.modal{
+  position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
+  padding:18px;background:rgba(7,11,18,.8);backdrop-filter:blur(2px);overflow:auto
+}
+.modal[hidden]{display:none}
+.modalbox{
+  width:100%;max-width:520px;max-height:92vh;overflow:auto;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px
+}
+.modalbox h2{font-size:1.15rem;margin-bottom:8px}
+.modalbox h3{font-size:.92rem;margin:20px 0 6px;color:var(--accent)}
+.modalbox textarea{
+  display:block;width:100%;margin-top:6px;font-family:ui-monospace,Menlo,Consolas,monospace;
+  font-size:.74rem;line-height:1.45;word-break:break-all;resize:vertical;
+  background:var(--bg2);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:9px 11px
+}
+.riepilogo{
+  background:var(--panel2);border:1px solid var(--line);border-radius:9px;
+  padding:9px 12px;font-size:.8rem;margin-bottom:14px
+}
+.riepilogo b{color:var(--accent)}
+.esito{font-size:.8rem;margin-top:10px;min-height:1.2em}
+.esito.ok{color:var(--ok)}
+.esito.ko{color:var(--foe)}
 .pass[hidden]{display:none}
 .passbox{
   max-width:420px;width:100%;text-align:center;
@@ -434,6 +459,7 @@ footer.note a{color:var(--accent2)}
   <div class="badge" id="b-rank">Rank <b>E</b></div>
   <div class="badge" id="b-round">Round <b>1</b>/5</div>
   <div class="spacer"></div>
+  <button id="btn-save">Salvataggio</button>
   <button id="btn-reset" class="danger">Azzera torneo</button>
 </header>
 
@@ -536,6 +562,38 @@ footer.note a{color:var(--accent2)}
 <footer class="note">
   Demo prodotta da <b>Experiences Srl</b>.
 </footer>
+
+<!-- ============ SALVATAGGIO: COPIA DI SICUREZZA E RIPRISTINO ============ -->
+<div class="modal" id="save-box" hidden>
+  <div class="modalbox" role="dialog" aria-modal="true" aria-labelledby="save-title">
+    <h2 id="save-title">Salvataggio</h2>
+    <p class="hint">I progressi restano in questo browser, su questo dispositivo. Da qui
+      puoi portarteli altrove: copia il codice, o scaricalo come file.</p>
+    <p class="riepilogo" id="save-sum">—</p>
+
+    <label class="opt" for="save-code">Il tuo codice di salvataggio
+      <textarea id="save-code" rows="3" readonly spellcheck="false"></textarea>
+    </label>
+    <div class="acts">
+      <button id="btn-copy">Copia il codice</button>
+      <button id="btn-dl">Scarica come file</button>
+    </div>
+
+    <h3>Ripristina da un codice</h3>
+    <p class="hint">Incolla qui un codice salvato prima. <b>Sovrascrive i progressi di
+      questo browser</b>, e una partita in corso viene abbandonata.</p>
+    <label class="opt" for="load-code">Codice da ripristinare
+      <textarea id="load-code" rows="3" spellcheck="false" placeholder="INSECTRON-…"></textarea>
+    </label>
+    <p class="esito" id="save-msg" role="status"></p>
+    <div class="acts">
+      <button id="btn-file">Apri da file</button>
+      <button id="btn-restore" class="primary">Ripristina</button>
+      <button id="btn-savecls">Chiudi</button>
+    </div>
+    <input type="file" id="save-file" accept=".txt,.json,text/plain,application/json" hidden>
+  </div>
+</div>
 
 <!-- ============ PASSAGGIO DEL DISPOSITIVO ============ -->
 <div class="pass" id="pass" hidden>
@@ -1018,27 +1076,111 @@ const at = (x,y) => S.units.find(u => u.alive && u.x === x && u.y === y);
 const alive = side => S.units.filter(u => u.alive && u.side === side);
 const kingOf = side => S.units.find(u => u.alive && u.side === side && u.isKing);
 
-function save(){
+/* =========================================================================
+   SALVATAGGIO
+   I progressi vivono in localStorage, che e' legato al browser E all'indirizzo:
+   cambiando dominio non seguono. Per questo esistono l'esportazione e il
+   ripristino, che sono anche l'unica copia di sicurezza possibile senza account.
+
+   Ogni salvataggio porta il numero di versione dello schema. Serve a due cose:
+   leggere i salvataggi vecchi quando la forma dei dati cambia, e rifiutare quelli
+   scritti da una versione futura del gioco invece di interpretarli a caso.
+   ========================================================================= */
+const SCHEMA = 1;                                 /* alzare quando cambia la forma dei dati */
+const CHIAVE = "insectron";
+const MARCA = "INSECTRON-";                       /* prefisso dei codici esportati */
+
+function datiSalvataggio(){
   /* Mentre sceglie il secondo giocatore la squadra a schermo non e' quella del
      torneo: si salva la copia messa da parte, altrimenti la carriera la perde. */
-  const t = S.careerHeld ? S.career.team : S.team;
-  const k = S.careerHeld ? S.career.king : S.kingId;
-  try { localStorage.setItem("insectron", JSON.stringify(
-    {r:S.rankIdx, n:S.round, t:t, k:k, c:S.champion ? 1 : 0,
-     a:S.lvl.e||0, ap:S.lvl.p||0, v:S.vs})); }
+  return {
+    sv: SCHEMA,
+    r: S.rankIdx, n: S.round,
+    t: S.careerHeld ? S.career.team : S.team,
+    k: S.careerHeld ? S.career.king : S.kingId,
+    c: S.champion ? 1 : 0,
+    a: S.lvl.e || 0, ap: S.lvl.p || 0, v: S.vs
+  };
+}
+function save(){
+  try { localStorage.setItem(CHIAVE, JSON.stringify(datiSalvataggio())); }
   catch(e){ /* storage non disponibile: la partita resta valida in sessione */ }
 }
+/* Porta un salvataggio alla forma corrente. Torna null se non e' leggibile e la
+   stringa "futuro" se arriva da una versione piu' recente del gioco. */
+function migra(v){
+  if (!v || typeof v !== "object" || !Array.isArray(v.t)) return null;
+  const sv = v.sv === undefined ? 0 : (v.sv|0);
+  if (sv > SCHEMA) return "futuro";
+  /* v0 -> v1: stessi campi, mancava solo il numero di versione. Le migrazioni
+     future si aggiungono qui, una per gradino. */
+  return { sv: SCHEMA, r: v.r|0, n: v.n|0, t: v.t.slice(), k: v.k,
+           c: v.c ? 1 : 0, a: (v.a|0) || 0, ap: (v.ap|0) || 0, v: v.v };
+}
+/* Applica un salvataggio gia' migrato allo stato del gioco. */
+function applica(d){
+  S.rankIdx = Math.max(0, Math.min(RANKS.length - 1, d.r|0));
+  S.round = Math.max(0, Math.min(4, d.n|0));
+  S.champion = !!d.c;
+  S.lvl = { e: (d.a|0) || 0, p: (d.ap|0) || 0 };
+  if (MODES[d.v]) S.vs = d.v;
+  S.team = d.t.filter(id => byId[id] && unlocked(byId[id]));
+  S.kingId = S.team.includes(d.k) ? d.k : (S.team[0] || null);
+  S.look = S.team[0] || null;
+}
+let saveFuturo = false;                           /* salvataggio piu' recente del gioco */
 function load(){
   try {
-    const v = JSON.parse(localStorage.getItem("insectron") || "null");
-    if (v && Array.isArray(v.t)){
-      S.rankIdx = v.r|0; S.round = v.n|0; S.champion = !!v.c;
-      S.lvl = { e: (v.a|0) || 0, p: (v.ap|0) || 0 };
-      if (MODES[v.v]) S.vs = v.v;
-      S.team = v.t.filter(id => byId[id] && unlocked(byId[id]));
-      S.kingId = S.team.includes(v.k) ? v.k : (S.team[0] || null);
-    }
+    const d = migra(JSON.parse(localStorage.getItem(CHIAVE) || "null"));
+    if (d === "futuro"){ saveFuturo = true; return; }
+    if (d) applica(d);
   } catch(e){ /* dato corrotto o storage bloccato: si riparte da zero */ }
+}
+
+/* --- codice esportabile: testo + impronta, per accorgersi dei troncamenti --- */
+function impronta(txt){                           /* FNV-1a, corta e sufficiente qui */
+  let h = 0x811c9dc5;
+  for (let i = 0; i < txt.length; i++){
+    h ^= txt.charCodeAt(i);
+    h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+  }
+  return h.toString(36);
+}
+function inBase64(txt){
+  const b = new TextEncoder().encode(txt);
+  let out = "";
+  for (let i = 0; i < b.length; i++) out += String.fromCharCode(b[i]);
+  return btoa(out);
+}
+function daBase64(txt){
+  const bin = atob(txt), b = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(b);
+}
+function esporta(){
+  const j = JSON.stringify(datiSalvataggio());
+  return MARCA + inBase64(j) + "." + impronta(j);
+}
+/* Torna {ok:true, dati} oppure {ok:false, perche} con un motivo leggibile. */
+function importa(testo){
+  const t = String(testo || "").replace(/\s+/g, "");
+  if (!t) return { ok:false, perche:"Non hai incollato niente." };
+  if (t.indexOf(MARCA) !== 0) return { ok:false, perche:"Questo non è un codice di Insectron Arena." };
+  const corpo = t.slice(MARCA.length), taglio = corpo.lastIndexOf(".");
+  if (taglio < 0) return { ok:false, perche:"Codice incompleto: manca la parte finale." };
+  let j;
+  try { j = daBase64(corpo.slice(0, taglio)); }
+  catch(e){ return { ok:false, perche:"Codice illeggibile: forse è stato copiato a metà." }; }
+  if (impronta(j) !== corpo.slice(taglio + 1))
+    return { ok:false, perche:"Codice danneggiato: ricopialo per intero." };
+  let v;
+  try { v = JSON.parse(j); } catch(e){ return { ok:false, perche:"Codice illeggibile." }; }
+  const d = migra(v);
+  if (d === "futuro") return { ok:false, perche:"Questo salvataggio viene da una versione più recente del gioco." };
+  if (!d) return { ok:false, perche:"Il codice non contiene una partita valida." };
+  if (!d.t.filter(id => byId[id]).length)
+    return { ok:false, perche:"Nel salvataggio non c'è nessun Insector riconoscibile." };
+  return { ok:true, dati:d };
 }
 
 /* =========================================================================
@@ -2515,6 +2657,83 @@ $("#btn-auto").onclick = () => {
   S.look = S.team[0];
   drawRoster(); drawSlots(); detail(byId[S.look]); save();
 };
+/* --- finestra del salvataggio ------------------------------------------- */
+let fuocoPrima = null;
+function apriSalvataggio(){
+  fuocoPrima = document.activeElement;
+  const R = RANKS[S.rankIdx];
+  $("#save-sum").innerHTML = "Rank <b>" + R.id + "</b> \u00b7 round <b>" + (S.round+1) +
+    "</b>/5 \u00b7 squadra di <b>" + S.team.length + "</b>" +
+    (S.champion ? " \u00b7 <b>campione</b>" : "");
+  $("#save-code").value = esporta();
+  $("#load-code").value = "";
+  messaggio("", "");
+  $("#save-box").hidden = false;
+  $("#btn-copy").focus();
+}
+function chiudiSalvataggio(){
+  $("#save-box").hidden = true;
+  if (fuocoPrima && fuocoPrima.focus) fuocoPrima.focus();
+}
+function messaggio(testo, cls){
+  const el = $("#save-msg");
+  el.textContent = testo;
+  el.className = "esito" + (cls ? " " + cls : "");
+}
+$("#btn-save").onclick = apriSalvataggio;
+$("#btn-savecls").onclick = chiudiSalvataggio;
+$("#save-box").onclick = ev => { if (ev.target === $("#save-box")) chiudiSalvataggio(); };
+document.addEventListener("keydown", ev => {
+  if (ev.key === "Escape" && !$("#save-box").hidden) chiudiSalvataggio();
+});
+$("#btn-copy").onclick = async () => {
+  const area = $("#save-code");
+  try {
+    await navigator.clipboard.writeText(area.value);
+    messaggio("Codice copiato. Incollalo dove vuoi tenerlo al sicuro.", "ok");
+  } catch(e){
+    /* La copia automatica vuole una pagina sicura e il permesso: se manca,
+       si seleziona il testo e si lascia fare all'utente. */
+    area.focus(); area.select();
+    messaggio("Copia bloccata dal browser: il codice è selezionato, premi Ctrl+C (o \u2318C).", "ko");
+  }
+};
+$("#btn-dl").onclick = () => {
+  const oggi = new Date().toISOString().slice(0,10);
+  const blob = new Blob([$("#save-code").value + "\n"], { type:"text/plain;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "insectron-" + oggi + ".txt";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  messaggio("File scaricato: insectron-" + oggi + ".txt", "ok");
+};
+$("#btn-file").onclick = () => $("#save-file").click();
+$("#save-file").onchange = ev => {
+  const f = ev.target.files && ev.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => { $("#load-code").value = String(r.result || "").trim();
+    messaggio("File caricato: ora premi Ripristina.", "ok"); };
+  r.onerror = () => messaggio("Non sono riuscito a leggere il file.", "ko");
+  r.readAsText(f);
+  ev.target.value = "";
+};
+$("#btn-restore").onclick = () => {
+  const esito = importa($("#load-code").value);
+  if (!esito.ok){ messaggio(esito.perche, "ko"); return; }
+  const avanti = S.rankIdx > 0 || S.round > 0 || S.champion || S.team.length;
+  if (avanti && !window.confirm(
+      "Ripristinare questo salvataggio? I progressi attuali di questo browser vengono sovrascritti."))
+    return;
+  applica(esito.dati);
+  S.careerHeld = false; S.setup = "p";
+  save(); leaveMatch(); drawWho(); drawRoster(); drawSlots();
+  detail(S.look ? byId[S.look] : null);
+  chiudiSalvataggio();
+  show("s-team");
+};
+
 $("#btn-reset").onclick = () => {
   backToCareer(); leaveMatch();
   const avanti = S.rankIdx > 0 || S.round > 0 || S.champion;
@@ -2526,6 +2745,13 @@ $("#btn-reset").onclick = () => {
 };
 
 load(); updBadges(); drawRoster(); drawSlots(); detail(null); drawModes();
+if (saveFuturo){
+  /* Meglio una riga onesta che far credere di aver perso tutto: il salvataggio
+     c'e' ancora, e' il gioco a essere piu' vecchio. */
+  $("#roster-hint").innerHTML = "<b>Attenzione:</b> in questo browser c\u2019\u00e8 un salvataggio " +
+    "scritto da una versione pi\u00f9 recente del gioco, e non l\u2019ho aperto per non " +
+    "rovinarlo. Aggiorna la pagina, oppure ricomincia da qui: i progressi restano dove sono.";
+}
 </script>
 <script>
 /* Service worker: da qui in poi il gioco resta disponibile anche senza rete e

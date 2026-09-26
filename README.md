@@ -71,6 +71,30 @@ schermata home come un'app.
 pagine un commento segna dove incollare lo snippet scelto. Cloudflare Web Analytics è
 gratuito e senza cookie, quindi non richiede banner.
 
+## Salvataggi
+
+I progressi (rank, round, squadra, Re, difficoltà scelta) stanno in `localStorage`, in
+una riga di JSON da poche centinaia di byte. Sono quindi legati **a questo browser, su
+questo dispositivo, e a questo indirizzo**: cambiando dominio il browser li considera di
+un altro sito e non li trova più.
+
+Per questo il pulsante **Salvataggio** in testata apre una finestra che:
+
+- mostra un **codice** che contiene tutta la partita, da copiare o scaricare come file;
+- permette di **ripristinare** da un codice incollato o da un file.
+
+È la copia di sicurezza, il modo di passare da telefono a computer, e il ponte da
+attraversare il giorno in cui il sito cambia indirizzo.
+
+Il codice ha una marca (`INSECTRON-`) e un'impronta finale: un codice copiato a metà
+viene rifiutato con un messaggio invece di essere interpretato male.
+
+**Versione dello schema.** Ogni salvataggio porta il campo `sv`. Serve a due cose: leggere
+i salvataggi vecchi quando la forma dei dati cambia, e **rifiutare** quelli scritti da una
+versione futura del gioco invece di interpretarli a caso — in quel caso il gioco lo dice e
+lascia il salvataggio intatto. Quando si cambia la forma dei dati si alza `SCHEMA` in
+`gioca.html` e si aggiunge il gradino di migrazione dentro `migra()`.
+
 ## Sviluppo
 
 Nessun build step e nessuna dipendenza: si apre `gioca.html` nel browser e si lavora.
