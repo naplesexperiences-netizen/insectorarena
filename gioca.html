@@ -382,6 +382,36 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
   position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
   padding:20px;background:rgba(7,11,18,.94);backdrop-filter:blur(3px)
 }
+/* --- gabbie e dispensa --- */
+.sez{font-size:.9rem;color:var(--accent);margin-bottom:9px}
+.gabbie,.dispensa{display:flex;flex-direction:column;gap:7px;max-height:46vh;overflow:auto;padding-right:4px}
+.gab{
+  display:flex;gap:10px;align-items:center;text-align:left;width:100%;
+  background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 11px
+}
+.gab.on{border-color:var(--accent);background:#2a2415}
+.gab .art{width:38px;height:38px;flex:0 0 38px}
+.gab b{font-size:.84rem}
+.gab .st{display:block;font-size:.68rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.vita{height:5px;border-radius:3px;background:#0b0f16;overflow:hidden;margin-top:5px}
+.vita i{display:block;height:100%;background:linear-gradient(90deg,#c44a4a,var(--ok))}
+.cibo{
+  display:flex;gap:9px;align-items:center;text-align:left;width:100%;
+  background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 11px
+}
+.cibo:disabled{opacity:.4}
+.cibo b{font-size:.8rem}
+.cibo .eff{display:block;font-size:.68rem;color:var(--muted)}
+.cibo .q{margin-left:auto;font-size:.74rem;color:var(--accent);font-variant-numeric:tabular-nums}
+.nessuno{font-size:.78rem;color:var(--muted);padding:10px 2px}
+.tag-all{font-size:.6rem;background:#2a2415;border:1px solid var(--accent);color:var(--accent);
+  border-radius:999px;padding:2px 8px;vertical-align:2px}
+.mon.allevato{border-color:#5a4a20}
+.mon.allevato .nm i{font-style:normal;font-size:.6rem;color:var(--accent)}
+.mon.larva{opacity:.75}
+.bonus{font-style:normal;font-size:.7rem;color:var(--ok)}
+.notarella{font-size:.72rem;color:var(--muted);margin-top:9px;line-height:1.5}
+
 /* --- finestra del salvataggio --- */
 .modal{
   position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
@@ -459,9 +489,35 @@ footer.note a{color:var(--accent2)}
   <div class="badge" id="b-rank">Rank <b>E</b></div>
   <div class="badge" id="b-round">Round <b>1</b>/5</div>
   <div class="spacer"></div>
+  <button id="btn-zoo">Gabbie</button>
   <button id="btn-save">Salvataggio</button>
   <button id="btn-reset" class="danger">Azzera torneo</button>
 </header>
+
+<!-- ============ GABBIE: CIBO E CRESCITA ============ -->
+<section id="s-zoo" class="screen">
+  <div class="card">
+    <h2>Gabbie</h2>
+    <p class="hint">Qui crescono i tuoi esemplari. Ogni pasto migliora le statistiche e
+      consuma punti vita: <b>il budget non si rigenera</b>, quindi ogni boccone è una
+      scelta. A sei punti spesi la larva diventa adulta e può combattere.</p>
+    <div class="two">
+      <div>
+        <h3 class="sez">I tuoi esemplari <span class="badge" id="zoo-n">0/12</span></h3>
+        <div class="gabbie" id="gabbie"></div>
+      </div>
+      <div>
+        <h3 class="sez">Dispensa</h3>
+        <p class="hint" id="disp-hint">Il cibo si vince conquistando i rank: quattro per rank, più un Royal Fruit dal Rank B.</p>
+        <div class="dispensa" id="dispensa"></div>
+        <div id="anteprima"></div>
+      </div>
+    </div>
+    <div class="acts" style="margin-top:16px">
+      <button id="btn-zoo-back" class="primary">Torna al roster</button>
+    </div>
+  </div>
+</section>
 
 <!-- ============ CHI GIOCA: MODALITA E DIFFICOLTA ============ -->
 <section id="s-mode" class="screen on">
@@ -676,6 +732,86 @@ const RANKS = [
 
 const NX = 5, NY = 7;                /* campo largo 5 caselle e profondo 7, come l'originale */
 const byId = {}; UNITS.forEach(u => byId[u.id] = u);
+
+/* =========================================================================
+   ALLEVAMENTO — cibo e crescita
+   La tabella e' quella delle fonti, riportata per intero: 22 cibi con effetti
+   su vita/forza/difesa, sulle sei resistenze, e il costo in punti vita.
+   Due cose la rendono una meccanica e non un distributore di bonus: alcuni
+   cibi *tolgono*, e ogni esemplare ha un budget di vita che non si rigenera.
+
+   Le resistenze si accumulano ma in battaglia non contano ancora: arrivano
+   con la loro implementazione, e intanto la scheda lo dice invece di fingere.
+   ========================================================================= */
+/* Il budget di vita e la soglia di adulto sono **scalati**, non copiati.
+   Nell'originale sono 160 e 20 punti, ma li' il cibo si compra e si gioca per
+   decine di ore: la scarsita' e' il tempo. Qui il cibo si vince e una carriera
+   dura mezz'ora, quindi con quei numeri il budget non morderebbe mai e le
+   scelte sarebbero finte. Scalati sull'economia reale del torneo tornano a
+   contare: un esemplare cresciuto e' il progetto di una carriera intera. */
+const VITA_MAX = 40;
+const VITA_ADULTO = 6;                            /* punti da spendere per uscire dallo stato di larva */
+const MAX_GABBIE = 12;                            /* oltre, la schermata diventa un magazzino */
+const RES = ["kb","cf","ct","ex","th","po"];
+const RES_NOME = { kb:"Knockback", cf:"Confusione", ct:"Taglio", ex:"Esplosione", th:"Lancio", po:"Veleno" };
+
+const CIBI = {
+  "Battle Feed":          { hp:0, str:0, def:0, r:{},                                    vita:1 },
+  "Dark Onyx":            { hp:0, str:0, def:2, r:{},                                    vita:1 },
+  "Diamond":              { hp:0, str:0, def:2, r:{},                                    vita:1 },
+  "Edensia":              { hp:2, str:1, def:0, r:{kb:1,cf:1,ct:1,ex:1,th:-1,po:-1},     vita:2 },
+  "Electric Eel":         { hp:0, str:0, def:0, r:{ex:2},                                vita:1 },
+  "Firestone":            { hp:0, str:2, def:0, r:{},                                    vita:1 },
+  "Hard Candy":           { hp:0, str:0, def:0, r:{th:2},                                vita:1 },
+  "Juraikan Coffee Beans":{ hp:0, str:0, def:0, r:{cf:2},                                vita:1 },
+  "Lapis Lazuli":         { hp:5, str:0, def:0, r:{},                                    vita:1 },
+  "Mellow Banana":        { hp:5, str:0, def:0, r:{},                                    vita:1 },
+  "Nebula Opal":          { hp:5, str:0, def:0, r:{},                                    vita:1 },
+  "Primeval Beef":        { hp:0, str:2, def:0, r:{},                                    vita:1 },
+  "Pirate\u2019s Grog":       { hp:0, str:0, def:2, r:{},                                    vita:1 },
+  "Royal Fruit":          { hp:5, str:2, def:2, r:{kb:2,cf:2,ct:2,ex:2,th:2,po:2},       vita:1 },
+  "Ruby":                 { hp:0, str:2, def:0, r:{},                                    vita:1 },
+  "Sanchez Fruit":        { hp:3, str:1, def:1, r:{},                                    vita:3 },
+  "Seventhmoon":          { hp:1, str:0, def:0, r:{kb:-1,cf:1,ct:1,ex:1,th:1,po:1},      vita:3 },
+  "Smoked Rainbow Newt":  { hp:0, str:0, def:0, r:{ct:2},                                vita:1 },
+  "Stella Crystal":       { hp:2, str:0, def:1, r:{kb:1,cf:1,ct:-1,ex:-1,th:1,po:1},     vita:2 },
+  "Sticky Gum":           { hp:0, str:0, def:0, r:{kb:2},                                vita:1 },
+  "Ultraspicy Pepper":    { hp:0, str:0, def:0, r:{po:2},                                vita:1 },
+  "Yago Milk":            { hp:1, str:0, def:0, r:{kb:1,cf:-1,ct:1,ex:1,th:1,po:1},      vita:2 }
+};
+/* Premi del torneo. Solo cibi che in battaglia fanno gia' qualcosa: distribuire
+   quelli che agiscono sulle sole resistenze sarebbe dare oggetti inerti.
+   Le quantita' sono misurate, non scelte a occhio (vedi la nota sull'equilibrio
+   nel README). Il cibo arriva **conquistando un rank**, non a ogni round: cosi'
+   ha un suo momento e non diventa pioggia. */
+const CIBI_PREMIO = ["Sanchez Fruit","Firestone","Ruby","Primeval Beef","Dark Onyx","Diamond",
+  "Pirate\u2019s Grog","Yago Milk","Lapis Lazuli","Mellow Banana","Nebula Opal","Edensia","Stella Crystal"];
+const PREMIO_RANK = 4;                            /* cibi per rank conquistato */
+
+/* Un esemplare allevato. La squadra puo' contenere sia definizioni del roster
+   ("knife_beetle") sia esemplari ("@s3"): defOf() scioglie le due forme. */
+let ZOO_SEQ = 0;
+function nuovoEsemplare(id){
+  return { u: "s" + (++ZOO_SEQ), id: id, b: { hp:0, str:0, def:0 },
+           res: { kb:0, cf:0, ct:0, ex:0, th:0, po:0 }, speso: 0 };
+}
+const esemplare = ref => typeof ref === "string" && ref[0] === "@"
+  ? S.zoo.find(e => e.u === ref.slice(1)) : null;
+function defOf(ref){
+  const e = esemplare(ref);
+  return e ? byId[e.id] : byId[ref];
+}
+/* Statistiche effettive: quelle della famiglia piu' quello che ha mangiato. */
+function statsOf(ref){
+  const d = defOf(ref); if (!d) return null;
+  const e = esemplare(ref);
+  return { hp: d.hp + (e ? e.b.hp : 0), str: d.str + (e ? e.b.str : 0), def: d.def + (e ? e.b.def : 0) };
+}
+const vitaResidua = e => VITA_MAX - e.speso;
+const adulto = e => e.speso >= VITA_ADULTO;
+const nomeEsemplare = e => byId[e.id].name;
+/* Quanti esemplari di quella definizione si stanno gia' allevando. */
+const inGabbia = id => S.zoo.filter(e => e.id === id).length;
 
 /* =========================================================================
    GRAFICA — SVG originali, una silhouette per famiglia
@@ -1059,6 +1195,7 @@ const S = {
   duo: { p: { team: [], king: null }, e: { team: [], king: null } },
   names: { p: "Giocatore 1", e: "Giocatore 2" },
   setup: "p", deploySide: "p", careerHeld: false,
+  zoo: [], dispensa: {}, nutri: null,             /* esemplari allevati, cibo in magazzino, chi si sta nutrendo */
   career: { team: [], king: null }
 };
 const duoMode = () => S.vs === "hvh";
@@ -1086,7 +1223,7 @@ const kingOf = side => S.units.find(u => u.alive && u.side === side && u.isKing)
    leggere i salvataggi vecchi quando la forma dei dati cambia, e rifiutare quelli
    scritti da una versione futura del gioco invece di interpretarli a caso.
    ========================================================================= */
-const SCHEMA = 1;                                 /* alzare quando cambia la forma dei dati */
+const SCHEMA = 2;                                 /* alzare quando cambia la forma dei dati */
 const CHIAVE = "insectron";
 const MARCA = "INSECTRON-";                       /* prefisso dei codici esportati */
 
@@ -1099,7 +1236,8 @@ function datiSalvataggio(){
     t: S.careerHeld ? S.career.team : S.team,
     k: S.careerHeld ? S.career.king : S.kingId,
     c: S.champion ? 1 : 0,
-    a: S.lvl.e || 0, ap: S.lvl.p || 0, v: S.vs
+    a: S.lvl.e || 0, ap: S.lvl.p || 0, v: S.vs,
+    z: S.zoo, p: S.dispensa                       /* gabbie e dispensa (schema 2) */
   };
 }
 function save(){
@@ -1112,10 +1250,22 @@ function migra(v){
   if (!v || typeof v !== "object" || !Array.isArray(v.t)) return null;
   const sv = v.sv === undefined ? 0 : (v.sv|0);
   if (sv > SCHEMA) return "futuro";
-  /* v0 -> v1: stessi campi, mancava solo il numero di versione. Le migrazioni
-     future si aggiungono qui, una per gradino. */
+  /* v0 -> v1: stessi campi, mancava solo il numero di versione.
+     v1 -> v2: arrivano gabbie e dispensa; chi giocava prima riparte con
+     entrambe vuote e non perde niente del torneo. Le migrazioni future si
+     aggiungono qui, una per gradino. */
+  const zoo = Array.isArray(v.z) ? v.z.filter(e => e && byId[e.id]).map(e => ({
+    u: String(e.u || ""), id: e.id,
+    b: { hp:(e.b&&e.b.hp)|0, str:(e.b&&e.b.str)|0, def:(e.b&&e.b.def)|0 },
+    res: RES.reduce((o,k) => (o[k] = (e.res && e.res[k])|0, o), {}),
+    speso: Math.max(0, Math.min(VITA_MAX, (e.speso|0)))
+  })) : [];
+  const disp = {};
+  if (v.p && typeof v.p === "object")
+    Object.keys(v.p).forEach(k => { if (CIBI[k] && (v.p[k]|0) > 0) disp[k] = v.p[k]|0; });
   return { sv: SCHEMA, r: v.r|0, n: v.n|0, t: v.t.slice(), k: v.k,
-           c: v.c ? 1 : 0, a: (v.a|0) || 0, ap: (v.ap|0) || 0, v: v.v };
+           c: v.c ? 1 : 0, a: (v.a|0) || 0, ap: (v.ap|0) || 0, v: v.v,
+           z: zoo, p: disp };
 }
 /* Applica un salvataggio gia' migrato allo stato del gioco. */
 function applica(d){
@@ -1124,7 +1274,13 @@ function applica(d){
   S.champion = !!d.c;
   S.lvl = { e: (d.a|0) || 0, p: (d.ap|0) || 0 };
   if (MODES[d.v]) S.vs = d.v;
-  S.team = d.t.filter(id => byId[id] && unlocked(byId[id]));
+  S.zoo = d.z || [];
+  S.dispensa = d.p || {};
+  /* gli identificativi degli esemplari devono restare unici anche dopo un
+     ripristino: si riparte a contare da quello piu' alto trovato */
+  ZOO_SEQ = S.zoo.reduce((m,e) => Math.max(m, parseInt(String(e.u).slice(1), 10) || 0), 0);
+  S.team = d.t.filter(ref => { const dd = defOf(ref);
+    return dd && (esemplare(ref) ? adulto(esemplare(ref)) : unlocked(dd)); });
   S.kingId = S.team.includes(d.k) ? d.k : (S.team[0] || null);
   S.look = S.team[0] || null;
 }
@@ -1178,9 +1334,117 @@ function importa(testo){
   const d = migra(v);
   if (d === "futuro") return { ok:false, perche:"Questo salvataggio viene da una versione più recente del gioco." };
   if (!d) return { ok:false, perche:"Il codice non contiene una partita valida." };
-  if (!d.t.filter(id => byId[id]).length)
+  if (d.t.length && !d.t.filter(ref => byId[ref] || (Array.isArray(d.z) && d.z.some(e => "@" + e.u === ref))).length)
     return { ok:false, perche:"Nel salvataggio non c'è nessun Insector riconoscibile." };
   return { ok:true, dati:d };
+}
+
+/* =========================================================================
+   GABBIE — si sceglie un esemplare, si sceglie un cibo, si vede cosa succede
+   prima di confermare. Stessa regola della scheda del roster: si conferma, non
+   si subisce.
+   ========================================================================= */
+function apriGabbie(u){
+  S.nutri = u || (S.zoo[0] && S.zoo[0].u) || null;
+  drawGabbie(); show("s-zoo");
+}
+function effettiCibo(c){
+  const p = [];
+  if (c.hp)  p.push("+" + c.hp + " vita");
+  if (c.str) p.push("+" + c.str + " forza");
+  if (c.def) p.push("+" + c.def + " difesa");
+  const res = RES.filter(k => c.r[k]).map(k => (c.r[k] > 0 ? "+" : "") + c.r[k] + " " + RES_NOME[k]);
+  if (res.length) p.push(res.join(", "));
+  return p.length ? p.join(" \u00b7 ") : "nessun effetto sulle statistiche";
+}
+function drawGabbie(){
+  const box = $("#gabbie"); box.innerHTML = "";
+  $("#zoo-n").textContent = S.zoo.length + "/" + MAX_GABBIE;
+  if (!S.zoo.length){
+    box.innerHTML = '<p class="nessuno">Nessun esemplare. Dal roster, scegli un Insector ' +
+      'sbloccato e premi <b>Alleva un esemplare</b>: nasce una larva con le statistiche base.</p>';
+  }
+  S.zoo.forEach(e => {
+    const u = byId[e.id], st = statsOf("@" + e.u);
+    const b = document.createElement("button");
+    b.className = "gab" + (S.nutri === e.u ? " on" : "");
+    b.dataset.u = e.u;
+    b.innerHTML = art(u.fam, false, u.rank) +
+      '<span class="grow"><b>' + u.name + '</b> <span class="tag-all">' +
+        (adulto(e) ? "adulto" : "larva") + '</span>' +
+      '<span class="st">' + st.hp + "hp \u00b7 " + st.str + "str \u00b7 " + st.def + "def" +
+        ' \u00b7 vita ' + vitaResidua(e) + '/' + VITA_MAX + '</span>' +
+      '<span class="vita"><i style="width:' + (vitaResidua(e) / VITA_MAX * 100) + '%"></i></span></span>';
+    b.onclick = () => { S.nutri = e.u; drawGabbie(); };
+    box.appendChild(b);
+  });
+  drawDispensa();
+}
+function drawDispensa(){
+  const box = $("#dispensa"); box.innerHTML = "";
+  const e = S.zoo.find(x => x.u === S.nutri);
+  const nomi = Object.keys(S.dispensa).filter(n => S.dispensa[n] > 0).sort();
+  if (!nomi.length){
+    box.innerHTML = '<p class="nessuno">Dispensa vuota. Il cibo arriva conquistando un rank ' +
+      'del torneo: quattro cibi, pi\u00f9 un Royal Fruit dal Rank B in su.</p>';
+  }
+  nomi.forEach(n => {
+    const c = CIBI[n];
+    const b = document.createElement("button");
+    b.className = "cibo";
+    b.dataset.cibo = n;
+    b.disabled = !e || vitaResidua(e) < c.vita;
+    b.innerHTML = '<span class="grow"><b>' + n + '</b>' +
+      '<span class="eff">' + effettiCibo(c) + ' \u00b7 costa ' + c.vita + ' di vita</span></span>' +
+      '<span class="q">\u00d7' + S.dispensa[n] + '</span>';
+    b.onclick = () => nutriCon(n);
+    box.appendChild(b);
+  });
+  const ant = $("#anteprima");
+  if (!e){ ant.innerHTML = ""; return; }
+  const u = byId[e.id], st = statsOf("@" + e.u);
+  ant.innerHTML = '<p class="notarella">Stai nutrendo <b>' + u.name + '</b>: ' +
+    st.hp + ' vita, ' + st.str + ' forza, ' + st.def + ' difesa. ' +
+    (adulto(e)
+      ? '\u00c8 <b>adulto</b>: gli restano <b>' + vitaResidua(e) + '</b> punti di vita da spendere.'
+      : 'Ancora <b>' + (VITA_ADULTO - e.speso) + '</b> punti e diventa adulto.') +
+    (RES.some(k => e.res[k]) ? '<br>Resistenze accumulate: ' +
+      RES.filter(k => e.res[k]).map(k => RES_NOME[k] + " " + (e.res[k] > 0 ? "+" : "") + e.res[k]).join(", ") +
+      ' \u2014 <i>non contano ancora in battaglia</i>.' : '') + '</p>';
+}
+function nutriCon(nome){
+  const e = S.zoo.find(x => x.u === S.nutri), c = CIBI[nome];
+  if (!e || !c || !(S.dispensa[nome] > 0) || vitaResidua(e) < c.vita) return;
+  const eraLarva = !adulto(e);
+  e.b.hp += c.hp; e.b.str += c.str; e.b.def += c.def;
+  RES.forEach(k => { if (c.r[k]) e.res[k] += c.r[k]; });
+  /* Le statistiche non scendono mai sotto la base della famiglia: i cibi che
+     tolgono agiscono sulle resistenze, non devono poter storpiare l'unita'. */
+  e.b.hp = Math.max(0, e.b.hp); e.b.str = Math.max(0, e.b.str); e.b.def = Math.max(0, e.b.def);
+  e.speso += c.vita;
+  S.dispensa[nome]--;
+  if (S.dispensa[nome] <= 0) delete S.dispensa[nome];
+  save();
+  drawGabbie();
+  if (eraLarva && adulto(e)){
+    const u = byId[e.id];
+    $("#anteprima").innerHTML = '<p class="notarella" style="color:var(--ok)"><b>' + u.name +
+      '</b> è diventato adulto: ora puoi portarlo in squadra dal roster.</p>';
+  }
+}
+/* I premi del torneo diventano cibo vero. Quantita' tenute basse di proposito:
+   l'equilibrio del torneo e' misurato, e il cibo lo sposta. */
+function premiaConCibo(quanti){
+  const pool = CIBI_PREMIO;
+  const presi = [];
+  for (let i = 0; i < quanti; i++){
+    const n = pool[Math.floor(Math.random() * pool.length)];
+    S.dispensa[n] = (S.dispensa[n] || 0) + 1;
+    presi.push(n);
+  }
+  const conta = {};
+  presi.forEach(n => conta[n] = (conta[n] || 0) + 1);
+  return Object.keys(conta).map(n => n + (conta[n] > 1 ? " \u00d7" + conta[n] : "")).join(", ");
 }
 
 /* =========================================================================
@@ -1213,6 +1477,21 @@ function drawRoster(){
     ". Scegline <b>5</b>. " + (S.champion
       ? "Hai sbloccato tutto, Dark Emperor compreso."
       : "Vinci un rank del torneo per sbloccare la generazione successiva.");
+  /* Gli esemplari allevati stanno in cima: sono tuoi, e valgono piu' del catalogo. */
+  S.zoo.forEach(e => {
+    const u = byId[e.id], st = statsOf("@" + e.u), rif = "@" + e.u;
+    const b = document.createElement("button");
+    b.className = "mon allevato" + (S.team.includes(rif) ? " sel" : "")
+      + (adulto(e) ? "" : " larva") + (S.look === rif ? " look" : "");
+    b.innerHTML = art(u.fam, false, u.rank) +
+      '<span class="grow"><span class="nm">' + u.name + ' <i>allevato</i></span>' +
+      '<span class="st">' + (adulto(e)
+        ? st.hp + "hp \u00b7 " + st.str + "str \u00b7 " + st.def + "def"
+        : "larva \u00b7 ancora " + (VITA_ADULTO - e.speso) + " punti") + '</span></span>';
+    b.dataset.id = rif;
+    b.onclick = () => pickLook(rif);
+    r.appendChild(b);
+  });
   UNITS.slice().sort((a,b) => a.rank - b.rank || a.name.localeCompare(b.name)).forEach(u => {
     const ok = unlocked(u);
     const b = document.createElement("button");
@@ -1248,44 +1527,77 @@ function dannoSpeciale(u){
 function pickLook(id){
   const eraTastiera = document.activeElement && document.activeElement.closest("#roster");
   S.look = id;
-  detail(byId[id]);
+  detail(id);
   drawRoster();
   if (eraTastiera){
     const b = document.querySelector('#roster [data-id="' + id + '"]');
     if (b) b.focus();
   }
 }
-function detail(u){
+/* La scheda accetta un riferimento: una definizione del roster ("mantis") o un
+   esemplare allevato ("@s3"). */
+function detail(rif){
   const el = $("#detail");
+  const u = typeof rif === "string" ? defOf(rif) : rif;
+  const e = typeof rif === "string" ? esemplare(rif) : null;
+  const ref = typeof rif === "string" ? rif : (u && u.id);
   if (!u){
     el.innerHTML = '<div class="sheet"><div class="vuota"><b>Scegli il tuo primo Insector.</b><br>' +
       'Tocca una scheda del roster: qui trovi cosa sa fare, poi confermi per metterlo in squadra.</div></div>';
     return;
   }
-  const f = FAMS[u.fam], ok = unlocked(u), dentro = S.team.includes(u.id);
+  const f = FAMS[u.fam], ok = unlocked(u), dentro = S.team.includes(ref);
   const piena = S.team.length >= 5;
+  const st = e ? statsOf(ref) : { hp:u.hp, str:u.str, def:u.def };
+  const piu = (v, b) => v + (b ? ' <i class="bonus">+' + b + '</i>' : '');
+  const puoiAllevare = ok && !e && S.zoo.length < MAX_GABBIE;
   el.innerHTML =
     '<div class="sheet">' +
       '<div class="row">' + art(u.fam, false, u.rank) +
-        '<div><h3>' + u.name + '</h3><div class="fam">' + u.fam + ' · rank ' + u.rank + '</div></div></div>' +
-      (ok ? '' : '<div class="locked">\u{1F512} ' + lockNote(u) + '</div>') +
+        '<div><h3>' + u.name + (e ? ' <span class="tag-all">allevato</span>' : '') +
+        '</h3><div class="fam">' + u.fam + ' · rank ' + u.rank +
+        (e ? ' · ' + (adulto(e) ? 'adulto' : 'larva') + ', vita ' + vitaResidua(e) + '/' + VITA_MAX : '') +
+        '</div></div></div>' +
+      (ok || e ? '' : '<div class="locked">\u{1F512} ' + lockNote(u) + '</div>') +
+      (e && !adulto(e) ? '<div class="locked">\u{1F423} \u00c8 una larva: nutrila ancora ' +
+        (VITA_ADULTO - e.speso) + ' punti di vita perch\u00e9 possa combattere.</div>' : '') +
       '<div class="desc">' + u.desc + '</div>' +
-      '<div class="num"><div>VITA<b>' + u.hp + '</b></div>' +
-        '<div>FORZA<b>' + u.str + '</b></div><div>DIFESA<b>' + u.def + '</b></div></div>' +
-      '<div class="line"><span>Attacco</span><span><b>' + dannoBase(u) + '</b> di danno</span></div>' +
+      '<div class="num"><div>VITA<b>' + piu(u.hp, e && e.b.hp) + '</b></div>' +
+        '<div>FORZA<b>' + piu(u.str, e && e.b.str) + '</b></div>' +
+        '<div>DIFESA<b>' + piu(u.def, e && e.b.def) + '</b></div></div>' +
+      '<div class="line"><span>Attacco</span><span><b>' + Math.round(st.str * 2) + '</b> di danno</span></div>' +
       '<div class="line"><span>Movimento</span><span>' + moveLabel(u.mv) + '</span></div>' +
       '<div class="line"><span>' + f.spn + '</span><span>' + f.spd + '</span></div>' +
       '<div class="line"><span>Danno speciale</span><span><b>' + dannoSpeciale(u) + '</b></span></div>' +
       '<div class="acts">' +
         (dentro
           ? '<button id="btn-tolgo">Togli dalla squadra</button>'
-          : '<button id="btn-metto" class="primary"' + (ok && !piena ? '' : ' disabled') + '>' +
-            (!ok ? 'Bloccato' : (piena ? 'Squadra al completo' : 'Aggiungi alla squadra')) + '</button>') +
+          : '<button id="btn-metto" class="primary"' +
+            ((e ? adulto(e) : ok) && !piena ? '' : ' disabled') + '>' +
+            (e && !adulto(e) ? '\u00c8 ancora una larva'
+              : (!e && !ok ? 'Bloccato'
+                : (piena ? 'Squadra al completo' : 'Aggiungi alla squadra'))) + '</button>') +
+        (e ? '<button id="btn-vaigabbie">Nutri nelle gabbie</button>'
+           : '<button id="btn-alleva"' + (puoiAllevare ? '' : ' disabled') + '>' +
+             (S.zoo.length >= MAX_GABBIE ? 'Gabbie piene' : 'Alleva un esemplare') + '</button>') +
       '</div>' +
+      (e ? '' : '<p class="notarella">Allevare parte da una larva con le statistiche base: cresce ' +
+        'con il cibo che vinci nel torneo, e pu\u00f2 superare di molto l\u2019esemplare del roster.</p>') +
     '</div>';
   const add = $("#btn-metto"), rem = $("#btn-tolgo");
-  if (add) add.onclick = () => toggle(u.id);
-  if (rem) rem.onclick = () => toggle(u.id);
+  if (add) add.onclick = () => toggle(ref);
+  if (rem) rem.onclick = () => toggle(ref);
+  const all = $("#btn-alleva");
+  if (all) all.onclick = () => {
+    if (S.zoo.length >= MAX_GABBIE) return;
+    const nuovo = nuovoEsemplare(u.id);
+    S.zoo.push(nuovo); save();
+    S.look = "@" + nuovo.u;
+    drawRoster(); drawSlots(); detail(S.look);
+    apriGabbie(nuovo.u);
+  };
+  const vai = $("#btn-vaigabbie");
+  if (vai) vai.onclick = () => apriGabbie(e.u);
 }
 function moveLabel(mv){
   return { step:"1 casella in tutte le direzioni (3×3)",
@@ -1294,19 +1606,20 @@ function moveLabel(mv){
            charge:"1 casella ovunque, oppure 2 in linea retta in una delle 8 direzioni" }[mv];
 }
 function toggle(id){
-  if (!unlocked(byId[id])) return;
+  const e = esemplare(id);
+  if (e ? !adulto(e) : !unlocked(byId[id])) return;
   const i = S.team.indexOf(id);
   if (i >= 0){ S.team.splice(i,1); if (S.kingId === id) S.kingId = null; }
   else if (S.team.length < 5){ S.team.push(id); }
   S.look = id;
-  detail(byId[id]); drawRoster(); drawSlots(); save();
+  detail(id); drawRoster(); drawSlots(); save();
   const b = document.querySelector("#btn-metto") || document.querySelector("#btn-tolgo");
   if (b) b.focus();
 }
 function drawSlots(){
   const el = $("#slots"); el.innerHTML = "";
   for (let i = 0; i < 5; i++){
-    const id = S.team[i], u = id && byId[id];
+    const id = S.team[i], u = id && defOf(id);
     const d = document.createElement("div");
     d.className = "slot" + (u ? " full" : "");
     if (!u){ d.textContent = "Slot " + (i+1) + " libero"; }
@@ -1332,19 +1645,20 @@ function drawSlots(){
 function drawBrief(){
   const el = $("#brief"); el.innerHTML = "";
   S.team.forEach(id => {
-    const u = byId[id], f = FAMS[u.fam], isK = S.kingId === id;
+    const u = defOf(id), st = statsOf(id), e = esemplare(id), f = FAMS[u.fam], isK = S.kingId === id;
     const b = document.createElement("button");
     b.className = "bcard" + (isK ? " re" : "");
     b.setAttribute("aria-pressed", isK ? "true" : "false");
     b.innerHTML =
       '<span class="top">' + art(u.fam, false, u.rank) +
-        '<span><h4>' + (isK ? "\u265B " : "") + u.name + '</h4>' +
+        '<span><h4>' + (isK ? "\u265B " : "") + u.name +
+        (e ? ' <span class="tag-all">allevato</span>' : '') + '</h4>' +
         '<span class="fam">' + u.fam + ' · rank ' + u.rank + '</span></span></span>' +
-      '<span class="num"><span><div>VITA<b>' + u.hp + '</b></div></span>' +
-        '<span><div>FORZA<b>' + u.str + '</b></div></span>' +
-        '<span><div>DIFESA<b>' + u.def + '</b></div></span></span>' +
+      '<span class="num"><span><div>VITA<b>' + st.hp + '</b></div></span>' +
+        '<span><div>FORZA<b>' + st.str + '</b></div></span>' +
+        '<span><div>DIFESA<b>' + st.def + '</b></div></span></span>' +
       '<span class="sp"><b>' + f.spn + '</b> — ' + f.spd + '<br>' +
-        'Attacco <b>' + dannoBase(u) + '</b> · speciale <b>' + dannoSpeciale(u) + '</b><br>' +
+        'Attacco <b>' + Math.round(st.str * 2) + '</b> · speciale <b>' + dannoSpeciale(u) + '</b><br>' +
         'Movimento: ' + moveLabel(isK ? "step" : u.mv) + '</span>' +
       '<span class="kbtn" style="text-align:center;padding:8px;border-radius:8px;' +
         (isK ? 'background:var(--accent);color:#231a04;font-weight:bold' : 'background:var(--panel);color:var(--muted)') +
@@ -1489,7 +1803,7 @@ function modeGo(){
   save();
   backToCareer();                                 /* se si arriva da una partita in due */
   S.setup = "p";
-  drawWho(); drawRoster(); drawSlots(); detail(S.look ? byId[S.look] : null);
+  drawWho(); drawRoster(); drawSlots(); detail(S.look || null);
   show("s-team");
 }
 function enterSetup(side){
@@ -1497,7 +1811,7 @@ function enterSetup(side){
   S.team = S.duo[side].team.slice();
   S.kingId = S.duo[side].king;
   S.look = S.team[0] || null;
-  drawWho(); drawRoster(); drawSlots(); detail(S.look ? byId[S.look] : null);
+  drawWho(); drawRoster(); drawSlots(); detail(S.look || null);
   show("s-team");
 }
 function commitSetup(){ S.duo[S.setup] = { team: S.team.slice(), king: S.kingId }; }
@@ -1541,8 +1855,8 @@ function drawWho(){
 function startDuo(){
   S.matchMode = "hvh";
   S.units = [];
-  S.duo.p.team.forEach(id => S.units.push(mk(byId[id], "p", id === S.duo.p.king, 1)));
-  S.duo.e.team.forEach(id => S.units.push(mk(byId[id], "e", id === S.duo.e.king, 1)));
+  S.duo.p.team.forEach(ref => S.units.push(mk(ref, "p", ref === S.duo.p.king, 1)));
+  S.duo.e.team.forEach(ref => S.units.push(mk(ref, "e", ref === S.duo.e.king, 1)));
   S.units.forEach(u => { u.x = -1; u.y = -1; });
   S.turn = "p"; S.sel = null; S.mode = "idle"; S.over = false; S.busy = false;
   S.phase = "deploy"; S.pick = null; S.deploySide = "p";
@@ -1564,7 +1878,7 @@ function startPvp(){
   S.matchMode = "pvp";
   const R = RANKS[S.rankIdx];
   S.units = [];
-  S.team.forEach(id => S.units.push(mk(byId[id], "p", id === S.kingId, 1)));
+  S.team.forEach(ref => S.units.push(mk(ref, "p", ref === S.kingId, 1)));
   buildEnemy().forEach(u => S.units.push(u));
   const cols = [0,2,4,1,3];
   alive("p").forEach((u,i) => { u.x = cols[i]; u.y = i < 3 ? NY-1 : NY-2; });
@@ -1589,12 +1903,19 @@ function startPvp(){
 /* =========================================================================
    COSTRUZIONE BATTAGLIA
    ========================================================================= */
-function mk(def, side, isKing, mul){
+/* `rif` e' una definizione del roster oppure un esemplare allevato: nel secondo
+   caso le statistiche portano in campo quello che ha mangiato. Il moltiplicatore
+   del rank vale sulla base, non sui bonus: il cibo non si moltiplica. */
+function mk(rif, side, isKing, mul){
+  const def = rif && rif.id !== undefined && rif.hp !== undefined ? rif : defOf(rif);
+  const e = rif && rif.hp === undefined ? esemplare(rif) : null;
+  const b = e ? e.b : { hp:0, str:0, def:0 };
+  const vita = Math.round(def.hp * mul) + b.hp;
   return {
     uid: side + "_" + def.id + "_" + Math.random().toString(36).slice(2,7),
-    d: def, side: side, isKing: isKing, alive: true,
-    maxHp: Math.round(def.hp * mul), hp: Math.round(def.hp * mul),
-    str: Math.round(def.str * mul), dfn: Math.round(def.def * mul),
+    d: def, side: side, isKing: isKing, alive: true, allevato: !!e,
+    maxHp: vita, hp: vita,
+    str: Math.round(def.str * mul) + b.str, dfn: Math.round(def.def * mul) + b.def,
     x: 0, y: 0, acted: false, moved: false, stun: 0, cd: 0, guard: 0, exposed: false
   };
 }
@@ -1613,7 +1934,7 @@ function startBattle(){
   S.matchMode = "hvp";
   const R = RANKS[S.rankIdx];
   S.units = [];
-  S.team.forEach(id => S.units.push(mk(byId[id], "p", id === S.kingId, 1)));
+  S.team.forEach(ref => S.units.push(mk(ref, "p", ref === S.kingId, 1)));
   buildEnemy().forEach(u => S.units.push(u));
 
   /* Le pedine del giocatore restano fuori dal campo finché non le schiera lui. */
@@ -2295,7 +2616,10 @@ function finish(win){
       S.round = 0;
       const last = S.rankIdx >= RANKS.length - 1;
       $("#r-title").innerHTML = '<span class="win">Rank ' + R.id + ' conquistato!</span>';
-      $("#r-text").innerHTML = "Cinque round vinti di fila. Premio: <b>" + R.prize + "</b>." +
+      const bottino = premiaConCibo(PREMIO_RANK) + (S.rankIdx >= 3 ? ", Royal Fruit" : "");
+      if (S.rankIdx >= 3) S.dispensa["Royal Fruit"] = (S.dispensa["Royal Fruit"] || 0) + 1;
+      $("#r-text").innerHTML = "Cinque round vinti di fila. Premio: <b>" + R.prize +
+        "</b>, e per le gabbie: <b>" + bottino + "</b>." +
         (last ? "<br><br>Hai chiuso il Rank S: il torneo Insectron è tuo. Il <b>Dark Emperor</b> è ora reclutabile."
               : "<br><br>Prossimo traguardo: <b>Rank " + RANKS[S.rankIdx+1].id +
                 "</b> (iscrizione " + RANKS[S.rankIdx+1].fee + "z).");
@@ -2623,22 +2947,22 @@ $("#btn-modego").onclick = modeGo;
 $("#btn-pass").onclick = passDone;
 $("#btn-newteams").onclick = () => {
   backToCareer(); leaveMatch(); drawWho(); drawRoster(); drawSlots();
-  detail(S.look ? byId[S.look] : null); show("s-team");
+  detail(S.look || null); show("s-team");
 };
 $("#btn-end").onclick = endPlayerTurn;
 /* Unica uscita da una partita fra computer: la catena di turni si ferma al primo passo. */
 $("#btn-quit").onclick = () => {
   S.over = true; S.busy = false;
-  leaveMatch(); drawRoster(); drawSlots(); detail(S.look ? byId[S.look] : null); show("s-team");
+  leaveMatch(); drawRoster(); drawSlots(); detail(S.look || null); show("s-team");
 };
 $("#btn-rand").onclick = randomDeploy;
 $("#btn-fight").onclick = beginFight;
 $("#btn-next").onclick = () => {
   if (duoMode()){ startDuo(); return; }          /* rivincita con le stesse squadre */
   if (pcMode()){ startPvp(); return; }           /* un'altra partita di prova */
-  leaveMatch(); drawRoster(); drawSlots(); detail(byId[S.look]); show("s-team");
+  leaveMatch(); drawRoster(); drawSlots(); detail(S.look); show("s-team");
 };
-$("#btn-clear").onclick = () => { S.team = []; S.kingId = null; drawRoster(); drawSlots(); detail(byId[S.look]); save(); };
+$("#btn-clear").onclick = () => { S.team = []; S.kingId = null; drawRoster(); drawSlots(); detail(S.look); save(); };
 $("#btn-auto").onclick = () => {
   const pool = UNITS.filter(unlocked);
   S.team = []; S.kingId = null;
@@ -2653,9 +2977,9 @@ $("#btn-auto").onclick = () => {
     if (!S.team.includes(c.id)) S.team.push(c.id);
   }
   /* Re proposto: il più resistente. Resta modificabile nel riepilogo. */
-  S.kingId = S.team.slice().sort((a,b) => byId[b].hp - byId[a].hp)[0];
+  S.kingId = S.team.slice().sort((a,b) => statsOf(b).hp - statsOf(a).hp)[0];
   S.look = S.team[0];
-  drawRoster(); drawSlots(); detail(byId[S.look]); save();
+  drawRoster(); drawSlots(); detail(S.look); save();
 };
 /* --- finestra del salvataggio ------------------------------------------- */
 let fuocoPrima = null;
@@ -2680,6 +3004,10 @@ function messaggio(testo, cls){
   el.textContent = testo;
   el.className = "esito" + (cls ? " " + cls : "");
 }
+$("#btn-zoo").onclick = () => apriGabbie();
+$("#btn-zoo-back").onclick = () => {
+  drawRoster(); drawSlots(); detail(S.look || null); show("s-team");
+};
 $("#btn-save").onclick = apriSalvataggio;
 $("#btn-savecls").onclick = chiudiSalvataggio;
 $("#save-box").onclick = ev => { if (ev.target === $("#save-box")) chiudiSalvataggio(); };
@@ -2729,7 +3057,7 @@ $("#btn-restore").onclick = () => {
   applica(esito.dati);
   S.careerHeld = false; S.setup = "p";
   save(); leaveMatch(); drawWho(); drawRoster(); drawSlots();
-  detail(S.look ? byId[S.look] : null);
+  detail(S.look || null);
   chiudiSalvataggio();
   show("s-team");
 };

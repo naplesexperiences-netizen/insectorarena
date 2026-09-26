@@ -50,8 +50,8 @@ Non c'è build step: quello che sta qui è quello che viene servito.
 Dopo la prima visita il gioco funziona anche senza rete e si può aggiungere alla
 schermata home come un'app.
 
-> **Quando pubblichi una modifica, alza `VERSIONE` in `sw.js`** (`insectron-v1` →
-> `insectron-v2`). È quello che fa buttare via la cache vecchia: senza, chi ha già
+> **Quando pubblichi una modifica, alza `VERSIONE` in `sw.js`** (`insectron-v2` →
+> `insectron-v3`). È quello che fa buttare via la cache vecchia: senza, chi ha già
 > aperto il sito continua a vedere la versione precedente.
 
 **Collegare un dominio proprio.**
@@ -71,9 +71,38 @@ schermata home come un'app.
 pagine un commento segna dove incollare lo snippet scelto. Cloudflare Web Analytics è
 gratuito e senza cookie, quindi non richiede banner.
 
+## Gabbie e allevamento
+
+Oltre a scegliere gli Insector, si possono **allevare**. Dalla scheda di un'unità nel
+roster, «Alleva un esemplare» crea una **larva** nelle gabbie (al massimo dodici): parte
+con le statistiche base della sua famiglia e non può ancora combattere.
+
+Cresce mangiando. Il cibo si vince **conquistando i rank** — quattro pezzi per rank, più
+un Royal Fruit dal Rank B in su — e finisce nella dispensa. Ogni pasto alza vita, forza e
+difesa, e consuma parte dei **punti di vita** dell'esemplare: sono quaranta in tutto e non
+si recuperano. Spesi i primi sei, la larva diventa **adulta** e può entrare in squadra;
+spesi tutti e quaranta, quell'esemplare è finito com'è.
+
+È lì che sta la scelta: concentrare la dispensa su un solo esemplare o distribuirla.
+L'abbiamo misurata, 200 battaglie per scenario, al Rank S:
+
+| | vittorie al Rank S |
+|---|---|
+| senza allevamento | 20% |
+| tutto su un esemplare | 45% |
+| diviso su due | 47% |
+| sparso su cinque | 61% |
+
+L'allevamento aiuta, non regala la vittoria: il Rank S resta una partita da giocare bene.
+
+Ogni cibo dichiara in dispensa **cosa dà e quanto costa**, prima che tu lo usi. Alcuni
+cibi danno anche **resistenze** (spinta, confusione, fuoco…): la scheda le mostra e dice
+apertamente che **non contano ancora in battaglia**, perché le regole di stato non sono
+implementate. Promettere un effetto che non c'è sarebbe peggio che non averlo.
+
 ## Salvataggi
 
-I progressi (rank, round, squadra, Re, difficoltà scelta) stanno in `localStorage`, in
+I progressi (rank, round, squadra, Re, difficoltà scelta, gabbie e dispensa) stanno in `localStorage`, in
 una riga di JSON da poche centinaia di byte. Sono quindi legati **a questo browser, su
 questo dispositivo, e a questo indirizzo**: cambiando dominio il browser li considera di
 un altro sito e non li trova più.
