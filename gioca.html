@@ -412,6 +412,46 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 .bonus{font-style:normal;font-size:.7rem;color:var(--ok)}
 .notarella{font-size:.72rem;color:var(--muted);margin-top:9px;line-height:1.5}
 
+/* --- mondo: luoghi, trappole, spedizione --- */
+.luogo{
+  display:flex;gap:10px;align-items:center;text-align:left;width:100%;
+  background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 11px
+}
+.luogo.on{border-color:var(--accent2);background:#16242e}
+.luogo .art{width:34px;height:34px;flex:0 0 34px}
+.luogo b{font-size:.84rem}
+.luogo .st{display:block;font-size:.68rem;color:var(--muted)}
+.posta{
+  display:flex;gap:9px;align-items:center;text-align:left;width:100%;
+  background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 11px
+}
+.posta.pronta{border-color:var(--ok)}
+.posta b{font-size:.8rem}
+.posta .st{display:block;font-size:.68rem;color:var(--muted)}
+.posta .q{margin-left:auto;font-size:.72rem;color:var(--accent);white-space:nowrap}
+.scelte{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.scelte button{font-size:.74rem;padding:6px 11px}
+.scelte button.on{border-color:var(--accent);color:var(--accent)}
+.prob{
+  background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+  padding:10px 12px;margin:10px 0;font-size:.76rem
+}
+.prob .grande{font-size:1.5rem;color:var(--accent);font-variant-numeric:tabular-nums;display:block}
+.seme{
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+  background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:12px
+}
+.seme code{
+  font-size:1rem;letter-spacing:3px;color:var(--accent);background:#0b0f16;
+  border-radius:6px;padding:4px 10px
+}
+.seme input{
+  background:#0b0f16;color:var(--text);border:1px solid var(--line);border-radius:6px;
+  padding:6px 10px;font-family:inherit;letter-spacing:2px;text-transform:uppercase;width:120px
+}
+.tag-sel{font-size:.6rem;background:#16242e;border:1px solid var(--accent2);color:var(--accent2);
+  border-radius:999px;padding:2px 8px;vertical-align:2px}
+
 /* --- finestra del salvataggio --- */
 .modal{
   position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
@@ -489,6 +529,7 @@ footer.note a{color:var(--accent2)}
   <div class="badge" id="b-rank">Rank <b>E</b></div>
   <div class="badge" id="b-round">Round <b>1</b>/5</div>
   <div class="spacer"></div>
+  <button id="btn-mondo">Mondo</button>
   <button id="btn-zoo">Gabbie</button>
   <button id="btn-save">Salvataggio</button>
   <button id="btn-reset" class="danger">Azzera torneo</button>
@@ -515,6 +556,42 @@ footer.note a{color:var(--accent2)}
     </div>
     <div class="acts" style="margin-top:16px">
       <button id="btn-zoo-back" class="primary">Torna al roster</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MONDO: CATTURA CON TRAPPOLE ED ESCHE ============ -->
+<section id="s-mondo" class="screen">
+  <div class="card">
+    <h2>Mondo</h2>
+    <p class="hint">Gli Insector non si creano soltanto: si <b>catturano</b>. Scegli dove
+      piazzare la trappola e con quale esca — l&rsquo;esca esce dalla dispensa, quindi è cibo
+      che non darai a nessuno. La trappola resta posata per <b id="mondo-attesa">2</b> partite
+      di torneo, poi si raccoglie.</p>
+    <div class="seme">
+      <span>Questo mondo è <code id="mondo-seme">------</code></span>
+      <button id="btn-seme-copia">Copia</button>
+      <span class="spacer"></span>
+      <input id="seme-in" maxlength="6" placeholder="ABC123" aria-label="Seme di un altro mondo">
+      <button id="btn-seme-va">Gioca questo mondo</button>
+    </div>
+    <p class="hint" id="mondo-nota">Stesso seme, stesso mondo: gli stessi luoghi con gli stessi
+      abitanti, su qualsiasi dispositivo. Cambiarlo ritira le trappole posate; gli esemplari
+      già catturati restano tuoi.</p>
+    <div class="two">
+      <div>
+        <h3 class="sez">I luoghi</h3>
+        <div class="gabbie" id="luoghi"></div>
+        <h3 class="sez" style="margin-top:14px">Trappole posate <span class="badge" id="poste-n">0/3</span></h3>
+        <div class="gabbie" id="poste"></div>
+      </div>
+      <div>
+        <h3 class="sez">La spedizione</h3>
+        <div id="spedizione"></div>
+      </div>
+    </div>
+    <div class="acts" style="margin-top:16px">
+      <button id="btn-mondo-back" class="primary">Torna al roster</button>
     </div>
   </div>
 </section>
@@ -674,56 +751,56 @@ const UNITS = [
   {"id":"dark_emperor","name":"Dark Emperor","fam":"Dark Emperor","rank":1,"hp":300,"str":30,"def":15,"mv":"step","desc":"Fuoriclasse. Atterra col colpo normale e fulmina a distanza senza ricariche."},
   {"id":"drillerpillar","name":"Drillerpillar","fam":"Cutterpillar","rank":4,"hp":140,"str":27,"def":5,"mv":"step","desc":"Ariete. Carica dritto e travolge, ma dopo l'impatto resta esposta."},
   {"id":"dustpan","name":"Dustpan","fam":"Flipperbug","rank":5,"hp":208,"str":33,"def":15,"mv":"step","desc":"Disturbatore. Mette fuori gioco un avversario per due turni e lo lascia scoperto."},
-  {"id":"faerie","name":"Faerie","fam":"Faerie","rank":1,"hp":90,"str":14,"def":5,"mv":"diag","desc":"Sabotatore. Ruba un avversario alla squadra nemica, pagandola con metà della vita."},
-  {"id":"fishface_beetle","name":"Fishface Beetle","fam":"Bazoo Beetle","rank":3,"hp":116,"str":21,"def":8,"mv":"step","desc":"Artiglieria. Colpisce da lontano ma va tenuta al riparo: la difesa è bassa."},
+  {"id":"faerie","name":"Faerie","fam":"Faerie","rank":1,"hp":90,"str":14,"def":5,"mv":"diag","desc":"Sabotatore. Ruba un avversario alla squadra nemica, pagandola con met\u00e0 della vita."},
+  {"id":"fishface_beetle","name":"Fishface Beetle","fam":"Bazoo Beetle","rank":3,"hp":116,"str":21,"def":8,"mv":"step","desc":"Artiglieria. Colpisce da lontano ma va tenuta al riparo: la difesa \u00e8 bassa."},
   {"id":"flipperbug","name":"Flipperbug","fam":"Flipperbug","rank":1,"hp":100,"str":15,"def":6,"mv":"step","desc":"Disturbatore. Mette fuori gioco un avversario per due turni e lo lascia scoperto."},
   {"id":"gum_roller","name":"Gum Roller","fam":"Dung Roller","rank":2,"hp":120,"str":18,"def":8,"mv":"step","desc":"Difensore. Si chiude dietro la palla e ferma due colpi: ottimo candidato come Re."},
-  {"id":"handsome_faerie","name":"Handsome Faerie","fam":"Faerie","rank":2,"hp":108,"str":17,"def":6,"mv":"diag","desc":"Sabotatore. Ruba un avversario alla squadra nemica, pagandola con metà della vita."},
+  {"id":"handsome_faerie","name":"Handsome Faerie","fam":"Faerie","rank":2,"hp":108,"str":17,"def":6,"mv":"diag","desc":"Sabotatore. Ruba un avversario alla squadra nemica, pagandola con met\u00e0 della vita."},
   {"id":"hatchet_beetle","name":"Hatchet Beetle","fam":"Knife Beetle","rank":4,"hp":173,"str":27,"def":14,"mv":"step","desc":"Attaccante di prima linea. Colpo secco su un bersaglio solo, niente fronzoli."},
   {"id":"hercules_beetle","name":"Hercules Beetle","fam":"Hercules Beetle","rank":1,"hp":150,"str":15,"def":8,"mv":"step","desc":"Muro con la spinta. Tanti punti vita e un incorno che sposta chi hai davanti."},
-  {"id":"itsahorse","name":"Itsahorse","fam":"Itsahorse","rank":1,"hp":150,"str":15,"def":7,"mv":"charge","desc":"Mobilità. Due caselle in linea retta in ogni direzione, e calcia davanti e dietro."},
-  {"id":"kaboom_beetle","name":"Kaboom Beetle","fam":"Bazoo Beetle","rank":5,"hp":168,"str":32,"def":12,"mv":"step","desc":"Artiglieria. Colpisce da lontano ma va tenuta al riparo: la difesa è bassa."},
+  {"id":"itsahorse","name":"Itsahorse","fam":"Itsahorse","rank":1,"hp":150,"str":15,"def":7,"mv":"charge","desc":"Mobilit\u00e0. Due caselle in linea retta in ogni direzione, e calcia davanti e dietro."},
+  {"id":"kaboom_beetle","name":"Kaboom Beetle","fam":"Bazoo Beetle","rank":5,"hp":168,"str":32,"def":12,"mv":"step","desc":"Artiglieria. Colpisce da lontano ma va tenuta al riparo: la difesa \u00e8 bassa."},
   {"id":"knife_beetle","name":"Knife Beetle","fam":"Knife Beetle","rank":1,"hp":100,"str":15,"def":8,"mv":"step","desc":"Attaccante di prima linea. Colpo secco su un bersaglio solo, niente fronzoli."},
-  {"id":"mantis","name":"Mantis","fam":"Mantis","rank":1,"hp":80,"str":15,"def":3,"mv":"step","desc":"Danno ad area. Da sola in mezzo a tre nemici vale più di qualsiasi altra unità."},
-  {"id":"miss_mysterious","name":"Miss Mysterious","fam":"Faerie","rank":3,"hp":130,"str":21,"def":8,"mv":"diag","desc":"Sabotatore. Ruba un avversario alla squadra nemica, pagandola con metà della vita."},
+  {"id":"mantis","name":"Mantis","fam":"Mantis","rank":1,"hp":80,"str":15,"def":3,"mv":"step","desc":"Danno ad area. Da sola in mezzo a tre nemici vale pi\u00f9 di qualsiasi altra unit\u00e0."},
+  {"id":"miss_mysterious","name":"Miss Mysterious","fam":"Faerie","rank":3,"hp":130,"str":21,"def":8,"mv":"diag","desc":"Sabotatore. Ruba un avversario alla squadra nemica, pagandola con met\u00e0 della vita."},
   {"id":"narcissus_beetle","name":"Narcissus Beetle","fam":"Hercules Beetle","rank":4,"hp":260,"str":27,"def":14,"mv":"step","desc":"Muro con la spinta. Tanti punti vita e un incorno che sposta chi hai davanti."},
   {"id":"orion_beetle","name":"Orion Beetle","fam":"Hercules Beetle","rank":3,"hp":216,"str":22,"def":32,"mv":"step","desc":"Muro con la spinta. Tanti punti vita e un incorno che sposta chi hai davanti."},
-  {"id":"planet_beetle","name":"Planet Beetle","fam":"Bazoo Beetle","rank":4,"hp":140,"str":26,"def":10,"mv":"step","desc":"Artiglieria. Colpisce da lontano ma va tenuta al riparo: la difesa è bassa."},
+  {"id":"planet_beetle","name":"Planet Beetle","fam":"Bazoo Beetle","rank":4,"hp":140,"str":26,"def":10,"mv":"step","desc":"Artiglieria. Colpisce da lontano ma va tenuta al riparo: la difesa \u00e8 bassa."},
   {"id":"saber_beetle","name":"Saber Beetle","fam":"Knife Beetle","rank":3,"hp":144,"str":22,"def":11,"mv":"step","desc":"Attaccante di prima linea. Colpo secco su un bersaglio solo, niente fronzoli."},
   {"id":"shoveler","name":"Shoveler","fam":"Flipperbug","rank":4,"hp":173,"str":27,"def":12,"mv":"step","desc":"Disturbatore. Mette fuori gioco un avversario per due turni e lo lascia scoperto."},
-  {"id":"slaying_mantis","name":"Slaying Mantis","fam":"Mantis","rank":2,"hp":96,"str":18,"def":4,"mv":"step","desc":"Danno ad area. Da sola in mezzo a tre nemici vale più di qualsiasi altra unità."},
+  {"id":"slaying_mantis","name":"Slaying Mantis","fam":"Mantis","rank":2,"hp":96,"str":18,"def":4,"mv":"step","desc":"Danno ad area. Da sola in mezzo a tre nemici vale pi\u00f9 di qualsiasi altra unit\u00e0."},
   {"id":"spotted_lady","name":"Spotted Lady","fam":"Lady Beetle","rank":3,"hp":116,"str":22,"def":10,"mv":"step","desc":"Sostegno. Non attacca bene, ma tiene in piedi chi ha accanto."},
   {"id":"staggy","name":"Staggy","fam":"Staggy","rank":1,"hp":100,"str":15,"def":8,"mv":"step","desc":"Lanciatore. Non fa danno con la presa: lo fa il muro contro cui scaglia il bersaglio."},
   {"id":"stinger_bill","name":"Stinger Bill","fam":"Cutterpillar","rank":6,"hp":202,"str":40,"def":8,"mv":"step","desc":"Ariete. Carica dritto e travolge, ma dopo l'impatto resta esposta."},
   {"id":"stun_staggy","name":"Stun Staggy","fam":"Staggy","rank":3,"hp":144,"str":22,"def":11,"mv":"step","desc":"Lanciatore. Non fa danno con la presa: lo fa il muro contro cui scaglia il bersaglio."},
-  {"id":"super_mantis","name":"Super Mantis","fam":"Mantis","rank":3,"hp":116,"str":22,"def":5,"mv":"step","desc":"Danno ad area. Da sola in mezzo a tre nemici vale più di qualsiasi altra unità."},
+  {"id":"super_mantis","name":"Super Mantis","fam":"Mantis","rank":3,"hp":116,"str":22,"def":5,"mv":"step","desc":"Danno ad area. Da sola in mezzo a tre nemici vale pi\u00f9 di qualsiasi altra unit\u00e0."},
   {"id":"susanoo_beetle","name":"Susanoo Beetle","fam":"Hercules Beetle","rank":5,"hp":312,"str":33,"def":17,"mv":"step","desc":"Muro con la spinta. Tanti punti vita e un incorno che sposta chi hai davanti."},
-  {"id":"tornado_mantis","name":"Tornado Mantis","fam":"Mantis","rank":4,"hp":140,"str":27,"def":6,"mv":"step","desc":"Danno ad area. Da sola in mezzo a tre nemici vale più di qualsiasi altra unità."},
+  {"id":"tornado_mantis","name":"Tornado Mantis","fam":"Mantis","rank":4,"hp":140,"str":27,"def":6,"mv":"step","desc":"Danno ad area. Da sola in mezzo a tre nemici vale pi\u00f9 di qualsiasi altra unit\u00e0."},
   {"id":"turner","name":"Turner","fam":"Flipperbug","rank":3,"hp":144,"str":22,"def":10,"mv":"step","desc":"Disturbatore. Mette fuori gioco un avversario per due turni e lo lascia scoperto."},
-  {"id":"western_beetle","name":"Western Beetle","fam":"Bazoo Beetle","rank":6,"hp":202,"str":39,"def":15,"mv":"step","desc":"Artiglieria. Colpisce da lontano ma va tenuta al riparo: la difesa è bassa."}
+  {"id":"western_beetle","name":"Western Beetle","fam":"Bazoo Beetle","rank":6,"hp":202,"str":39,"def":15,"mv":"step","desc":"Artiglieria. Colpisce da lontano ma va tenuta al riparo: la difesa \u00e8 bassa."}
 ];
 
 /* Una mossa speciale per famiglia: nome, colore e regola d'area. */
 const FAMS = {
   "Knife Beetle":   {col:"#7dd3fc", sp:"jumping_stab",  spn:"Jumping Stab",     spd:"Salta in alto e cala il corno affilato: danno pesante su un bersaglio nelle 4 caselle ortogonali."},
-  "Hercules Beetle":{col:"#fbbf24", sp:"crushing_horn", spn:"Crushing Horn",    spd:"Sbalza il nemico indietro di 1 casella. Se dietro c'è qualcuno, rimbalza a catena finché non trova spazio o esce dal campo."},
+  "Hercules Beetle":{col:"#fbbf24", sp:"crushing_horn", spn:"Crushing Horn",    spd:"Sbalza il nemico indietro di 1 casella. Se dietro c'\u00e8 qualcuno, rimbalza a catena finch\u00e9 non trova spazio o esce dal campo."},
   "Bazoo Beetle":   {col:"#a78bfa", sp:"cannon_blast",  spn:"Cannon Blast",     spd:"Cannonata in linea retta ortogonale fino a 2 caselle. Qualsiasi Insector in mezzo, amico o nemico, blocca il tiro."},
-  "Flipperbug":     {col:"#34d399", sp:"over_easy",     spn:"Over Easy",        spd:"Ribalta l'avversario ortogonale: per 2 turni resta immobile e incassa il 30% di danni in più."},
-  "Staggy":         {col:"#fb923c", sp:"scissor_throw", spn:"Scissor Throw",    spd:"Afferra il nemico e lo scaglia alle proprie spalle. La presa non fa danno: rimbalza su chi trova, ferendo entrambi, finché non atterra o esce dal campo."},
+  "Flipperbug":     {col:"#34d399", sp:"over_easy",     spn:"Over Easy",        spd:"Ribalta l'avversario ortogonale: per 2 turni resta immobile e incassa il 30% di danni in pi\u00f9."},
+  "Staggy":         {col:"#fb923c", sp:"scissor_throw", spn:"Scissor Throw",    spd:"Afferra il nemico e lo scaglia alle proprie spalle. La presa non fa danno: rimbalza su chi trova, ferendo entrambi, finch\u00e9 non atterra o esce dal campo."},
   "Mantis":         {col:"#4ade80", sp:"sickle_dance",  spn:"Sickle Dance",     spd:"Danza letale che colpisce tutti gli avversari nelle 8 direzioni adiacenti."},
   "Cutterpillar":   {col:"#f472b6", sp:"body_blow",     spn:"Body Blow",        spd:"Carica dritto in avanti fino a 2 caselle e travolge il primo nemico. Dopo l'impatto resta scoperto: subisce +30% di danno."},
   "Flutterbug":     {col:"#22d3ee", sp:"wing_flap",     spn:"Wing Flap",        spd:"Un colpo d'ali spazza via di 2 caselle i nemici nelle 4 direzioni ortogonali, fino a 2 di distanza. Vicino al bordo significa ring-out."},
-  "Lady Beetle":    {col:"#f87171", sp:"healing_jig",   spn:"Healing Jig",      spd:"Danza curativa: ridà stamina agli alleati nelle 4 caselle ortogonali e li libera dall'immobilizzo. Non cura se stessa."},
+  "Lady Beetle":    {col:"#f87171", sp:"healing_jig",   spn:"Healing Jig",      spd:"Danza curativa: rid\u00e0 stamina agli alleati nelle 4 caselle ortogonali e li libera dall'immobilizzo. Non cura se stessa."},
   "Dung Roller":    {col:"#c4b5a0", sp:"fill_hole",     spn:"Fill Hole",        spd:"Si copre con la palla di sterco: blocca completamente i 2 attacchi successivi."},
   "Itsahorse":      {col:"#fcd34d", sp:"itsakick",      spn:"Itsakick",         spd:"Calcia contemporaneamente chi ha davanti e chi ha dietro, spingendoli via di 1 casella."},
-  "Faerie":         {col:"#e879f9", sp:"charm_beam",    spn:"Charm Beam",       spd:"Ammalia un avversario ortogonale e lo fa passare dalla tua parte. Costo: metà della tua stamina."},
+  "Faerie":         {col:"#e879f9", sp:"charm_beam",    spn:"Charm Beam",       spd:"Ammalia un avversario ortogonale e lo fa passare dalla tua parte. Costo: met\u00e0 della tua stamina."},
   "Dark Emperor":   {col:"#818cf8", sp:"emperors_rage", spn:"The Emperor's Rage",spd:"Fulmine su un singolo bersaglio entro 2 caselle, in qualsiasi direzione. Cariche infinite: nessuna ricarica."}
 };
 
 /* Torneo: sei rank, cinque round ciascuno, con quota d'iscrizione e premio. */
 const RANKS = [
-  {id:"E", fee:400,  pool:[1,2], mul:0.80, names:["Zak","Randall","Matilda","Keller","Robert"],        prize:"Battle Feed ×5"},
-  {id:"D", fee:800,  pool:[1,3], mul:0.92, names:["Matty","Philly","Medis","Cordison","Fabre"],        prize:"Feed Formula ×5"},
+  {id:"E", fee:400,  pool:[1,2], mul:0.80, names:["Zak","Randall","Matilda","Keller","Robert"],        prize:"Battle Feed \u00d75"},
+  {id:"D", fee:800,  pool:[1,3], mul:0.92, names:["Matty","Philly","Medis","Cordison","Fabre"],        prize:"Feed Formula \u00d75"},
   {id:"C", fee:1200, pool:[2,4], mul:1.00, names:["Retslyn","Sam","Denver","Matthew","Bolgo"],         prize:"Murakumo Type-S"},
   {id:"B", fee:2000, pool:[3,5], mul:1.07, names:["Emp","Henry","Osmond","Ertessa","Bari"],            prize:"Devil Forks"},
   {id:"A", fee:3200, pool:[4,6], mul:1.08, names:["Kalt","Gary","Jaques","Starr","Monj"],              prize:"Grand Calibur"},
@@ -788,11 +865,134 @@ const CIBI_PREMIO = ["Sanchez Fruit","Firestone","Ruby","Primeval Beef","Dark On
   "Pirate\u2019s Grog","Yago Milk","Lapis Lazuli","Mellow Banana","Nebula Opal","Edensia","Stella Crystal"];
 const PREMIO_RANK = 4;                            /* cibi per rank conquistato */
 
+/* =========================================================================
+   MONDO — dove si catturano gli Insector
+   Le fonti danno tre campi mai usati prima: `bait`, `traps`, `location`.
+   Contati per unita' coprono un terzo del roster; ma una tabella di cattura
+   lavora per *famiglia*, ed e' la famiglia a decidere l'esca come decide la
+   mossa speciale: cosi' contate, 11 famiglie su 13 sono documentate.
+
+   Le `location`, invece, sono i livelli di Rogue Galaxy, e quelli non si
+   toccano: riprodurre l'ambientazione altrui e' l'unica cosa che questo
+   progetto ha sempre evitato. Gli habitat qui sotto sono nostri, e sono
+   ricavati raggruppando le esche per tipo — frutta, minerali, fuoco, acqua,
+   cose rare \u2014 che sono un fatto e non un'ambientazione.
+   ========================================================================= */
+/* Quale esca attira quale famiglia: documentato, riga per riga. */
+const ESCA_FAM = {
+  "Sanchez Fruit":        ["Hercules Beetle","Knife Beetle","Mantis","Faerie"],
+  "Edensia":              ["Bazoo Beetle","Dung Roller"],
+  "Juraikan Coffee Beans":["Mantis"],
+  "Ruby":                 ["Flipperbug","Mantis"],
+  "Lapis Lazuli":         ["Dung Roller"],
+  "Diamond":              ["Staggy"],
+  "Firestone":            ["Staggy","Lady Beetle","Dung Roller"],
+  "Ultraspicy Pepper":    ["Dung Roller"],
+  "Electric Eel":         ["Staggy"],
+  "Smoked Rainbow Newt":  ["Itsahorse"],
+  "Yago Milk":            ["Flipperbug","Dung Roller"],
+  "Royal Fruit":          ["Dark Emperor"],
+  "Sticky Gum":           ["Faerie","Lady Beetle","Dung Roller"]
+};
+/* I cinque habitat. Le esche sono documentate, i nomi sono nostri.
+   Cutterpillar e Flutterbug non hanno ne' esca ne' localit\u00e0 nelle fonti: la
+   Flutterbug e' l'unica famiglia che vola e la Faerie l'unica altra che non
+   cammina, quindi stanno insieme; la Cutterpillar, che carica dritta, nel
+   Pantano. Sono due scelte nostre, ed e' una riga di tabella cambiarle. */
+const HABITAT = [
+  { id:"frutteto", nome:"Frutteto", spr:"Faerie",
+    desc:"Alberi bassi e frutta a terra. Ci si trova chi mangia dolce.",
+    esche:["Sanchez Fruit","Edensia","Juraikan Coffee Beans"],
+    fam:["Hercules Beetle","Knife Beetle","Mantis","Faerie","Bazoo Beetle","Flutterbug"] },
+  { id:"cava", nome:"Cava", spr:"Dung Roller",
+    desc:"Pietra spaccata e polvere. Le pietre preziose attirano chi scava.",
+    esche:["Ruby","Lapis Lazuli","Diamond"],
+    fam:["Flipperbug","Mantis","Dung Roller","Staggy"] },
+  { id:"fornace", nome:"Fornace", spr:"Staggy",
+    desc:"Aria che brucia. Ci resiste solo chi e' fatto per starci.",
+    esche:["Firestone","Ultraspicy Pepper"],
+    fam:["Staggy","Lady Beetle","Dung Roller"] },
+  { id:"pantano", nome:"Pantano", spr:"Itsahorse",
+    desc:"Acqua ferma e fango. Chi ci vive si muove meglio di quanto sembri.",
+    esche:["Electric Eel","Smoked Rainbow Newt","Yago Milk"],
+    fam:["Staggy","Itsahorse","Flipperbug","Dung Roller","Cutterpillar"] },
+  { id:"radura", nome:"Radura reale", spr:"Dark Emperor",
+    desc:"Silenzio e poche tracce. Qui non capita niente per caso.",
+    esche:["Royal Fruit","Sticky Gum"],
+    fam:["Dark Emperor","Faerie","Lady Beetle"] }
+];
+/* Le tre trappole delle fonti. Piu' capiente, meno sicura: e' la scelta. */
+const TRAPPOLE = [
+  { id:1, nome:"Trappola I",   max:2, sicura:1.00 },
+  { id:2, nome:"Trappola II",  max:4, sicura:0.92 },
+  { id:3, nome:"Trappola III", max:6, sicura:0.85 }
+];
+const ATTESA = 2;                                 /* partite di torneo prima di raccogliere */
+const MAX_POSTE = 3;                              /* trappole contemporaneamente in giro */
+const ALLEVA_GRATIS = 3;                          /* esemplari regalati prima che serva catturare */
+const SEME_ALFA = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   /* niente I, O, 0, 1: si detta al telefono */
+
+/* Generatore con seme: stesso seme, stesso mondo, su qualsiasi dispositivo.
+   mulberry32 — trenta righe in meno di qualunque dipendenza. */
+function semeNum(seme){
+  let h = 0x811c9dc5;
+  const t = String(seme || "").toUpperCase();
+  for (let i = 0; i < t.length; i++){
+    h ^= t.charCodeAt(i);
+    h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+  }
+  return h >>> 0;
+}
+function rngDa(n){
+  let a = (n >>> 0) || 1;
+  return function(){
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function semeACaso(){
+  let out = "";
+  for (let i = 0; i < 6; i++) out += SEME_ALFA[Math.floor(Math.random() * SEME_ALFA.length)];
+  return out;
+}
+function semeValido(t){
+  const x = String(t || "").toUpperCase().replace(/\s+/g, "");
+  return x.length === 6 && [].every.call(x, c => SEME_ALFA.indexOf(c) >= 0) ? x : null;
+}
+/* Il mondo non si salva: si ricalcola dal seme. Nel salvataggio stanno sei
+   caratteri, non una mappa. */
+let MONDO_CACHE = { seme:null, luoghi:null };
+function luoghiDi(seme){
+  if (MONDO_CACHE.seme === seme) return MONDO_CACHE.luoghi;
+  const rnd = rngDa(semeNum(seme));
+  const luoghi = HABITAT.map(h => {
+    const pool = h.fam.slice();
+    for (let i = pool.length - 1; i > 0; i--){                 /* Fisher-Yates col seme */
+      const j = Math.floor(rnd() * (i + 1));
+      const t = pool[i]; pool[i] = pool[j]; pool[j] = t;
+    }
+    const quante = Math.min(pool.length, 3 + Math.floor(rnd() * 2));
+    return { id:h.id, nome:h.nome, desc:h.desc, spr:h.spr, esche:h.esche,
+             fam:pool.slice(0, quante).sort(),
+             fortuna: 0.45 + Math.round(rnd() * 25) / 100 };
+  });
+  MONDO_CACHE = { seme, luoghi };
+  return luoghi;
+}
+const luoghi = () => luoghiDi(S.mondo.seme);
+function mondoNuovo(seme){
+  return { seme: seme || semeACaso(), trappole: { 1:1, 2:0, 3:0 }, poste: [], seq: 0, presi: 0 };
+}
+
 /* Un esemplare allevato. La squadra puo' contenere sia definizioni del roster
    ("knife_beetle") sia esemplari ("@s3"): defOf() scioglie le due forme. */
 let ZOO_SEQ = 0;
-function nuovoEsemplare(id){
-  return { u: "s" + (++ZOO_SEQ), id: id, b: { hp:0, str:0, def:0 },
+function nuovoEsemplare(id, bonus, selvatico){
+  return { u: "s" + (++ZOO_SEQ), id: id, sel: !!selvatico,
+           b: { hp:(bonus && bonus.hp)|0, str:(bonus && bonus.str)|0, def:(bonus && bonus.def)|0 },
            res: { kb:0, cf:0, ct:0, ex:0, th:0, po:0 }, speso: 0 };
 }
 const esemplare = ref => typeof ref === "string" && ref[0] === "@"
@@ -832,7 +1032,7 @@ function art(fam, flip, rank){
   const lo = shade(col, -0.45), hi = shade(col, 0.34), mid = col;
   const t  = rank >= 5 ? 3 : (rank >= 3 ? 2 : 1);
   /* Id univoco per ogni SVG: con id ripetuti il browser risolve url(#id) alla PRIMA
-     definizione del documento, che puo' trovarsi in una sezione display:none — e in quel
+     definizione del documento, che puo' trovarsi in una sezione display:none \u2014 e in quel
      caso il gradiente non viene dipinto. */
   const gid = "gr" + (++GRAD_SEQ);
   const S2 = ' stroke="' + K + '" stroke-width="2" stroke-linejoin="round"';
@@ -1184,9 +1384,9 @@ const S = {
   units: [], turn: "p", sel: null, mode: "idle", busy: false, over: false, look: null,
   phase: "battle", pick: null, cur: { x: 0, y: 6 },
   /* Chi muove le due meta' del campo, scelto dopo aver composto la squadra:
-       "hvp" Human vs PC   — il torneo di sempre
-       "hvh" Human vs Human — due persone sullo stesso dispositivo
-       "pvp" PC vs PC       — la demo si gioca da sola, per guardarla lavorare
+       "hvp" Human vs PC   \u2014 il torneo di sempre
+       "hvh" Human vs Human \u2014 due persone sullo stesso dispositivo
+       "pvp" PC vs PC       \u2014 la demo si gioca da sola, per guardarla lavorare
      In "hvh" ogni lato ha la sua squadra e il suo Re: quella del torneo resta da
      parte in S.career mentre sceglie il secondo giocatore, e torna al suo posto dopo. */
   vs: "hvp",
@@ -1196,6 +1396,9 @@ const S = {
   names: { p: "Giocatore 1", e: "Giocatore 2" },
   setup: "p", deploySide: "p", careerHeld: false,
   zoo: [], dispensa: {}, nutri: null,             /* esemplari allevati, cibo in magazzino, chi si sta nutrendo */
+  mondo: null,                                    /* seme, trappole in magazzino, trappole posate */
+  luogo: null, trapSel: 1, escaSel: null,         /* la spedizione che si sta preparando */
+  gratis: 0, giocate: 0,                          /* esemplari regalati; partite di torneo giocate */
   career: { team: [], king: null }
 };
 const duoMode = () => S.vs === "hvh";
@@ -1223,7 +1426,7 @@ const kingOf = side => S.units.find(u => u.alive && u.side === side && u.isKing)
    leggere i salvataggi vecchi quando la forma dei dati cambia, e rifiutare quelli
    scritti da una versione futura del gioco invece di interpretarli a caso.
    ========================================================================= */
-const SCHEMA = 2;                                 /* alzare quando cambia la forma dei dati */
+const SCHEMA = 3;                                 /* alzare quando cambia la forma dei dati */
 const CHIAVE = "insectron";
 const MARCA = "INSECTRON-";                       /* prefisso dei codici esportati */
 
@@ -1237,7 +1440,8 @@ function datiSalvataggio(){
     k: S.careerHeld ? S.career.king : S.kingId,
     c: S.champion ? 1 : 0,
     a: S.lvl.e || 0, ap: S.lvl.p || 0, v: S.vs,
-    z: S.zoo, p: S.dispensa                       /* gabbie e dispensa (schema 2) */
+    z: S.zoo, p: S.dispensa,                      /* gabbie e dispensa (schema 2) */
+    m: S.mondo, g: S.gratis|0, gi: S.giocate|0    /* mondo, esemplari regalati, partite giocate (schema 3) */
   };
 }
 function save(){
@@ -1252,21 +1456,41 @@ function migra(v){
   if (sv > SCHEMA) return "futuro";
   /* v0 -> v1: stessi campi, mancava solo il numero di versione.
      v1 -> v2: arrivano gabbie e dispensa; chi giocava prima riparte con
-     entrambe vuote e non perde niente del torneo. Le migrazioni future si
-     aggiungono qui, una per gradino. */
+     entrambe vuote e non perde niente del torneo.
+     v2 -> v3: arriva il mondo. Chi giocava prima riceve un mondo nuovo e la
+     prima trappola, e non perde ne' torneo ne' gabbie. Le migrazioni future
+     si aggiungono qui, una per gradino. */
   const zoo = Array.isArray(v.z) ? v.z.filter(e => e && byId[e.id]).map(e => ({
     u: String(e.u || ""), id: e.id,
     b: { hp:(e.b&&e.b.hp)|0, str:(e.b&&e.b.str)|0, def:(e.b&&e.b.def)|0 },
     res: RES.reduce((o,k) => (o[k] = (e.res && e.res[k])|0, o), {}),
-    speso: Math.max(0, Math.min(VITA_MAX, (e.speso|0)))
+    speso: Math.max(0, Math.min(VITA_MAX, (e.speso|0))),
+    sel: !!e.sel
   })) : [];
   const disp = {};
   if (v.p && typeof v.p === "object")
     Object.keys(v.p).forEach(k => { if (CIBI[k] && (v.p[k]|0) > 0) disp[k] = v.p[k]|0; });
   return { sv: SCHEMA, r: v.r|0, n: v.n|0, t: v.t.slice(), k: v.k,
            c: v.c ? 1 : 0, a: (v.a|0) || 0, ap: (v.ap|0) || 0, v: v.v,
-           z: zoo, p: disp };
+           z: zoo, p: disp, m: mondoSano(v.m),
+           g: Math.max(0, Math.min(ALLEVA_GRATIS, v.g|0)), gi: Math.max(0, v.gi|0) };
 }
+/* Il mondo si salva come seme piu' quello che hai in giro: mai una mappa.
+   Qui si ripulisce quello che arriva da fuori, perche' un codice puo' essere
+   stato scritto a mano. */
+function mondoSano(m){
+  const seme = m && semeValido(m.seme);
+  if (!seme) return null;
+  const tr = {};
+  TRAPPOLE.forEach(t => tr[t.id] = Math.max(0, Math.min(99, (m.trappole && m.trappole[t.id])|0)));
+  const poste = (Array.isArray(m.poste) ? m.poste : [])
+    .filter(p => p && HABITAT.some(h => h.id === p.h) && TRAPPOLE.some(t => t.id === (p.t|0)) && CIBI[p.esca])
+    .slice(0, MAX_POSTE)
+    .map(p => ({ n: p.n|0, h: p.h, t: p.t|0, esca: p.esca, quando: Math.max(0, p.quando|0) }));
+  return { seme, trappole: tr, poste,
+           seq: Math.max(0, m.seq|0), presi: Math.max(0, m.presi|0) };
+}
+
 /* Applica un salvataggio gia' migrato allo stato del gioco. */
 function applica(d){
   S.rankIdx = Math.max(0, Math.min(RANKS.length - 1, d.r|0));
@@ -1276,6 +1500,8 @@ function applica(d){
   if (MODES[d.v]) S.vs = d.v;
   S.zoo = d.z || [];
   S.dispensa = d.p || {};
+  S.mondo = d.m || mondoNuovo();
+  S.gratis = d.g|0; S.giocate = d.gi|0;
   /* gli identificativi degli esemplari devono restare unici anche dopo un
      ripristino: si riparte a contare da quello piu' alto trovato */
   ZOO_SEQ = S.zoo.reduce((m,e) => Math.max(m, parseInt(String(e.u).slice(1), 10) || 0), 0);
@@ -1321,21 +1547,21 @@ function esporta(){
 function importa(testo){
   const t = String(testo || "").replace(/\s+/g, "");
   if (!t) return { ok:false, perche:"Non hai incollato niente." };
-  if (t.indexOf(MARCA) !== 0) return { ok:false, perche:"Questo non è un codice di Insectron Arena." };
+  if (t.indexOf(MARCA) !== 0) return { ok:false, perche:"Questo non \u00e8 un codice di Insectron Arena." };
   const corpo = t.slice(MARCA.length), taglio = corpo.lastIndexOf(".");
   if (taglio < 0) return { ok:false, perche:"Codice incompleto: manca la parte finale." };
   let j;
   try { j = daBase64(corpo.slice(0, taglio)); }
-  catch(e){ return { ok:false, perche:"Codice illeggibile: forse è stato copiato a metà." }; }
+  catch(e){ return { ok:false, perche:"Codice illeggibile: forse \u00e8 stato copiato a met\u00e0." }; }
   if (impronta(j) !== corpo.slice(taglio + 1))
     return { ok:false, perche:"Codice danneggiato: ricopialo per intero." };
   let v;
   try { v = JSON.parse(j); } catch(e){ return { ok:false, perche:"Codice illeggibile." }; }
   const d = migra(v);
-  if (d === "futuro") return { ok:false, perche:"Questo salvataggio viene da una versione più recente del gioco." };
+  if (d === "futuro") return { ok:false, perche:"Questo salvataggio viene da una versione pi\u00f9 recente del gioco." };
   if (!d) return { ok:false, perche:"Il codice non contiene una partita valida." };
   if (d.t.length && !d.t.filter(ref => byId[ref] || (Array.isArray(d.z) && d.z.some(e => "@" + e.u === ref))).length)
-    return { ok:false, perche:"Nel salvataggio non c'è nessun Insector riconoscibile." };
+    return { ok:false, perche:"Nel salvataggio non c'\u00e8 nessun Insector riconoscibile." };
   return { ok:true, dati:d };
 }
 
@@ -1362,7 +1588,8 @@ function drawGabbie(){
   $("#zoo-n").textContent = S.zoo.length + "/" + MAX_GABBIE;
   if (!S.zoo.length){
     box.innerHTML = '<p class="nessuno">Nessun esemplare. Dal roster, scegli un Insector ' +
-      'sbloccato e premi <b>Alleva un esemplare</b>: nasce una larva con le statistiche base.</p>';
+      'sbloccato e premi <b>Alleva un esemplare</b>: nasce una larva con le statistiche base. ' +
+      'I primi ' + ALLEVA_GRATIS + ' sono in regalo, poi si catturano nel <b>Mondo</b>.</p>';
   }
   S.zoo.forEach(e => {
     const u = byId[e.id], st = statsOf("@" + e.u);
@@ -1372,6 +1599,7 @@ function drawGabbie(){
     b.innerHTML = art(u.fam, false, u.rank) +
       '<span class="grow"><b>' + u.name + '</b> <span class="tag-all">' +
         (adulto(e) ? "adulto" : "larva") + '</span>' +
+      (e.sel ? ' <span class="tag-sel">catturato</span>' : '') +
       '<span class="st">' + st.hp + "hp \u00b7 " + st.str + "str \u00b7 " + st.def + "def" +
         ' \u00b7 vita ' + vitaResidua(e) + '/' + VITA_MAX + '</span>' +
       '<span class="vita"><i style="width:' + (vitaResidua(e) / VITA_MAX * 100) + '%"></i></span></span>';
@@ -1429,9 +1657,17 @@ function nutriCon(nome){
   if (eraLarva && adulto(e)){
     const u = byId[e.id];
     $("#anteprima").innerHTML = '<p class="notarella" style="color:var(--ok)"><b>' + u.name +
-      '</b> è diventato adulto: ora puoi portarlo in squadra dal roster.</p>';
+      '</b> \u00e8 diventato adulto: ora puoi portarlo in squadra dal roster.</p>';
   }
 }
+/* Le trappole non si comprano: si vincono, come il cibo. Piu' sali di rank,
+   piu' la trappola che arriva e' capiente. */
+function premiaConTrappola(){
+  const liv = S.rankIdx >= 4 ? 3 : (S.rankIdx >= 2 ? 2 : 1);
+  S.mondo.trappole[liv] = (S.mondo.trappole[liv]|0) + 1;
+  return TRAPPOLE[liv-1].nome;
+}
+
 /* I premi del torneo diventano cibo vero. Quantita' tenute basse di proposito:
    l'equilibrio del torneo e' misurato, e il cibo lo sposta. */
 function premiaConCibo(quanti){
@@ -1445,6 +1681,230 @@ function premiaConCibo(quanti){
   const conta = {};
   presi.forEach(n => conta[n] = (conta[n] || 0) + 1);
   return Object.keys(conta).map(n => n + (conta[n] > 1 ? " \u00d7" + conta[n] : "")).join(", ");
+}
+
+/* =========================================================================
+   MONDO \u2014 si sceglie dove, con cosa e con quale esca, si vede la probabilita'
+   *prima* di spendere, e si raccoglie dopo due partite di torneo. Stessa
+   regola della dispensa: si conferma, non si subisce.
+   ========================================================================= */
+const trapDi = id => TRAPPOLE.find(t => t.id === (id|0)) || TRAPPOLE[0];
+const luogoDi = id => luoghi().find(l => l.id === id) || null;
+
+/* Fin dove arriva questa trappola: il suo limite, ma mai oltre a quello che il
+   torneo ha gia' aperto. Altrimenti si va a prendere un rango 6 al Rank E e la
+   curva misurata salta. */
+function tettoCattura(trapId){ return Math.min(trapDi(trapId).max, maxRank()); }
+
+/* Chi puo' farsi prendere qui, con questa trappola e questa esca. L'esca giusta
+   non cambia *chi* c'e': cambia quanto e' probabile che abbocchi. */
+function prede(luogo, trapId, esca){
+  const tetto = tettoCattura(trapId);
+  const attratte = ESCA_FAM[esca] || [];
+  const out = [];
+  luogo.fam.forEach(fam => {
+    const unita = UNITS.filter(u => u.fam === fam && u.rank <= tetto && unlocked(u));
+    if (unita.length) out.push({ fam, peso: attratte.indexOf(fam) >= 0 ? 3 : 1, unita });
+  });
+  return out;
+}
+const escaGiusta = (luogo, esca) => !!esca &&
+  (ESCA_FAM[esca] || []).some(f => luogo.fam.indexOf(f) >= 0);
+
+/* La probabilita' dichiarata e' esattamente quella applicata: e' la stessa
+   funzione a produrre il numero sulla scheda e l'esito della trappola. */
+function stimaCattura(luogo, trapId, esca){
+  if (!luogo || !prede(luogo, trapId, esca).length) return 0;
+  const p = luogo.fortuna * (escaGiusta(luogo, esca) ? 1.35 : 0.7) * trapDi(trapId).sicura;
+  return Math.max(0.1, Math.min(0.9, p));
+}
+/* L'esito e' deciso dal seme del mondo e dal numero della spedizione: lo stesso
+   mondo, giocato con le stesse scelte, da' gli stessi risultati. */
+function esitoSpedizione(p){
+  const luogo = luogoDi(p.h);
+  const rnd = rngDa((semeNum(S.mondo.seme) ^ Math.imul(p.n + 1, 2654435761)) >>> 0);
+  if (rnd() > stimaCattura(luogo, p.t, p.esca)) return null;
+  const cand = prede(luogo, p.t, p.esca);
+  if (!cand.length) return null;
+  const tot = cand.reduce((a, c) => a + c.peso, 0);
+  let x = rnd() * tot, scelta = cand[cand.length - 1];
+  for (let i = 0; i < cand.length; i++){ x -= cand[i].peso; if (x <= 0){ scelta = cand[i]; break; } }
+  const u = scelta.unita[Math.floor(rnd() * scelta.unita.length)];
+  /* Il dataset da' il minimo (che e' la nostra statistica base) e un tetto a
+     999/99, che e' il limite di crescita dell'originale, non la forbice di cio'
+     che si trova in natura. La varianza e' quindi nostra, e va tenuta stretta. */
+  const q = rnd() * 0.10;
+  return { id: u.id, b: { hp: Math.round(u.hp * q), str: Math.round(u.str * q), def: Math.round(u.def * q) } };
+}
+
+function apriMondo(){
+  if (!S.mondo) S.mondo = mondoNuovo();
+  if (!S.luogo) S.luogo = HABITAT[0].id;
+  drawMondo(); show("s-mondo");
+}
+function drawMondo(){
+  $("#mondo-seme").textContent = S.mondo.seme;
+  $("#mondo-attesa").textContent = ATTESA;
+  drawLuoghi(); drawPoste(); drawSpedizione();
+}
+function drawLuoghi(){
+  const box = $("#luoghi"); box.innerHTML = "";
+  luoghi().forEach(l => {
+    const b = document.createElement("button");
+    b.className = "luogo" + (S.luogo === l.id ? " on" : "");
+    b.dataset.luogo = l.id;
+    b.innerHTML = art(l.spr, false, 3) +
+      '<span class="grow"><b>' + l.nome + '</b>' +
+      '<span class="st">' + l.fam.join(", ") + '</span></span>';
+    b.onclick = () => { S.luogo = l.id; drawMondo(); };
+    box.appendChild(b);
+  });
+}
+function drawPoste(){
+  const box = $("#poste"); box.innerHTML = "";
+  $("#poste-n").textContent = S.mondo.poste.length + "/" + MAX_POSTE;
+  if (!S.mondo.poste.length){
+    box.innerHTML = '<p class="nessuno">Nessuna trappola in giro. Preparane una qui a fianco: ' +
+      'la raccogli dopo ' + ATTESA + ' partite di torneo.</p>';
+    return;
+  }
+  S.mondo.poste.forEach(p => {
+    const l = luogoDi(p.h), manca = p.quando - S.giocate;
+    const pronta = manca <= 0;
+    const b = document.createElement("button");
+    b.className = "posta" + (pronta ? " pronta" : "");
+    b.dataset.posta = p.n;
+    b.disabled = !pronta;
+    b.innerHTML = '<span class="grow"><b>' + (l ? l.nome : "?") + '</b>' +
+      '<span class="st">' + trapDi(p.t).nome + ' \u00b7 esca: ' + p.esca + '</span></span>' +
+      '<span class="q">' + (pronta ? "Raccogli" :
+        "fra " + manca + (manca === 1 ? " partita" : " partite")) + '</span>';
+    b.onclick = () => raccogli(p.n);
+    box.appendChild(b);
+  });
+}
+function drawSpedizione(){
+  const box = $("#spedizione");
+  const l = luogoDi(S.luogo);
+  if (!l){ box.innerHTML = '<p class="nessuno">Scegli un luogo.</p>'; return; }
+  const esche = Object.keys(S.dispensa).filter(n => S.dispensa[n] > 0).sort();
+  if (S.escaSel && !S.dispensa[S.escaSel]) S.escaSel = null;
+  if (!S.escaSel) S.escaSel = esche.filter(n => escaGiusta(l, n))[0] || esche[0] || null;
+  if (!S.mondo.trappole[S.trapSel]) {
+    const altra = TRAPPOLE.filter(t => S.mondo.trappole[t.id] > 0)[0];
+    if (altra) S.trapSel = altra.id;
+  }
+  /* Senza esca non c'e' niente da dichiarare: meglio una lineetta che un
+     numero che non vale per nessuna spedizione possibile. */
+  const p = S.escaSel ? stimaCattura(l, S.trapSel, S.escaSel) : 0;
+  const cand = prede(l, S.trapSel, S.escaSel);
+  const pieno = S.mondo.poste.length >= MAX_POSTE;
+  const gabbiePiene = S.zoo.length >= MAX_GABBIE;
+  const ok = !!S.escaSel && S.mondo.trappole[S.trapSel] > 0 && cand.length && !pieno && !gabbiePiene;
+
+  box.innerHTML =
+    '<p class="hint">' + l.desc + '</p>' +
+    '<div class="scelte" id="sc-trap">' +
+      TRAPPOLE.map(t => '<button data-trap="' + t.id + '"' +
+        (S.trapSel === t.id ? ' class="on"' : '') +
+        (S.mondo.trappole[t.id] > 0 ? '' : ' disabled') + '>' + t.nome +
+        ' \u00d7' + (S.mondo.trappole[t.id]|0) + '</button>').join("") +
+    '</div>' +
+    '<p class="notarella" style="margin-top:0">' + trapDi(S.trapSel).nome +
+      ': prende fino al rango ' + trapDi(S.trapSel).max +
+      (maxRank() < trapDi(S.trapSel).max
+        ? ', ma il torneo per ora ne ha aperti ' + maxRank() : '') + '.</p>' +
+    '<div class="scelte" id="sc-esca">' +
+      (esche.length
+        ? esche.map(n => '<button data-esca="' + n + '"' +
+            (S.escaSel === n ? ' class="on"' : '') + '>' + n +
+            (escaGiusta(l, n) ? ' \u2713' : '') + ' \u00d7' + S.dispensa[n] + '</button>').join("")
+        : '<span class="nessuno">Dispensa vuota: l\u2019esca si vince conquistando i rank.</span>') +
+    '</div>' +
+    '<div class="prob"><b class="grande">' +
+      (S.escaSel ? Math.round(p * 100) + '%' : '\u2014') + '</b>' +
+      (S.escaSel ? 'di prendere qualcosa. ' : '') +
+      (S.escaSel
+        ? (escaGiusta(l, S.escaSel)
+            ? '<b>' + S.escaSel + '</b> \u00e8 l\u2019esca giusta per questo posto.'
+            : '<b>' + S.escaSel + '</b> qui non attira nessuno in particolare: si pu\u00f2 ' +
+              'usare lo stesso, ma rende meno.')
+        : 'Scegli un\u2019esca.') +
+      (cand.length
+        ? '<br>Pu\u00f2 farsi prendere: <b>' + cand.map(c => c.fam).join(", ") + '</b>.'
+        : '<br>Con questa trappola, qui non c\u2019\u00e8 ancora niente che tu possa prendere.') +
+      '<br>L\u2019esca si consuma sempre; la trappola torna indietro se non prende nulla.' +
+    '</div>' +
+    '<div class="acts"><button id="btn-posa" class="primary"' + (ok ? '' : ' disabled') + '>' +
+      (gabbiePiene ? 'Gabbie piene' : (pieno ? 'Hai gi\u00e0 tre trappole in giro' : 'Posa la trappola')) +
+    '</button></div>' +
+    '<div id="mondo-esito"></div>';
+
+  box.querySelectorAll("[data-trap]").forEach(b => b.onclick = () => {
+    S.trapSel = b.dataset.trap|0; drawSpedizione();
+  });
+  box.querySelectorAll("[data-esca]").forEach(b => b.onclick = () => {
+    S.escaSel = b.dataset.esca; drawSpedizione();
+  });
+  const posa = $("#btn-posa");
+  if (posa) posa.onclick = piazzaTrappola;
+}
+function piazzaTrappola(){
+  const l = luogoDi(S.luogo);
+  if (!l || !S.escaSel || !(S.dispensa[S.escaSel] > 0)) return;
+  if (!(S.mondo.trappole[S.trapSel] > 0)) return;
+  if (S.mondo.poste.length >= MAX_POSTE || S.zoo.length >= MAX_GABBIE) return;
+  S.dispensa[S.escaSel]--;
+  if (S.dispensa[S.escaSel] <= 0) delete S.dispensa[S.escaSel];
+  S.mondo.trappole[S.trapSel]--;
+  S.mondo.poste.push({ n: S.mondo.seq++, h: l.id, t: S.trapSel,
+                       esca: S.escaSel, quando: S.giocate + ATTESA });
+  save(); drawMondo();
+  $("#mondo-esito").innerHTML = '<p class="notarella" style="color:var(--ok)">Trappola posata ' +
+    'nel <b>' + l.nome + '</b>. Gioca ' + ATTESA + ' partite di torneo e torna a raccoglierla.</p>';
+}
+function raccogli(n){
+  const i = S.mondo.poste.findIndex(x => x.n === n);
+  if (i < 0) return;
+  const p = S.mondo.poste[i];
+  if (S.giocate < p.quando) return;
+  const preso = esitoSpedizione(p);
+  S.mondo.poste.splice(i, 1);
+  let msg;
+  if (preso && S.zoo.length < MAX_GABBIE){
+    const e = nuovoEsemplare(preso.id, preso.b, true);
+    S.zoo.push(e); S.mondo.presi++;
+    const u = byId[preso.id];
+    msg = '<p class="notarella" style="color:var(--ok)">Preso: <b>' + u.name + '</b>' +
+      (preso.b.hp ? ' (nato con +' + preso.b.hp + ' vita, +' + preso.b.str + ' forza, +' +
+        preso.b.def + ' difesa)' : '') + '. \u00c8 una larva: portala nelle <b>Gabbie</b> e ' +
+      'nutrila ' + VITA_ADULTO + ' punti perch\u00e9 possa combattere.</p>';
+  } else if (preso){
+    msg = '<p class="notarella" style="color:var(--warn)">Qualcosa era caduto in trappola, ma le ' +
+      'gabbie sono piene: \u00e8 scappato. Libera una gabbia prima di raccogliere.</p>';
+  } else {
+    /* La trappola torna indietro: l'esca e' gia' stata pagata, e perdere due
+       cose per un tiro andato male sarebbe solo punitivo. */
+    S.mondo.trappole[p.t] = (S.mondo.trappole[p.t]|0) + 1;
+    msg = '<p class="notarella">La trappola \u00e8 tornata vuota. L\u2019esca \u00e8 andata, ' +
+      'la <b>' + trapDi(p.t).nome + '</b> torna nel magazzino: riprova, magari altrove.</p>';
+  }
+  save(); drawMondo();
+  const box = $("#mondo-esito");
+  if (box) box.innerHTML = msg;
+}
+function cambiaMondo(t){
+  const seme = semeValido(t);
+  if (!seme) return { ok:false, perche:"Un seme \u00e8 fatto di sei caratteri fra A-Z e 2-9." };
+  if (seme === S.mondo.seme) return { ok:false, perche:"Stai gi\u00e0 giocando questo mondo." };
+  /* Le trappole posate appartengono al mondo in cui stanno: tornano nel
+     magazzino invece di sparire. Gli esemplari presi restano tuoi. */
+  S.mondo.poste.forEach(p => S.mondo.trappole[p.t] = (S.mondo.trappole[p.t]|0) + 1);
+  S.mondo.poste = [];
+  S.mondo.seme = seme;
+  S.luogo = HABITAT[0].id;
+  save(); drawMondo();
+  return { ok:true };
 }
 
 /* =========================================================================
@@ -1550,13 +2010,18 @@ function detail(rif){
   const piena = S.team.length >= 5;
   const st = e ? statsOf(ref) : { hp:u.hp, str:u.str, def:u.def };
   const piu = (v, b) => v + (b ? ' <i class="bonus">+' + b + '</i>' : '');
-  const puoiAllevare = ok && !e && S.zoo.length < MAX_GABBIE;
+  /* Tre esemplari sono regalati: chi apre il gioco per due minuti deve poter
+     vedere le gabbie. Dal quarto in poi si va a catturarli nel Mondo, e da
+     li' in poi un esemplare costa un'esca, una trappola e due partite. */
+  const restano = ALLEVA_GRATIS - (S.gratis|0);
+  const puoiAllevare = ok && !e && S.zoo.length < MAX_GABBIE && restano > 0;
   el.innerHTML =
     '<div class="sheet">' +
       '<div class="row">' + art(u.fam, false, u.rank) +
-        '<div><h3>' + u.name + (e ? ' <span class="tag-all">allevato</span>' : '') +
-        '</h3><div class="fam">' + u.fam + ' · rank ' + u.rank +
-        (e ? ' · ' + (adulto(e) ? 'adulto' : 'larva') + ', vita ' + vitaResidua(e) + '/' + VITA_MAX : '') +
+        '<div><h3>' + u.name +
+        (e ? ' <span class="' + (e.sel ? 'tag-sel">catturato' : 'tag-all">allevato') + '</span>' : '') +
+        '</h3><div class="fam">' + u.fam + ' \u00b7 rank ' + u.rank +
+        (e ? ' \u00b7 ' + (adulto(e) ? 'adulto' : 'larva') + ', vita ' + vitaResidua(e) + '/' + VITA_MAX : '') +
         '</div></div></div>' +
       (ok || e ? '' : '<div class="locked">\u{1F512} ' + lockNote(u) + '</div>') +
       (e && !adulto(e) ? '<div class="locked">\u{1F423} \u00c8 una larva: nutrila ancora ' +
@@ -1578,11 +2043,17 @@ function detail(rif){
               : (!e && !ok ? 'Bloccato'
                 : (piena ? 'Squadra al completo' : 'Aggiungi alla squadra'))) + '</button>') +
         (e ? '<button id="btn-vaigabbie">Nutri nelle gabbie</button>'
-           : '<button id="btn-alleva"' + (puoiAllevare ? '' : ' disabled') + '>' +
-             (S.zoo.length >= MAX_GABBIE ? 'Gabbie piene' : 'Alleva un esemplare') + '</button>') +
+           : (restano > 0
+              ? '<button id="btn-alleva"' + (puoiAllevare ? '' : ' disabled') + '>' +
+                (S.zoo.length >= MAX_GABBIE ? 'Gabbie piene' : 'Alleva un esemplare') + '</button>'
+              : '<button id="btn-vaimondo">Catturane uno nel Mondo</button>')) +
       '</div>' +
       (e ? '' : '<p class="notarella">Allevare parte da una larva con le statistiche base: cresce ' +
-        'con il cibo che vinci nel torneo, e pu\u00f2 superare di molto l\u2019esemplare del roster.</p>') +
+        'con il cibo che vinci nel torneo, e pu\u00f2 superare di molto l\u2019esemplare del roster.' +
+        (restano > 0
+          ? ' Esemplari in regalo: ancora <b>' + restano + '</b> su ' + ALLEVA_GRATIS + '.'
+          : ' I tre esemplari in regalo sono finiti: i prossimi si <b>catturano</b>, ' +
+            'con una trappola e un\u2019esca.') + '</p>') +
     '</div>';
   const add = $("#btn-metto"), rem = $("#btn-tolgo");
   if (add) add.onclick = () => toggle(ref);
@@ -1591,17 +2062,19 @@ function detail(rif){
   if (all) all.onclick = () => {
     if (S.zoo.length >= MAX_GABBIE) return;
     const nuovo = nuovoEsemplare(u.id);
-    S.zoo.push(nuovo); save();
+    S.zoo.push(nuovo); S.gratis = (S.gratis|0) + 1; save();
     S.look = "@" + nuovo.u;
     drawRoster(); drawSlots(); detail(S.look);
     apriGabbie(nuovo.u);
   };
   const vai = $("#btn-vaigabbie");
   if (vai) vai.onclick = () => apriGabbie(e.u);
+  const mon = $("#btn-vaimondo");
+  if (mon) mon.onclick = () => apriMondo();
 }
 function moveLabel(mv){
-  return { step:"1 casella in tutte le direzioni (3×3)",
-           fly:"volo, fino a 3 caselle scavalcando gli altri (7×7)",
+  return { step:"1 casella in tutte le direzioni (3\u00d73)",
+           fly:"volo, fino a 3 caselle scavalcando gli altri (7\u00d77)",
            diag:"fino a 3 caselle in diagonale",
            charge:"1 casella ovunque, oppure 2 in linea retta in una delle 8 direzioni" }[mv];
 }
@@ -1626,7 +2099,7 @@ function drawSlots(){
     else {
       const isK = S.kingId === id;
       d.innerHTML = art(u.fam, false, u.rank) +
-        '<span class="grow"><b>' + (isK ? '<span class="crown">♛ </span>' : '') + u.name + '</b><br>' +
+        '<span class="grow"><b>' + (isK ? '<span class="crown">\u265b </span>' : '') + u.name + '</b><br>' +
         '<span style="font-size:.68rem;color:var(--muted)">' + u.fam + '</span></span>';
       const k = document.createElement("button");
       k.className = "kbtn"; k.textContent = "Togli";
@@ -1653,16 +2126,16 @@ function drawBrief(){
       '<span class="top">' + art(u.fam, false, u.rank) +
         '<span><h4>' + (isK ? "\u265B " : "") + u.name +
         (e ? ' <span class="tag-all">allevato</span>' : '') + '</h4>' +
-        '<span class="fam">' + u.fam + ' · rank ' + u.rank + '</span></span></span>' +
+        '<span class="fam">' + u.fam + ' \u00b7 rank ' + u.rank + '</span></span></span>' +
       '<span class="num"><span><div>VITA<b>' + st.hp + '</b></div></span>' +
         '<span><div>FORZA<b>' + st.str + '</b></div></span>' +
         '<span><div>DIFESA<b>' + st.def + '</b></div></span></span>' +
-      '<span class="sp"><b>' + f.spn + '</b> — ' + f.spd + '<br>' +
-        'Attacco <b>' + Math.round(st.str * 2) + '</b> · speciale <b>' + dannoSpeciale(u) + '</b><br>' +
+      '<span class="sp"><b>' + f.spn + '</b> \u2014 ' + f.spd + '<br>' +
+        'Attacco <b>' + Math.round(st.str * 2) + '</b> \u00b7 speciale <b>' + dannoSpeciale(u) + '</b><br>' +
         'Movimento: ' + moveLabel(isK ? "step" : u.mv) + '</span>' +
       '<span class="kbtn" style="text-align:center;padding:8px;border-radius:8px;' +
         (isK ? 'background:var(--accent);color:#231a04;font-weight:bold' : 'background:var(--panel);color:var(--muted)') +
-        '">' + (isK ? "\u265B  È il tuo Re" : "Nomina Re") + '</span>';
+        '">' + (isK ? "\u265B  \u00c8 il tuo Re" : "Nomina Re") + '</span>';
     b.onclick = () => { S.kingId = id; drawBrief(); save(); };
     el.appendChild(b);
   });
@@ -1951,8 +2424,8 @@ function startBattle(){
   const P = AI_PROFILES[aiLevel()];
   $("#b-opp").innerHTML = "Avversario: <b>" + R.names[S.round] + "</b> \u00b7 " + P.nome;
   $("#b-opp").title = P.desc;
-  log('<b>Rank ' + R.id + ' — Round ' + (S.round+1) + '/5</b> contro <b>' + R.names[S.round] + '</b>.');
-  log('Schiera le tue 5 pedine nelle <b>due file più vicine a te</b>, poi inizia la battaglia.');
+  log('<b>Rank ' + R.id + ' \u2014 Round ' + (S.round+1) + '/5</b> contro <b>' + R.names[S.round] + '</b>.');
+  log('Schiera le tue 5 pedine nelle <b>due file pi\u00f9 vicine a te</b>, poi inizia la battaglia.');
   show("s-battle"); draw();
 }
 
@@ -2019,7 +2492,7 @@ function drawDeploy(){
   $("#btn-fight").disabled = todo.length > 0;
   const el = $("#ucard");
   el.innerHTML = '<div class="fam" style="margin-bottom:9px">Clicca una casella illuminata per piazzare la pedina evidenziata. ' +
-    'Clicca una pedina già in campo per rimetterla in panchina.</div><div class="deploylist" id="deplist"></div>';
+    'Clicca una pedina gi\u00e0 in campo per rimetterla in panchina.</div><div class="deploylist" id="deplist"></div>';
   const list = $("#deplist");
   const next = S.pick && !placed(S.pick) ? S.pick : todo[0];
   S.units.filter(u => u.side === side && u.alive).forEach(u => {
@@ -2196,7 +2669,7 @@ function raw(t, amount, why){
 function settle(t, why){ if (t.alive && t.hp <= 0) ko(t, why); }
 function strike(a, t, mult, label){
   /* la difesa riduce il colpo ma non lo annulla mai: resta almeno il 30% della forza,
-     altrimenti un DEF alto renderebbe l'unità invulnerabile agli attaccanti deboli */
+     altrimenti un DEF alto renderebbe l'unit\u00e0 invulnerabile agli attaccanti deboli */
   const core = Math.max(a.str * 0.3, a.str * 2 - t.dfn);
   lunge(a, t);
   const d = raw(t, core * mult * (0.9 + Math.random() * 0.2), label);
@@ -2211,7 +2684,7 @@ function basicAttack(a, t){
   const d = strike(a, t, 1, "attacca");
   if (!d || !t.alive || a.d.fam !== "Dark Emperor") return d;
   t.stun = Math.max(t.stun, 2);
-  log("<b>" + t.d.name + "</b> è atterrato dalla stretta oscura.", "hit");
+  log("<b>" + t.d.name + "</b> \u00e8 atterrato dalla stretta oscura.", "hit");
   const [dx,dy] = dirTo(a, t);
   const nx = t.x + dx, ny = t.y + dy;
   if (!inB(nx,ny)) ringOut(t);
@@ -2236,7 +2709,7 @@ function ko(t, why){
       setTimeout(() => e.remove(), 470);
     }
   }
-  log('<b>' + t.d.name + '</b> è K.O.' + (why === "ring" ? " — scaraventato fuori dal campo!" : "") + (t.isKing ? " È il RE!" : ""), "ko");
+  log('<b>' + t.d.name + '</b> \u00e8 K.O.' + (why === "ring" ? " \u2014 scaraventato fuori dal campo!" : "") + (t.isKing ? " \u00c8 il RE!" : ""), "ko");
   checkEnd();
 }
 function ringOut(t){ t.hp = 0; ko(t, "ring"); }
@@ -2274,7 +2747,7 @@ function hurl(t, dx, dy, src){
     log('<b>' + t.d.name + '</b> rimbalza su <b>' + o.d.name + '</b>: ' + chip + ' danni a testa.', "hit");
     settle(o, "crash");
     if (!t.alive) return "ko";
-    if (!o.alive){ t.x = cx; t.y = cy; return "ok"; }   /* l'ostacolo è caduto: atterra lì */
+    if (!o.alive){ t.x = cx; t.y = cy; return "ok"; }   /* l'ostacolo \u00e8 caduto: atterra l\u00ec */
   }
   return "ok";
 }
@@ -2308,7 +2781,7 @@ function doSpecial(u, target){
     strike(u, target, 0.5, "ribalta");
     if (target.alive){
       target.stun = 2;
-      log("<b>" + target.d.name + "</b> è ribaltato: immobile e vulnerabile per 2 turni.", "good");
+      log("<b>" + target.d.name + "</b> \u00e8 ribaltato: immobile e vulnerabile per 2 turni.", "good");
     }
   }
   else if (sp === "scissor_throw"){
@@ -2351,7 +2824,7 @@ function doSpecial(u, target){
     u.hp = Math.max(1, Math.round(u.hp / 2));
     target.side = u.side; target.acted = true; target.isKing = false;
     fx(target, "\u2665", "#e879f9"); wave(target, "#e879f9", 1.8);
-    log("<b>" + target.d.name + "</b> è stato ammaliato e cambia schieramento!", "good");
+    log("<b>" + target.d.name + "</b> \u00e8 stato ammaliato e cambia schieramento!", "good");
   }
   else if (sp === "wing_flap"){
     rayTargets(u, 2).forEach(f => {
@@ -2416,7 +2889,7 @@ function aiStep(){
   setTimeout(aiStep, 420);
 }
 /* =========================================================================
-   DIFFICOLTA' — quattro profili di avversario.
+   DIFFICOLTA' \u2014 quattro profili di avversario.
    I primi due ragionano a regole fisse, gli altri due valutano ogni mossa
    possibile con un punteggio e scelgono la migliore.
    ========================================================================= */
@@ -2433,7 +2906,7 @@ const AI_PROFILES = {
 /* Difficolta' predefinita per rank: si comincia contro avversari ingenui. */
 const RANK_AI = { E:1, D:2, C:2, B:3, A:3, S:4 };
 /* Livello dell'IA per lato. Quello in alto lo sceglie il giocatore (o lo detta il
-   rank); quello in basso e' guidato dall'IA solo in PC vs PC — altrove resta sul
+   rank); quello in basso e' guidato dall'IA solo in PC vs PC \u2014 altrove resta sul
    profilo Normale, il metro fisso con cui sono state misurate le difficolta'. */
 function levelOf(side){
   if (side === "e") return S.lvl.e || RANK_AI[RANKS[S.rankIdx].id] || 2;
@@ -2609,6 +3082,10 @@ function checkEnd(){
 function finish(win){
   if (duoMode()){ finishDuo(win); return; }
   if (pcMode()){ finishPvp(win); return; }
+  /* Le trappole si raccolgono dopo N *partite di torneo*: e' la traduzione dei
+     minuti d'attesa dell'originale, la stessa gia' fatta per il cibo. Conta
+     anche una sconfitta: il tempo passa comunque. */
+  S.giocate = (S.giocate|0) + 1;
   const R = RANKS[S.rankIdx];
   if (win){
     S.round++;
@@ -2618,9 +3095,10 @@ function finish(win){
       $("#r-title").innerHTML = '<span class="win">Rank ' + R.id + ' conquistato!</span>';
       const bottino = premiaConCibo(PREMIO_RANK) + (S.rankIdx >= 3 ? ", Royal Fruit" : "");
       if (S.rankIdx >= 3) S.dispensa["Royal Fruit"] = (S.dispensa["Royal Fruit"] || 0) + 1;
+      const attrezzo = premiaConTrappola();
       $("#r-text").innerHTML = "Cinque round vinti di fila. Premio: <b>" + R.prize +
-        "</b>, e per le gabbie: <b>" + bottino + "</b>." +
-        (last ? "<br><br>Hai chiuso il Rank S: il torneo Insectron è tuo. Il <b>Dark Emperor</b> è ora reclutabile."
+        "</b>, per le gabbie: <b>" + bottino + "</b>, e per il mondo: <b>" + attrezzo + "</b>." +
+        (last ? "<br><br>Hai chiuso il Rank S: il torneo Insectron \u00e8 tuo. Il <b>Dark Emperor</b> \u00e8 ora reclutabile."
               : "<br><br>Prossimo traguardo: <b>Rank " + RANKS[S.rankIdx+1].id +
                 "</b> (iscrizione " + RANKS[S.rankIdx+1].fee + "z).");
       if (last) S.champion = true; else S.rankIdx++;
@@ -2630,7 +3108,7 @@ function finish(win){
         R.names[S.round] + "</b> (round " + (S.round+1) + "/5 del Rank " + R.id + ").";
     }
   } else {
-    $("#r-title").innerHTML = '<span class="lose">Il tuo Re è caduto</span>';
+    $("#r-title").innerHTML = '<span class="lose">Il tuo Re \u00e8 caduto</span>';
     $("#r-text").innerHTML = "Sconfitta al round " + (S.round+1) + " del Rank " + R.id +
       ". Il rank riparte dal primo avversario: rivedi la squadra o cambia il Re.";
     S.round = 0;
@@ -2805,7 +3283,7 @@ function drawTokens(){
         '<div class="hpbar"><i></i></div>' +
         (u.isKing ? '<span class="kmark" aria-hidden="true">&#9819;</span>' : '') +
         '<span class="status" aria-hidden="true"></span>';
-      /* respiro sfasato: altrimenti tutte le unità oscillano all'unisono */
+      /* respiro sfasato: altrimenti tutte le unit\u00e0 oscillano all'unisono */
       e.querySelector(".inner").style.animationDelay = (-Math.random() * 2.6).toFixed(2) + "s";
       l.appendChild(e);
       e.dataset.side = u.side; e.dataset.top = topSide();
@@ -2851,12 +3329,12 @@ function drawCard(){
            : Math.round(u.str * 2 * (SP_MULT[sp] || 1)) + ' indicativo');
   el.innerHTML =
     '<div class="row">' + art(u.d.fam, false, u.d.rank) +
-      '<div><h3>' + (u.isKing ? "♛ " : "") + u.d.name + '</h3><div class="fam">' + u.d.fam + ' · rank ' + u.d.rank + '</div></div></div>' +
+      '<div><h3>' + (u.isKing ? "\u265b " : "") + u.d.name + '</h3><div class="fam">' + u.d.fam + ' \u00b7 rank ' + u.d.rank + '</div></div></div>' +
     '<div class="stats"><div>VITA<b>' + Math.max(0,u.hp) + '</b></div><div>FORZA<b>' + u.str + '</b></div><div>DIFESA<b>' + u.dfn + '</b></div></div>' +
     '<div class="moves">' +
       '<div><span>Attacco</span><b>' + stimaAtk + '</b></div>' +
-      '<div><span>' + f.spn + (u.cd ? ' · ricarica ' + u.cd : '') + '</span><b>' + stimaSp + '</b></div>' +
-      '<div><span>Movimento</span><b>' + (u.moved ? 'già speso' : moveLabel(u.isKing ? "step" : u.d.mv)) + '</b></div>' +
+      '<div><span>' + f.spn + (u.cd ? ' \u00b7 ricarica ' + u.cd : '') + '</span><b>' + stimaSp + '</b></div>' +
+      '<div><span>Movimento</span><b>' + (u.moved ? 'gi\u00e0 speso' : moveLabel(u.isKing ? "step" : u.d.mv)) + '</b></div>' +
     '</div>' +
     '<div class="spec">' + f.spd + '</div>' +
     '<div class="acts" id="acts"></div>';
@@ -3004,6 +3482,30 @@ function messaggio(testo, cls){
   el.textContent = testo;
   el.className = "esito" + (cls ? " " + cls : "");
 }
+$("#btn-mondo").onclick = () => apriMondo();
+$("#btn-mondo-back").onclick = () => {
+  drawRoster(); drawSlots(); detail(S.look); show("s-team");
+};
+$("#btn-seme-copia").onclick = async () => {
+  try {
+    await navigator.clipboard.writeText(S.mondo.seme);
+    $("#mondo-nota").innerHTML = "Seme <b>" + S.mondo.seme + "</b> copiato: chi lo usa gioca " +
+      "il tuo stesso mondo.";
+  } catch(e){
+    $("#mondo-nota").innerHTML = "Copia bloccata dal browser: il seme \u00e8 <b>" + S.mondo.seme +
+      "</b>, sono sei caratteri da ricopiare a mano.";
+  }
+};
+$("#btn-seme-va").onclick = () => {
+  const r = cambiaMondo($("#seme-in").value);
+  $("#mondo-nota").innerHTML = r.ok
+    ? "Adesso stai giocando il mondo <b>" + S.mondo.seme + "</b>. Le trappole che avevi in giro " +
+      "sono tornate nel magazzino."
+    : r.perche;
+  if (r.ok) $("#seme-in").value = "";
+};
+$("#seme-in").onkeydown = ev => { if (ev.key === "Enter") $("#btn-seme-va").click(); };
+
 $("#btn-zoo").onclick = () => apriGabbie();
 $("#btn-zoo-back").onclick = () => {
   drawRoster(); drawSlots(); detail(S.look || null); show("s-team");
@@ -3023,7 +3525,7 @@ $("#btn-copy").onclick = async () => {
     /* La copia automatica vuole una pagina sicura e il permesso: se manca,
        si seleziona il testo e si lascia fare all'utente. */
     area.focus(); area.select();
-    messaggio("Copia bloccata dal browser: il codice è selezionato, premi Ctrl+C (o \u2318C).", "ko");
+    messaggio("Copia bloccata dal browser: il codice \u00e8 selezionato, premi Ctrl+C (o \u2318C).", "ko");
   }
 };
 $("#btn-dl").onclick = () => {
@@ -3072,7 +3574,11 @@ $("#btn-reset").onclick = () => {
   save(); updBadges(); drawRoster(); drawSlots(); show("s-team");
 };
 
-load(); updBadges(); drawRoster(); drawSlots(); detail(null); drawModes();
+load();
+/* Un mondo c'e' sempre: se il salvataggio non ne porta uno (partita nuova, o
+   salvataggio di schema 2) se ne semina uno adesso, con la prima trappola. */
+if (!S.mondo) S.mondo = mondoNuovo();
+updBadges(); drawRoster(); drawSlots(); detail(null); drawModes();
 if (saveFuturo){
   /* Meglio una riga onesta che far credere di aver perso tutto: il salvataggio
      c'e' ancora, e' il gioco a essere piu' vecchio. */

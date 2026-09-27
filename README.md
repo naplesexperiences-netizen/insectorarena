@@ -50,8 +50,8 @@ Non c'è build step: quello che sta qui è quello che viene servito.
 Dopo la prima visita il gioco funziona anche senza rete e si può aggiungere alla
 schermata home come un'app.
 
-> **Quando pubblichi una modifica, alza `VERSIONE` in `sw.js`** (`insectron-v2` →
-> `insectron-v3`). È quello che fa buttare via la cache vecchia: senza, chi ha già
+> **Quando pubblichi una modifica, alza `VERSIONE` in `sw.js`** (`insectron-v3` →
+> `insectron-v4`). È quello che fa buttare via la cache vecchia: senza, chi ha già
 > aperto il sito continua a vedere la versione precedente.
 
 **Collegare un dominio proprio.**
@@ -71,11 +71,45 @@ schermata home come un'app.
 pagine un commento segna dove incollare lo snippet scelto. Cloudflare Web Analytics è
 gratuito e senza cookie, quindi non richiede banner.
 
+## Mondo: dove si catturano gli Insector
+
+I primi **tre** esemplari sono in regalo: si creano dalla scheda del roster. Dal quarto in
+poi si vanno a prendere, e il posto dove si prendono è il **Mondo**.
+
+Una spedizione è fatta di tre scelte: **il luogo**, **la trappola** e **l'esca**. L'esca
+esce dalla dispensa — è cibo che non darai a nessuno — e la trappola si vince conquistando
+i rank, come il cibo. La trappola resta posata per **due partite di torneo**, poi si
+raccoglie: o porta un esemplare, o torna vuota. In quel caso l'esca è persa ma la trappola
+torna nel magazzino: perdere due cose per un tiro andato male sarebbe solo punitivo.
+
+Prima di spendere qualsiasi cosa, la scheda dichiara **la probabilità e chi può farsi
+prendere**. È lo stesso numero che decide l'esito, non una stima ottimistica.
+
+**I cinque luoghi** — Frutteto, Cava, Fornace, Pantano, Radura reale — hanno abitanti
+diversi, e l'esca giusta cambia molto le probabilità: la frutta attira chi mangia dolce,
+i minerali chi scava, il Royal Fruit qualcosa che non capita spesso.
+
+Quel che si cattura arriva come **larva selvatica**, con le statistiche della sua famiglia
+più un piccolo bonus di nascita, e da lì si cresce nelle gabbie come tutti gli altri.
+Non si cattura mai qualcosa oltre il rango che il torneo ha già aperto: il Mondo non è una
+scorciatoia per saltare la difficoltà.
+
+### Il seme: un mondo si passa a un'altra persona
+
+Ogni mondo è **sei caratteri** — `K7F2QA`, per dire. Stesso seme, stesso mondo: gli stessi
+luoghi con gli stessi abitanti, su qualsiasi dispositivo, senza rete e senza account. Si
+copia dalla schermata Mondo e si detta a voce; chi lo scrive nel proprio gioca il tuo.
+
+Il mondo non si salva come mappa: nel salvataggio stanno **il seme e quello che ci hai
+preso**, e la mappa si ricostruisce dal seme ogni volta. È il motivo per cui un mondo
+intero costa sei caratteri invece di qualche KB.
+
 ## Gabbie e allevamento
 
 Oltre a scegliere gli Insector, si possono **allevare**. Dalla scheda di un'unità nel
 roster, «Alleva un esemplare» crea una **larva** nelle gabbie (al massimo dodici): parte
-con le statistiche base della sua famiglia e non può ancora combattere.
+con le statistiche base della sua famiglia e non può ancora combattere. I primi tre sono
+in regalo; dal quarto in poi gli esemplari si **catturano** nel Mondo (sezione sopra).
 
 Cresce mangiando. Il cibo si vince **conquistando i rank** — quattro pezzi per rank, più
 un Royal Fruit dal Rank B in su — e finisce nella dispensa. Ogni pasto alza vita, forza e
@@ -102,7 +136,7 @@ implementate. Promettere un effetto che non c'è sarebbe peggio che non averlo.
 
 ## Salvataggi
 
-I progressi (rank, round, squadra, Re, difficoltà scelta, gabbie e dispensa) stanno in `localStorage`, in
+I progressi (rank, round, squadra, Re, difficoltà scelta, gabbie, dispensa e mondo) stanno in `localStorage`, in
 una riga di JSON da poche centinaia di byte. Sono quindi legati **a questo browser, su
 questo dispositivo, e a questo indirizzo**: cambiando dominio il browser li considera di
 un altro sito e non li trova più.
