@@ -50,8 +50,8 @@ Non c'è build step: quello che sta qui è quello che viene servito.
 Dopo la prima visita il gioco funziona anche senza rete e si può aggiungere alla
 schermata home come un'app.
 
-> **Quando pubblichi una modifica, alza `VERSIONE` in `sw.js`** (`insectron-v8` →
-> `insectron-v9`). È quello che fa buttare via la cache vecchia: senza, chi ha già
+> **Quando pubblichi una modifica, alza `VERSIONE` in `sw.js`** (`insectron-v9` →
+> `insectron-v10`). È quello che fa buttare via la cache vecchia: senza, chi ha già
 > aperto il sito continua a vedere la versione precedente.
 
 **Collegare un dominio proprio.**
@@ -93,6 +93,24 @@ Quel che si cattura arriva come **larva selvatica**, con le statistiche della su
 più un piccolo bonus di nascita, e da lì si cresce nelle gabbie come tutti gli altri.
 Non si cattura mai qualcosa oltre il rango che il torneo ha già aperto: il Mondo non è una
 scorciatoia per saltare la difficoltà.
+
+### Accoppiamento: due adulti, un figlio
+
+Dalle gabbie, **Accoppia due adulti**. Servono un maschio e una femmina, entrambi adulti;
+il figlio nasce **larva**, del gradino successivo nella linea di famiglia, ed eredita il
+**90% del meglio** dei due genitori. Poi ha i suoi quaranta punti di vita da spendere.
+
+**I genitori si consumano.** È questo a rendere l'allevamento un ciclo invece di un
+accumulo: per salire di un gradino se ne perdono due.
+
+**Diciotto coppie speciali** vengono dalle fonti e danno risultati fuori linea — due
+Hercules Beetle non fanno un Hercules Beetle, fanno uno **Stun Staggy**; Mantis e Big
+Staggy fanno un Hatchet Beetle. Sono il contenuto da scoprire, e il gioco te lo segnala
+quando capita. Il sesso degli esemplari **si alterna** invece di essere tirato a caso:
+una gabbia piena di soli maschi non sarebbe una difficoltà interessante.
+
+Il figlio non può superare di più di un gradino quello che il torneo ha già aperto: il
+Mondo e le gabbie fanno crescere, il torneo resta la via principale.
 
 ### Il seme: un mondo si passa a un'altra persona
 
@@ -136,7 +154,8 @@ implementate. Promettere un effetto che non c'è sarebbe peggio che non averlo.
 
 ## Salvataggi
 
-I progressi (rank, round, squadra, Re, difficoltà scelta, gabbie, dispensa e mondo) stanno in `localStorage`, in
+I progressi (rank, round, squadra, Re, difficoltà scelta, gabbie, dispensa, mondo e
+discendenze) stanno in `localStorage`, in
 una riga di JSON da poche centinaia di byte. Sono quindi legati **a questo browser, su
 questo dispositivo, e a questo indirizzo**: cambiando dominio il browser li considera di
 un altro sito e non li trova più.

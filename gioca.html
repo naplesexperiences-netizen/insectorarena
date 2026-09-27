@@ -413,6 +413,33 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 .bonus{font-style:normal;font-size:.7rem;color:var(--ok)}
 .notarella{font-size:.72rem;color:var(--muted);margin-top:9px;line-height:1.5}
 
+/* --- accoppiamento --- */
+.gab.gen{border-color:var(--ok);background:#15251c}
+.sesso{font-size:.64rem;border-radius:999px;padding:2px 7px;vertical-align:2px;
+  border:1px solid var(--line);color:var(--muted)}
+.sesso.m{color:var(--accent2);border-color:var(--accent2)}
+.sesso.f{color:#f0a6e0;border-color:#f0a6e0}
+.tag-nato{font-size:.6rem;background:#15251c;border:1px solid var(--ok);color:var(--ok);
+  border-radius:999px;padding:2px 8px;vertical-align:2px}
+.coppia{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;margin-bottom:12px}
+.genitore{
+  flex:1 1 150px;min-height:86px;display:flex;gap:9px;align-items:center;
+  background:var(--panel2);border:1px dashed var(--line);border-radius:10px;padding:10px
+}
+.genitore.pieno{border-style:solid;border-color:var(--ok)}
+.genitore .art{width:36px;height:36px;flex:0 0 36px}
+.genitore b{font-size:.82rem}
+.genitore .st{display:block;font-size:.67rem;color:var(--muted)}
+.piu{align-self:center;font-size:1.4rem;color:var(--muted)}
+.figlio{
+  background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;
+  font-size:.78rem;line-height:1.6
+}
+.figlio.sp{border-color:var(--accent);background:#2a2415}
+.figlio .grande{display:flex;gap:11px;align-items:center;margin-bottom:8px}
+.figlio .grande .art{width:44px;height:44px;flex:0 0 44px}
+.figlio h4{font-size:.95rem}
+
 /* --- mondo: luoghi, trappole, spedizione --- */
 .luogo{
   display:flex;gap:10px;align-items:center;text-align:left;width:100%;
@@ -638,6 +665,7 @@ footer.note a{color:var(--accent2)}
     </div>
     <div class="acts" style="margin-top:16px">
       <button id="btn-zoo-back" class="primary">Torna al roster</button>
+      <button id="btn-vai-cop">Accoppia due adulti</button>
     </div>
   </div>
 </section>
@@ -647,6 +675,31 @@ footer.note a{color:var(--accent2)}
   <p id="guida-testo">&nbsp;</p>
   <button id="btn-guida-basta">Salta la guida</button>
 </div>
+
+<!-- ============ ACCOPPIAMENTO ============ -->
+<section id="s-cop" class="screen">
+  <div class="card">
+    <h2>Accoppiamento</h2>
+    <p class="hint">Due <b>adulti</b>, un maschio e una femmina, danno un figlio del gradino
+      successivo, che eredita il <b>90% del meglio</b> dei due. <b>I genitori si consumano</b>:
+      è questo a rendere l’allevamento un ciclo invece di un accumulo.</p>
+    <div class="two">
+      <div>
+        <h3 class="sez">Chi può riprodursi <span class="badge" id="cop-n">0</span></h3>
+        <div class="gabbie" id="cop-lista"></div>
+      </div>
+      <div>
+        <h3 class="sez">La coppia</h3>
+        <div class="coppia" id="cop-coppia"></div>
+        <div id="cop-esito"></div>
+      </div>
+    </div>
+    <div class="acts" style="margin-top:16px">
+      <button id="btn-cop-back" class="primary">Torna alle gabbie</button>
+      <button id="btn-cop-vuota">Togli la scelta</button>
+    </div>
+  </div>
+</section>
 
 <!-- ============ MONDO: CATTURA CON TRAPPOLE ED ESCHE ============ -->
 <section id="s-mondo" class="screen">
@@ -1005,6 +1058,54 @@ const CIBI_PREMIO = ["Sanchez Fruit","Firestone","Ruby","Primeval Beef","Dark On
 const PREMIO_RANK = 4;                            /* cibi per rank conquistato */
 
 /* =========================================================================
+   RIPRODUZIONE
+   Le fonti danno 23 coppie speciali; 18 sono giocabili qui, perche' le altre
+   cinque chiamano in causa unita' che il nostro roster non ha (Cold Cuts,
+   Itsareindeer, Flappillon, Rollerover, Blade Beetle). Sono riportate come
+   stanno: e' il contenuto da scoprire, la ragione per rigiocare.
+
+   Le coppie documentate sono orientate \u2014 maschio di X e femmina di Y \u2014 ma qui
+   valgono nei due versi: pretendere anche l'orientamento giusto avrebbe
+   trasformato una scoperta in una lotteria.
+   ========================================================================= */
+const COPPIE = [
+  ["flipperbug","flipperbug","bomb_roller"],   ["faerie","faerie","butterflap"],
+  ["knife_beetle","saber_beetle","carver_beetle"], ["flipperbug","turner","dustpan"],
+  ["itsahorse","itsahorse","fishface_beetle"], ["butterflap","butterflap","handsome_faerie"],
+  ["mantis","big_staggy","hatchet_beetle"],    ["fishface_beetle","fishface_beetle","kaboom_beetle"],
+  ["hercules_beetle","orion_beetle","narcissus_beetle"], ["stun_staggy","stun_staggy","orion_beetle"],
+  ["staggy","bomb_roller","planet_beetle"],    ["slaying_mantis","slaying_mantis","saber_beetle"],
+  ["bomb_roller","bomb_roller","shoveler"],    ["hercules_beetle","hercules_beetle","stun_staggy"],
+  ["big_staggy","miss_mysterious","susanoo_beetle"], ["mantis","slaying_mantis","tornado_mantis"],
+  ["orion_beetle","stinger_bill","turner"],    ["drillerpillar","gum_roller","western_beetle"]
+];
+const EREDITA = 0.9;                              /* il figlio prende il 90% del meglio */
+
+/* Il gradino successivo nella linea della famiglia. Le scale hanno buchi
+   (Flipperbug va 1, 3, 4, 5), quindi "rango + 1" vuol dire "il prossimo che
+   esiste", non letteralmente uno in piu'. */
+function successore(id){
+  const u = byId[id];
+  if (!u) return null;
+  return UNITS.filter(x => x.fam === u.fam && x.rank > u.rank && x.id !== "dark_emperor")
+              .sort((a,b) => a.rank - b.rank)[0] || null;
+}
+/* Cosa nasce da questi due. Torna anche il perche', che la schermata mostra. */
+function figlioDi(a, b){
+  if (!a || !b) return null;
+  const sp = COPPIE.filter(c => (c[0] === a.id && c[1] === b.id) || (c[0] === b.id && c[1] === a.id))[0];
+  if (sp && byId[sp[2]]) return { id: sp[2], speciale: true };
+  /* Altrimenti la linea di famiglia: si parte dal genitore di rango piu' alto. */
+  const alto = byId[a.id].rank >= byId[b.id].rank ? a : b;
+  const basso = alto === a ? b : a;
+  const su = successore(alto.id) || successore(basso.id);
+  return su ? { id: su.id, speciale: false } : null;
+}
+/* Oltre questo rango non si va: il torneo resta la via principale, e un
+   rango 6 al Rank E farebbe saltare la curva misurata. */
+const tettoNascita = () => Math.min(6, maxRank() + 1);
+
+/* =========================================================================
    MONDO — dove si catturano gli Insector
    Le fonti danno tre campi mai usati prima: `bait`, `traps`, `location`.
    Contati per unita' coprono un terzo del roster; ma una tabella di cattura
@@ -1129,8 +1230,12 @@ function mondoNuovo(seme){
 /* Un esemplare allevato. La squadra puo' contenere sia definizioni del roster
    ("knife_beetle") sia esemplari ("@s3"): defOf() scioglie le due forme. */
 let ZOO_SEQ = 0;
-function nuovoEsemplare(id, bonus, selvatico){
-  return { u: "s" + (++ZOO_SEQ), id: id, sel: !!selvatico,
+/* Il sesso si alterna invece di essere tirato a caso: con dodici gabbie, una
+   serie sfortunata di tutti maschi renderebbe impossibile riprodurre, e non
+   sarebbe una difficolta' interessante. */
+function nuovoEsemplare(id, bonus, selvatico, nato){
+  return { u: "s" + (++ZOO_SEQ), id: id, sel: !!selvatico, nato: !!nato,
+           s: (ZOO_SEQ % 2) ? "m" : "f",
            b: { hp:(bonus && bonus.hp)|0, str:(bonus && bonus.str)|0, def:(bonus && bonus.def)|0 },
            res: { kb:0, cf:0, ct:0, ex:0, th:0, po:0 }, speso: 0 };
 }
@@ -1535,6 +1640,7 @@ const S = {
   names: { p: "Giocatore 1", e: "Giocatore 2" },
   setup: "p", deploySide: "p", careerHeld: false,
   zoo: [], dispensa: {}, nutri: null,             /* esemplari allevati, cibo in magazzino, chi si sta nutrendo */
+  cop: [],                                        /* i due esemplari scelti per accoppiarsi */
   mondo: null,                                    /* seme, trappole in magazzino, trappole posate */
   luogo: null, trapSel: 1, escaSel: null,         /* la spedizione che si sta preparando */
   gratis: 0, giocate: 0,                          /* esemplari regalati; partite di torneo giocate */
@@ -1565,7 +1671,7 @@ const kingOf = side => S.units.find(u => u.alive && u.side === side && u.isKing)
    leggere i salvataggi vecchi quando la forma dei dati cambia, e rifiutare quelli
    scritti da una versione futura del gioco invece di interpretarli a caso.
    ========================================================================= */
-const SCHEMA = 3;                                 /* alzare quando cambia la forma dei dati */
+const SCHEMA = 4;                                 /* alzare quando cambia la forma dei dati */
 const CHIAVE = "insectron";
 const MARCA = "INSECTRON-";                       /* prefisso dei codici esportati */
 
@@ -1597,14 +1703,17 @@ function migra(v){
      v1 -> v2: arrivano gabbie e dispensa; chi giocava prima riparte con
      entrambe vuote e non perde niente del torneo.
      v2 -> v3: arriva il mondo. Chi giocava prima riceve un mondo nuovo e la
-     prima trappola, e non perde ne' torneo ne' gabbie. Le migrazioni future
-     si aggiungono qui, una per gradino. */
-  const zoo = Array.isArray(v.z) ? v.z.filter(e => e && byId[e.id]).map(e => ({
+     prima trappola, e non perde ne' torneo ne' gabbie.
+     v3 -> v4: arriva la riproduzione, e con lei il sesso degli esemplari. A
+     chi ne aveva gia' viene assegnato alternandolo, cosi' una gabbia piena di
+     larve non nasce tutta maschio. Le migrazioni future si aggiungono qui. */
+  const zoo = Array.isArray(v.z) ? v.z.filter(e => e && byId[e.id]).map((e, i) => ({
     u: String(e.u || ""), id: e.id,
     b: { hp:(e.b&&e.b.hp)|0, str:(e.b&&e.b.str)|0, def:(e.b&&e.b.def)|0 },
     res: RES.reduce((o,k) => (o[k] = (e.res && e.res[k])|0, o), {}),
     speso: Math.max(0, Math.min(VITA_MAX, (e.speso|0))),
-    sel: !!e.sel
+    sel: !!e.sel, nato: !!e.nato,
+    s: (e.s === "m" || e.s === "f") ? e.s : ((i % 2) ? "m" : "f")
   })) : [];
   const disp = {};
   if (v.p && typeof v.p === "object")
@@ -2142,7 +2251,9 @@ function drawGabbie(){
     b.innerHTML = art(u.fam, false, u.rank) +
       '<span class="grow"><b>' + u.name + '</b> <span class="tag-all">' +
         (adulto(e) ? "adulto" : "larva") + '</span>' +
+      ' <span class="sesso ' + e.s + '">' + SESSO_NOME[e.s] + '</span>' +
       (e.sel ? ' <span class="tag-sel">catturato</span>' : '') +
+      (e.nato ? ' <span class="tag-nato">nato in gabbia</span>' : '') +
       '<span class="st">' + st.hp + "hp \u00b7 " + st.str + "str \u00b7 " + st.def + "def" +
         ' \u00b7 vita ' + vitaResidua(e) + '/' + VITA_MAX + '</span>' +
       '<span class="vita"><i style="width:' + (vitaResidua(e) / VITA_MAX * 100) + '%"></i></span></span>';
@@ -2204,6 +2315,44 @@ function nutriCon(nome){
       '</b> \u00e8 diventato adulto: ora puoi portarlo in squadra dal roster.</p>';
   }
 }
+/* Due adulti, un figlio, e i genitori che si consumano: e' questo a rendere
+   l'allevamento un ciclo invece di un accumulo. */
+function possonoAccoppiarsi(a, b){
+  if (!a || !b || a === b) return "Servono due esemplari diversi.";
+  if (!adulto(a) || !adulto(b)) return "Si riproducono solo gli adulti.";
+  if (a.s === b.s) return "Serve un maschio e una femmina.";
+  const f = figlioDi(a, b);
+  if (!f) return "Questa coppia non ha discendenza: nessuna delle due famiglie ha un gradino successivo.";
+  if (byId[f.id].rank > tettoNascita())
+    return "Il figlio sarebbe di rango " + byId[f.id].rank + ": conquista un altro rank del torneo prima.";
+  if (S.zoo.length >= MAX_GABBIE) return "Le gabbie sono piene: serve posto per il figlio.";
+  return "";
+}
+function accoppia(ua, ub){
+  const a = S.zoo.find(x => x.u === ua), b = S.zoo.find(x => x.u === ub);
+  if (possonoAccoppiarsi(a, b)) return null;
+  const f = figlioDi(a, b);
+  const figlio = nuovoEsemplare(f.id, null, false, true);
+  /* Il 90% del meglio fra i due: si eredita il progresso, non lo si raddoppia. */
+  ["hp","str","def"].forEach(k => figlio.b[k] = Math.round(Math.max(a.b[k], b.b[k]) * EREDITA));
+  RES.forEach(k => figlio.res[k] = Math.round(Math.max(a.res[k], b.res[k]) * EREDITA));
+  /* I genitori escono dalle gabbie, e dalla squadra se c'erano. */
+  [a, b].forEach(g => {
+    const rif = "@" + g.u;
+    const i = S.team.indexOf(rif);
+    if (i >= 0) S.team.splice(i, 1);
+    if (S.kingId === rif) S.kingId = S.team[0] || null;
+    if (S.nutri === g.u) S.nutri = null;
+    S.zoo.splice(S.zoo.indexOf(g), 1);
+  });
+  /* Il figlio entra dopo, altrimenti gli indici dei genitori da togliere
+     ballerebbero sotto i piedi. */
+  S.zoo.push(figlio);
+  S.cop = [];
+  save();
+  return { figlio, speciale: f.speciale, padre: a, madre: b };
+}
+
 /* Le trappole non si comprano: si vincono, come il cibo. Piu' sali di rank,
    piu' la trappola che arriva e' capiente. */
 function premiaConTrappola(){
@@ -2225,6 +2374,105 @@ function premiaConCibo(quanti){
   const conta = {};
   presi.forEach(n => conta[n] = (conta[n] || 0) + 1);
   return Object.keys(conta).map(n => n + (conta[n] > 1 ? " \u00d7" + conta[n] : "")).join(", ");
+}
+
+/* =========================================================================
+   ACCOPPIAMENTO \u2014 si scelgono due adulti, si vede cosa nasce, si conferma.
+   Stessa regola del resto: quello che succede si legge prima di premere.
+   ========================================================================= */
+const SESSO_NOME = { m:"maschio", f:"femmina" };
+function apriCoppia(){
+  if (demo()) return;
+  S.cop = (S.cop || []).filter(u => S.zoo.some(e => e.u === u && adulto(e)));
+  drawCoppia(); show("s-cop");
+}
+function drawCoppia(){
+  const box = $("#cop-lista"); box.innerHTML = "";
+  const adulti = S.zoo.filter(adulto);
+  $("#cop-n").textContent = adulti.length;
+  if (!adulti.length){
+    box.innerHTML = '<p class="nessuno">Nessun adulto. Un esemplare diventa adulto quando ha ' +
+      'speso <b>' + VITA_ADULTO + '</b> punti di vita in cibo.</p>';
+  }
+  adulti.forEach(e => {
+    const u = byId[e.id], st = statsOf("@" + e.u), scelto = (S.cop || []).indexOf(e.u) >= 0;
+    const b = document.createElement("button");
+    b.className = "gab" + (scelto ? " gen" : "");
+    b.dataset.u = e.u;
+    b.innerHTML = art(u.fam, false, u.rank) +
+      '<span class="grow"><b>' + u.name + '</b> ' +
+      '<span class="sesso ' + e.s + '">' + SESSO_NOME[e.s] + '</span>' +
+      (e.nato ? ' <span class="tag-nato">nato in gabbia</span>' : '') +
+      '<span class="st">rango ' + u.rank + ' \u00b7 ' + st.hp + "hp \u00b7 " + st.str + "str \u00b7 " +
+        st.def + 'def \u00b7 vita ' + vitaResidua(e) + '/' + VITA_MAX + '</span></span>';
+    b.onclick = () => scegliGenitore(e.u);
+    box.appendChild(b);
+  });
+  drawCoppiaScelta();
+}
+function scegliGenitore(u){
+  const c = S.cop || (S.cop = []);
+  const i = c.indexOf(u);
+  if (i >= 0) c.splice(i, 1);
+  else { c.push(u); if (c.length > 2) c.shift(); }
+  suona("clic");
+  drawCoppia();
+}
+function drawCoppiaScelta(){
+  const box = $("#cop-coppia"), esito = $("#cop-esito");
+  const c = S.cop || [];
+  const gen = i => {
+    const e = c[i] && S.zoo.find(x => x.u === c[i]);
+    if (!e) return '<div class="genitore"><span class="st">Scegli un adulto dall\u2019elenco</span></div>';
+    const u = byId[e.id];
+    return '<div class="genitore pieno">' + art(u.fam, false, u.rank) +
+      '<span class="grow"><b>' + u.name + '</b> <span class="sesso ' + e.s + '">' +
+      SESSO_NOME[e.s] + '</span><span class="st">rango ' + u.rank + ' \u00b7 +' + e.b.hp +
+      ' vita, +' + e.b.str + ' forza, +' + e.b.def + ' difesa</span></span></div>';
+  };
+  box.innerHTML = gen(0) + '<span class="piu">+</span>' + gen(1);
+
+  const a = c[0] && S.zoo.find(x => x.u === c[0]);
+  const b = c[1] && S.zoo.find(x => x.u === c[1]);
+  if (!a || !b){
+    esito.innerHTML = '<p class="notarella">Scegli <b>due</b> adulti: uno maschio e una femmina. ' +
+      'Le coppie documentate dalle fonti danno risultati fuori linea \u2014 sono ' + COPPIE.length +
+      ', e scoprirle e\u0300 il bello.</p>';
+    return;
+  }
+  const perche = possonoAccoppiarsi(a, b);
+  if (perche){
+    esito.innerHTML = '<div class="figlio"><b>Non si puo\u0300.</b> ' + perche + '</div>';
+    return;
+  }
+  const f = figlioDi(a, b), u = byId[f.id];
+  const eredita = k => Math.round(Math.max(a.b[k], b.b[k]) * EREDITA);
+  esito.innerHTML =
+    '<div class="figlio' + (f.speciale ? ' sp' : '') + '">' +
+      '<div class="grande">' + art(u.fam, false, u.rank) +
+        '<div><h4>' + u.name + '</h4><span class="st">' + u.fam + ' \u00b7 rango ' + u.rank +
+        (f.speciale ? ' \u00b7 <b>coppia speciale</b>' : '') + '</span></div></div>' +
+      'Nasce larva con <b>' + (u.hp + eredita("hp")) + '</b> vita, <b>' +
+        (u.str + eredita("str")) + '</b> forza, <b>' + (u.def + eredita("def")) + '</b> difesa ' +
+        '(base del rango pi\u00f9 il ' + Math.round(EREDITA * 100) + '% del meglio dei genitori).' +
+      '<br>Avr\u00e0 <b>' + VITA_MAX + '</b> punti di vita tutti suoi.' +
+      '<br><b style="color:var(--warn)">I due genitori spariscono dalle gabbie.</b>' +
+      '<div class="acts"><button id="btn-cop-fai" class="primary">Falli accoppiare</button></div>' +
+    '</div>';
+  const go = $("#btn-cop-fai");
+  if (go) go.onclick = () => {
+    const r = accoppia(a.u, b.u);
+    if (!r) return;
+    suona("cattura");
+    const nu = byId[r.figlio.id];
+    drawCoppia();
+    $("#cop-esito").innerHTML = '<div class="figlio' + (r.speciale ? ' sp' : '') + '">' +
+      '<div class="grande">' + art(nu.fam, false, nu.rank) +
+      '<div><h4>\u00c8 nato ' + nu.name + '</h4><span class="st">' +
+      (r.speciale ? 'coppia speciale \u2014 ' : '') + 'rango ' + nu.rank + '</span></div></div>' +
+      '\u00c8 una <b>larva</b>: portala nelle gabbie e nutrila ' + VITA_ADULTO +
+      ' punti perch\u00e9 possa combattere.</div>';
+  };
 }
 
 /* =========================================================================
@@ -4179,6 +4427,9 @@ $("#btn-seme-va").onclick = () => {
 $("#seme-in").onkeydown = ev => { if (ev.key === "Enter") $("#btn-seme-va").click(); };
 
 $("#btn-zoo").onclick = () => { menuApri(false); apriGabbie(); };
+$("#btn-vai-cop").onclick = () => apriCoppia();
+$("#btn-cop-back").onclick = () => apriGabbie(S.nutri);
+$("#btn-cop-vuota").onclick = () => { S.cop = []; drawCoppia(); };
 $("#btn-zoo-back").onclick = () => {
   drawRoster(); drawSlots(); detail(S.look || null); show("s-team");
 };
