@@ -452,7 +452,23 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 .tag-sel{font-size:.6rem;background:#16242e;border:1px solid var(--accent2);color:var(--accent2);
   border-radius:999px;padding:2px 8px;vertical-align:2px}
 
-header.top button.spento{opacity:.55;text-decoration:line-through}
+button.spento{opacity:.55;text-decoration:line-through}
+
+/* --- menu unico: mondo, gabbie, suono, musica --- */
+.menu{position:relative}
+.menubox{
+  position:absolute;right:0;top:calc(100% + 7px);z-index:45;min-width:196px;
+  display:flex;flex-direction:column;gap:4px;padding:7px;
+  background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+  box-shadow:0 14px 34px rgba(0,0,0,.5)
+}
+.menubox[hidden]{display:none}
+.menubox button{width:100%;text-align:left;font-size:.82rem;padding:8px 11px}
+.menubox button[role="menuitemcheckbox"]{display:flex;align-items:center;gap:10px}
+.menubox .st{margin-left:auto;font-size:.68rem;color:var(--muted)}
+.menubox button.spento .st{color:var(--foe)}
+.menubox .sep{height:1px;background:var(--line);margin:3px 1px}
+.menubox .sep[hidden]{display:none}
 
 /* --- guida del primo minuto --- */
 .guida{
@@ -561,10 +577,16 @@ footer.note a{color:var(--accent2)}
   <div class="badge" id="b-rank">Rank <b>E</b></div>
   <div class="badge" id="b-round">Round <b>1</b>/5</div>
   <div class="spacer"></div>
-  <button id="btn-audio" aria-pressed="true">Suono</button>
-  <button id="btn-musica" aria-pressed="true">Musica</button>
-  <button id="btn-mondo">Mondo</button>
-  <button id="btn-zoo">Gabbie</button>
+  <div class="menu">
+    <button id="btn-menu" aria-haspopup="true" aria-expanded="false" aria-controls="menu-box">Menu</button>
+    <div class="menubox" id="menu-box" role="menu" aria-labelledby="btn-menu" hidden>
+      <button id="btn-mondo" role="menuitem">Mondo</button>
+      <button id="btn-zoo" role="menuitem">Gabbie</button>
+      <div class="sep" id="menu-sep"></div>
+      <button id="btn-audio" role="menuitemcheckbox" aria-checked="true"><span class="grow">Suono</span><span class="st" id="st-audio">acceso</span></button>
+      <button id="btn-musica" role="menuitemcheckbox" aria-checked="true"><span class="grow">Musica</span><span class="st" id="st-musica">accesa</span></button>
+    </div>
+  </div>
   <button id="btn-save">Salvataggio</button>
   <button id="btn-reset" class="danger">Azzera torneo</button>
 </header>
@@ -1657,79 +1679,126 @@ function importa(testo){
 }
 
 /* =========================================================================
-   MUSICA \u2014 ambient generata al volo
-   Non e' un brano registrato: e' una regola. Ogni battuta sceglie l'accordo
-   successivo del giro e ci appoggia sopra un tappeto lungo e qualche nota
-   sparsa, quindi non si ripete mai identica e non costa un byte di
-   scaricamento. Due scene, decise dalla schermata e non dall'andamento della
-   partita: `calma` fuori dal campo, `campo` durante la battaglia.
+   MUSICA — melodie scritte, suonate dal sintetizzatore che c'e' gia'
+   Le note stanno in una tabella: qualche riga di dati, non un file audio. E'
+   il modo in cui facevano musica le macchine con 64 KB di memoria, ed e'
+   coerente con il resto — la grafica e' disegnata da codice, la musica e'
+   scritta come dati e suonata qui.
 
-   Il punto tecnico che conta e' lo `scheduler` con anticipo: le note NON si
-   fanno partire con setTimeout \u2014 si programmano sul clock audio 200 ms prima
-   del momento giusto. E' la differenza fra una musica a tempo e una che
-   zoppica ogni volta che il browser e' occupato a disegnare.
+   Formato: un brano e' una griglia di sedicesimi. Ogni voce e' una fila di
+   coppie [semitono, quanti passi dura]; `null` al posto del semitono e' una
+   pausa. I semitoni si contano dalla fondamentale del brano, e `ott` alza o
+   abbassa la voce di un'ottava.
+
+   Il punto tecnico che conta resta lo `scheduler` con anticipo: le note NON
+   partono con setTimeout — si programmano sul clock audio 250 ms prima del
+   momento giusto. E' la differenza fra una musica a tempo e una che zoppica
+   ogni volta che il browser e' occupato a disegnare.
    ========================================================================= */
 const MUSICA_CHIAVE = "insectron-musica";
 const SEMI = n => Math.pow(2, n / 12);            /* semitoni -> rapporto di frequenza */
-/* Un giro di quattro accordi in minore naturale: i gradi sono semitoni dalla
-   fondamentale, e ogni accordo e' [fondamentale, terza, quinta]. */
-const GIRO = [[0,3,7], [-4,0,5], [5,8,12], [-2,3,7]];
-const SCENE = {
-  calma: { radice: 110, battuta: 4.2, pad: 0.085, arp: 0.34, arpG: 0.055,
-           basso: 0, tic: 0, lp: 900 },
-  campo: { radice: 98,  battuta: 3.2, pad: 0.075, arp: 0.46, arpG: 0.05,
-           basso: 0.075, tic: 0.035, lp: 700 }
+
+/* Due brani, entrambi in LA minore naturale, scritti su quattro battute.
+   Fuori dal campo un tema lento e curioso; in battaglia lo stesso impianto
+   armonico ma spinto, con il basso in ottavi e una percussione secca. */
+const BRANI = {
+  roster: {
+    nome: "Il roster", bpm: 88, radice: 220,
+    voci: [
+      /* melodia */
+      { t:"triangle", g:0.075, ott:12, legato:0.9, note:[
+        [7,4],[5,2],[3,2],[5,4],[7,4],
+        [12,6],[10,2],[7,8],
+        [3,4],[7,2],[5,2],[3,4],[0,4],
+        [5,2],[3,2],[2,4],[0,8] ] },
+      /* basso: una fondamentale per battuta, tenuta */
+      { t:"sine", g:0.075, ott:-12, legato:0.98, note:[
+        [0,8],[0,8], [8,8],[8,8], [3,8],[3,8], [10,8],[10,8] ] },
+      /* controcanto rado, come un\u2019eco della melodia */
+      { t:"square", g:0.018, ott:12, legato:0.5, note:[
+        [null,8],[12,2],[null,2],[10,4],
+        [null,8],[15,2],[null,2],[12,4],
+        [null,8],[10,2],[null,2],[7,4],
+        [null,16] ] }
+    ]
+  },
+  campo: {
+    nome: "Il campo", bpm: 132, radice: 196,
+    voci: [
+      { t:"triangle", g:0.095, ott:12, legato:0.7, note:[
+        [0,2],[3,2],[7,4],[null,2],[7,2],[8,4],
+        [7,2],[5,2],[3,4],[null,2],[2,2],[0,4],
+        [8,4],[7,2],[5,2],[3,4],[null,4],
+        [10,2],[12,2],[10,2],[7,2],[5,4],[null,4] ] },
+      /* basso in ottavi: e\u0300 lui a spingere */
+      { t:"sine", g:0.105, ott:-12, legato:0.55, note:[
+        [0,2],[0,2],[0,2],[0,2],[0,2],[0,2],[0,2],[0,2],
+        [0,2],[0,2],[0,2],[0,2],[0,2],[0,2],[0,2],[0,2],
+        [8,2],[8,2],[8,2],[8,2],[8,2],[8,2],[8,2],[8,2],
+        [10,2],[10,2],[10,2],[10,2],[7,2],[7,2],[7,2],[7,2] ] },
+      /* percussione: rumore filtrato sul quarto */
+      { n:true, g:0.038, lp:900, legato:0.35, note:[
+        [0,4],[0,4],[0,4],[0,4], [0,4],[0,4],[0,4],[0,4],
+        [0,4],[0,4],[0,4],[0,4], [0,4],[0,4],[0,4],[0,4] ] }
+    ]
+  }
 };
-let musicaOn = true, musBus = null, musTimer = null, musQuando = 0, musBattuta = 0,
-    musScena = "calma";
+let musicaOn = true, musBus = null, musTimer = null, musQuando = 0, musPasso = 0,
+    musBrano = "roster";
 
 function musicaBus(c){
   if (musBus) return musBus;
   musBus = c.createGain();
-  /* Tarato misurando: a 0,7 il tappeto sta attorno a -35 dBFS di valore
-     efficace, cioe' si sente come sottofondo senza coprire i colpi, che
-     arrivano a un picco circa doppio. */
+  /* Tarato misurando: a 0,7 il brano sta attorno a -35 dBFS di valore
+     efficace, cioe\u0300 si sente senza coprire i colpi, che arrivano a un picco
+     circa doppio. */
   musBus.gain.value = 0.7;
   musBus.connect(c.destination);
   return musBus;
 }
-/* Programma una battuta intera a partire da `t`. */
-function battuta(c, t){
-  const S2 = SCENE[musScena], bus = musicaBus(c);
-  const acc = GIRO[musBattuta % GIRO.length];
-  musBattuta++;
-  /* il tappeto: tre note lunghe che si accavallano con la battuta dopo */
-  acc.forEach((semi, i) => voce(c, {
-    t: i === 0 ? "triangle" : "sine",
-    f: S2.radice * SEMI(semi),
-    d: S2.battuta * 1.15, g: S2.pad * (i === 0 ? 1 : 0.7), a: 0.9
-  }, bus, t));
-  /* le note sparse, due ottave sopra, con qualche silenzio: e' quello che
-     evita il giro di carillon */
-  const passi = 8, dt = S2.battuta / passi;
-  for (let i = 0; i < passi; i++){
-    if (Math.random() > S2.arp) continue;
-    const semi = acc[Math.floor(Math.random() * acc.length)] + (Math.random() < 0.3 ? 24 : 12);
-    voce(c, { t:"sine", f: S2.radice * SEMI(semi), d: dt * 1.6, g: S2.arpG, a: 0.05 },
-         bus, t + i * dt);
-  }
-  if (S2.basso){
-    [0, passi / 2].forEach(i => voce(c, {
-      t:"sine", f: S2.radice * SEMI(acc[0] - 12), d: dt * 1.8, g: S2.basso, a: 0.03
-    }, bus, t + i * dt));
-  }
-  if (S2.tic){
-    [2, 6].forEach(i => voce(c, { n:true, d:0.09, g:S2.tic, lp:S2.lp }, bus, t + i * dt));
-  }
-  return S2.battuta;
+/* Dalla scrittura per voci alla griglia: per ogni passo, cosa comincia li\u0300.
+   Si calcola una volta sola e resta attaccata al brano. */
+function griglia(B){
+  if (B.griglia) return B.griglia;
+  let lung = 0;
+  B.voci.forEach(v => {
+    let n = 0; v.note.forEach(e => n += e[1]);
+    lung = Math.max(lung, n);
+  });
+  const g = Array.from({ length: lung }, () => []);
+  B.voci.forEach(v => {
+    let i = 0;
+    v.note.forEach(e => {
+      if (e[0] !== null) g[i % lung].push({ v: v, semi: e[0], passi: e[1] });
+      i += e[1];
+    });
+  });
+  B.griglia = g; B.lung = lung;
+  return g;
+}
+const durataPasso = B => 60 / B.bpm / 4;          /* un passo e\u0300 un sedicesimo */
+
+function pianificaPasso(c, B, n, t){
+  const g = griglia(B), passo = durataPasso(B), bus = musicaBus(c);
+  g[((n % B.lung) + B.lung) % B.lung].forEach(ev => {
+    const v = ev.v, d = passo * ev.passi * (v.legato || 0.9);
+    voce(c, v.n
+      ? { n:true, d: d, g: v.g, lp: v.lp || 900 }
+      : { t: v.t, f: B.radice * SEMI(ev.semi + (v.ott || 0)), d: d, g: v.g,
+          a: v.a || 0.012 },
+      bus, t);
+  });
 }
 function musicaGiro(){
   const c = actx;
   if (!c || !musicaOn) return;
+  const B = BRANI[musBrano];
   /* si programma fin dove arriva la finestra di anticipo, e non oltre */
   while (musQuando < c.currentTime + 0.25){
     if (musQuando < c.currentTime) musQuando = c.currentTime + 0.05;
-    musQuando += battuta(c, musQuando);
+    pianificaPasso(c, B, musPasso, musQuando);
+    musPasso++;
+    musQuando += durataPasso(B);
   }
 }
 function musicaAvvia(){
@@ -1745,9 +1814,12 @@ function musicaFerma(){
   if (musTimer){ clearInterval(musTimer); musTimer = null; }
   musQuando = 0;
 }
-/* La scena la decide la schermata: dentro al campo o fuori. */
+
+/* Il brano lo decide la schermata: dentro al campo o fuori. Cambiandolo si
+   riparte dalla prima battuta, perche' i due temi hanno tempi diversi e
+   riprenderli a meta' suonerebbe come un inciampo. */
 function musicaScena(nome){
-  if (SCENE[nome]) musScena = nome;
+  if (BRANI[nome] && nome !== musBrano){ musBrano = nome; musPasso = 0; }
   musicaAvvia();
 }
 function musicaBottone(){
@@ -1755,8 +1827,10 @@ function musicaBottone(){
   if (!b) return;
   b.title = musicaOn ? "Musica accesa" : "Musica spenta";
   b.setAttribute("aria-label", b.title);
-  b.setAttribute("aria-pressed", musicaOn ? "true" : "false");
+  b.setAttribute("aria-checked", musicaOn ? "true" : "false");
   b.classList.toggle("spento", !musicaOn);
+  const st = $("#st-musica");
+  if (st) st.textContent = musicaOn ? "accesa" : "spenta";
 }
 function musicaImposta(on){
   musicaOn = !!on;
@@ -1942,8 +2016,10 @@ function audioImposta(on){
        il titolo, aria-pressed e il tratto sopra il testo. */
     b.title = audioOn ? "Suono acceso" : "Suono spento";
     b.setAttribute("aria-label", b.title);
-    b.setAttribute("aria-pressed", audioOn ? "true" : "false");
+    b.setAttribute("aria-checked", audioOn ? "true" : "false");
     b.classList.toggle("spento", !audioOn);
+    const st = $("#st-audio");
+    if (st) st.textContent = audioOn ? "acceso" : "spento";
   }
   try { localStorage.setItem(AUDIO_CHIAVE, audioOn ? "1" : "0"); } catch(e){}
 }
@@ -3566,8 +3642,17 @@ function finish(win){
       if (S.rankIdx >= 1) tappa("rankD");
     } else {
       $("#r-title").innerHTML = '<span class="win">Round vinto</span>';
+      const restano = 5 - S.round;
+      /* Il premio arriva a rank conquistato, non a ogni round: e' una scelta di
+         equilibrio (misurata), ma va detta. Vincere e non ricevere niente,
+         senza sapere perche', sembra un difetto del gioco. */
       $("#r-text").innerHTML = "Hai battuto <b>" + R.names[S.round-1] + "</b>. Avanti il prossimo: <b>" +
-        R.names[S.round] + "</b> (round " + (S.round+1) + "/5 del Rank " + R.id + ").";
+        R.names[S.round] + "</b> (round " + (S.round+1) + "/5 del Rank " + R.id + ")." +
+        (demo() ? ""
+          : "<br><br>Il <b>cibo</b> per le gabbie e la <b>trappola</b> per il mondo arrivano " +
+            "conquistando il rank, non a ogni round: " +
+            (restano === 1 ? "manca <b>l\u2019ultimo</b>."
+                           : "ne mancano <b>" + restano + "</b>."));
     }
   } else {
     $("#r-title").innerHTML = '<span class="lose">Il tuo Re \u00e8 caduto</span>';
@@ -3863,7 +3948,7 @@ function show(id){
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("on"));
   $("#" + id).classList.add("on");
   window.scrollTo(0,0);
-  musicaScena(id === "s-battle" ? "campo" : "calma");
+  musicaScena(id === "s-battle" ? "campo" : "roster");
   guidaAggiorna();
 }
 function updBadges(){
@@ -4005,7 +4090,7 @@ function messaggio(testo, cls){
   el.textContent = testo;
   el.className = "esito" + (cls ? " " + cls : "");
 }
-$("#btn-mondo").onclick = () => apriMondo();
+$("#btn-mondo").onclick = () => { menuApri(false); apriMondo(); };
 $("#btn-mondo-back").onclick = () => {
   drawRoster(); drawSlots(); detail(S.look); show("s-team");
 };
@@ -4029,10 +4114,26 @@ $("#btn-seme-va").onclick = () => {
 };
 $("#seme-in").onkeydown = ev => { if (ev.key === "Enter") $("#btn-seme-va").click(); };
 
-$("#btn-zoo").onclick = () => apriGabbie();
+$("#btn-zoo").onclick = () => { menuApri(false); apriGabbie(); };
 $("#btn-zoo-back").onclick = () => {
   drawRoster(); drawSlots(); detail(S.look || null); show("s-team");
 };
+/* Il menu: si apre, si chiude con Esc o cliccando fuori, e restituisce il
+   fuoco al pulsante che lo ha aperto. Scegliere una destinazione lo chiude;
+   accendere o spegnere un suono no, cosi' si possono toccare tutti e due. */
+function menuApri(apri){
+  const box = $("#menu-box"), b = $("#btn-menu");
+  if (!box || !b) return;
+  box.hidden = !apri;
+  b.setAttribute("aria-expanded", apri ? "true" : "false");
+  if (apri) (box.querySelector("button:not([hidden])") || b).focus();
+}
+const menuAperto = () => !$("#menu-box").hidden;
+$("#btn-menu").onclick = () => { const a = !menuAperto(); menuApri(a); suona("clic"); };
+document.addEventListener("click", ev => {
+  if (menuAperto() && !ev.target.closest(".menu")) menuApri(false);
+});
+
 $("#btn-guida-basta").onclick = () => { guidaSpegni(); suona("clic"); };
 $("#btn-audio").onclick = () => { audioImposta(!audioOn); suona("clic"); };
 $("#btn-musica").onclick = () => { musicaImposta(!musicaOn); suona("clic"); };
@@ -4075,6 +4176,7 @@ document.addEventListener("keydown", ev => {
   if (ev.key !== "Escape") return;
   if (!$("#eco-box").hidden) chiudiEco();
   else if (!$("#save-box").hidden) chiudiSalvataggio();
+  else if (menuAperto()){ menuApri(false); $("#btn-menu").focus(); }
 });
 $("#btn-copy").onclick = async () => {
   const area = $("#save-code");
@@ -4138,7 +4240,9 @@ $("#btn-reset").onclick = () => {
    le aprono si rifiutano comunque, cosi' non bastano gli strumenti per
    sviluppatori per entrarci. */
 function applicaEdizione(){
-  ["#btn-mondo", "#btn-zoo"].forEach(id => { const b = $(id); if (b) b.hidden = demo(); });
+  ["#btn-mondo", "#btn-zoo", "#menu-sep"].forEach(id => {
+    const b = $(id); if (b) b.hidden = demo();
+  });
 }
 applicaEdizione();
 audioCarica();

@@ -50,8 +50,8 @@ Non c'è build step: quello che sta qui è quello che viene servito.
 Dopo la prima visita il gioco funziona anche senza rete e si può aggiungere alla
 schermata home come un'app.
 
-> **Quando pubblichi una modifica, alza `VERSIONE` in `sw.js`** (`insectron-v6` →
-> `insectron-v7`). È quello che fa buttare via la cache vecchia: senza, chi ha già
+> **Quando pubblichi una modifica, alza `VERSIONE` in `sw.js`** (`insectron-v7` →
+> `insectron-v8`). È quello che fa buttare via la cache vecchia: senza, chi ha già
 > aperto il sito continua a vedere la versione precedente.
 
 **Collegare un dominio proprio.**
@@ -162,15 +162,16 @@ lascia il salvataggio intatto. Quando si cambia la forma dei dati si alza `SCHEM
 
 **Il suono è sintetizzato dal gioco**, come gli sprite: nessun file audio, niente da
 scaricare, funziona offline. Tredici suoni costruiti con oscillatori e rumore bianco —
-passo, colpo, speciale, K.O., uscita dal campo, vittoria, pasto, cattura. Il pulsante
-**Suono** in testata li spegne, e la scelta resta.
+passo, colpo, speciale, K.O., uscita dal campo, vittoria, pasto, cattura. Il pulsante **Suono**, nel menu, li spegne, e la scelta resta.
 
-**Anche la colonna sonora è generata al volo**, e non è un brano registrato: è una regola.
-Ogni battuta sceglie l'accordo successivo di un giro in minore, ci appoggia sopra un
-tappeto lungo e qualche nota sparsa, e quindi **non si ripete mai identica**. Due scene
-decise dalla schermata: più rada fuori dal campo, con basso e percussione leggera durante
-la battaglia. Pulsante **Musica** separato da quello degli effetti — c'è chi vuole i colpi
-ma non la musica — e si ferma da sola quando la scheda va in secondo piano.
+**Anche la colonna sonora è senza file**, ma non è generata a caso: sono **due melodie
+scritte**, in la minore, suonate dallo stesso sintetizzatore. Le note stanno in una
+tabella — qualche riga di dati, non un brano registrato — ed è il modo in cui facevano
+musica le macchine con 64 KB di memoria. Un tema lento per il roster e le altre schermate,
+uno spinto per la battaglia, con il basso in ottavi e una percussione secca.
+
+Pulsante **Musica** separato da quello degli effetti — c'è chi vuole i colpi ma non la
+musica — e la colonna sonora si ferma da sola quando la scheda va in secondo piano.
 
 Tre cautele, dovute a come si comportano i browser veri: il contesto audio si crea al
 **primo suono** e non al caricamento (prima di un gesto dell'utente i browser lo tengono
@@ -207,6 +208,16 @@ Due costanti in testa a `gioca.html` decidono il resto, e sono vuote di proposit
 
 Finché restano vuote il gioco è muto verso l'esterno, e la pagina non ha bisogno di nessun
 banner del consenso.
+
+## Il menu
+
+In testata restano tre pulsanti: **Menu**, **Salvataggio** e **Azzera torneo**. Dentro al
+menu stanno le due destinazioni — *Mondo* e *Gabbie* — e i due interruttori, *Suono* e
+*Musica*, ognuno col suo stato scritto accanto.
+
+Si chiude con Esc (e il fuoco torna al pulsante), con un clic fuori, o scegliendo una
+destinazione; toccare un interruttore invece **non** lo chiude, così si possono regolare
+tutti e due. Nella demo restano solo i due interruttori.
 
 ## Edizioni
 
