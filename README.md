@@ -50,8 +50,8 @@ Non c'è build step: quello che sta qui è quello che viene servito.
 Dopo la prima visita il gioco funziona anche senza rete e si può aggiungere alla
 schermata home come un'app.
 
-> **Quando pubblichi una modifica, alza `VERSIONE` in `sw.js`** (`insectron-v7` →
-> `insectron-v8`). È quello che fa buttare via la cache vecchia: senza, chi ha già
+> **Quando pubblichi una modifica, alza `VERSIONE` in `sw.js`** (`insectron-v8` →
+> `insectron-v9`). È quello che fa buttare via la cache vecchia: senza, chi ha già
 > aperto il sito continua a vedere la versione precedente.
 
 **Collegare un dominio proprio.**
@@ -208,6 +208,21 @@ Due costanti in testa a `gioca.html` decidono il resto, e sono vuote di proposit
 
 Finché restano vuote il gioco è muto verso l'esterno, e la pagina non ha bisogno di nessun
 banner del consenso.
+
+## Sul telefono
+
+La scacchiera sta in alto e la scheda dell'unità stava sotto: per ogni singola mossa
+servivano **311 pixel di scorrimento** — selezioni la pedina in cima, scendi a cercare le
+azioni, risali per toccare la casella. Misurato su uno schermo da 390×844.
+
+Ora, su schermi stretti, la scheda si **ancora in fondo allo schermo**: tocchi una pedina e
+le azioni sono lì sotto il pollice, con i pulsanti grandi (46 px). Lo stesso vale per la
+panchina durante lo schieramento. La scacchiera si restringe quel tanto che basta a stare
+**tutta sopra la barra**, perché un campo un po' più piccolo è meglio di un campo da
+inseguire scorrendo, e la pagina si sposta da sola solo quando serve davvero.
+
+Quando non c'è niente di selezionato la barra sparisce, e su schermo largo non cambia
+niente: la scheda resta a fianco del campo com'è sempre stata.
 
 ## Il menu
 

@@ -13,6 +13,7 @@
   --accent:#ffc24b; --accent2:#4bc3ff;
   --ally:#4bc3ff; --foe:#ff6b6b; --ok:#5ddb8f; --warn:#ffa94d;
   --r:12px; --font:'Trebuchet MS',Verdana,sans-serif;
+  --barra:40vh;                                    /* altezza massima della barra sul telefono */
 }
 html{color-scheme:dark}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -555,6 +556,31 @@ footer.note a{color:var(--accent2)}
   .two,.arena{grid-template-columns:1fr}
   .roster{max-height:40vh}
   .log{height:140px}
+
+  /* Sul telefono la scheda dell'unita' non sta sotto alla scacchiera: si
+     ancora in basso, sopra a tutto, cosi' si tocca una pedina e le azioni
+     sono li' sotto il pollice. Senza, servivano trecento pixel di scorrimento
+     per ogni singola mossa \u2014 misurati. */
+  .unitcard.ancorata{
+    position:fixed;left:8px;right:8px;bottom:8px;z-index:35;
+    max-height:var(--barra);overflow:auto;padding:10px;
+    border-color:var(--accent2);box-shadow:0 -12px 34px rgba(0,0,0,.6)
+  }
+  .unitcard.ancorata .spec{display:none}            /* la prosa sta nel roster */
+  .unitcard.ancorata .row{margin-bottom:6px}
+  .unitcard.ancorata .art{width:34px;height:34px;flex:0 0 34px}
+  .unitcard.ancorata .stats{margin-bottom:6px;font-size:.68rem}
+  .unitcard.ancorata .stats div{padding:3px 2px}
+  .unitcard.ancorata .moves{gap:3px;margin-bottom:6px}
+  .unitcard.ancorata .moves div{padding:5px 8px;font-size:.7rem}
+  .unitcard.ancorata .acts{margin-top:7px;gap:6px}
+  .unitcard.ancorata .acts button{padding:14px 8px;font-size:.84rem;min-height:46px}
+  .unitcard.ancorata .deploylist{max-height:calc(var(--barra) - 84px)}
+  /* La scacchiera si restringe quel tanto che basta a stare tutta sopra alla
+     barra: meglio un campo piu' piccolo che un campo da inseguire scorrendo. */
+  .conScheda .board{max-width:min(460px, calc((100vh - var(--barra) - 124px) * 5 / 7))}
+  /* spazio sotto, altrimenti la barra copre il diario */
+  .conScheda .arena{padding-bottom:calc(var(--barra) + 20px)}
 }
 </style>
 <link rel="canonical" href="https://naplesexperiences-netizen.github.io/insectorarena/gioca.html">
@@ -716,7 +742,7 @@ footer.note a{color:var(--accent2)}
 <!-- ============ SCHERMATA BATTAGLIA ============ -->
 <section id="s-battle" class="screen">
   <div class="arena">
-    <div class="boardwrap">
+    <div class="boardwrap" id="boardwrap">
       <div class="turnbar" id="deploybar" style="display:none">
         <span class="pill p" id="deploypill">Schiera le pedine</span>
         <span class="badge" id="b-todo">Da piazzare: <b>5</b></span>
@@ -3019,8 +3045,10 @@ function drawDeploy(){
   $("#b-todo").innerHTML = "Da piazzare: <b>" + todo.length + "</b>";
   $("#btn-fight").disabled = todo.length > 0;
   const el = $("#ucard");
-  el.innerHTML = '<div class="fam" style="margin-bottom:9px">Clicca una casella illuminata per piazzare la pedina evidenziata. ' +
-    'Clicca una pedina gi\u00e0 in campo per rimetterla in panchina.</div><div class="deploylist" id="deplist"></div>';
+  ancora(true);
+  avvicinaCampo();
+  el.innerHTML = '<div class="fam" style="margin-bottom:9px">Tocca una casella illuminata per piazzare la pedina evidenziata. ' +
+    'Tocca una pedina gi\u00e0 in campo per rimetterla in panchina.</div><div class="deploylist" id="deplist"></div>';
   const list = $("#deplist");
   const next = S.pick && !placed(S.pick) ? S.pick : todo[0];
   S.units.filter(u => u.side === side && u.alive).forEach(u => {
@@ -3869,14 +3897,46 @@ function drawTokens(){
       (u.stun ? "\u{1F4A4}" : "") + (u.guard ? "\u{1F6E1}" : "") + (u.exposed ? "!" : "");
   });
 }
+/* Vero solo dove la scheda e' ancorata in basso: la larghezza la decide il CSS,
+   e il JS la chiede a lui invece di indovinarla. */
+const telefono = () => window.matchMedia && window.matchMedia("(max-width:900px)").matches;
+/* Ancora o sgancia la barra, e lascia sotto lo spazio che occupa. */
+function ancora(attiva){
+  const el = $("#ucard"), sez = $("#s-battle");
+  if (!el || !sez) return;
+  const on = !!attiva && telefono();
+  el.classList.toggle("ancorata", on);
+  sez.classList.toggle("conScheda", on);
+}
+/* Porta la scacchiera dentro allo spazio libero sopra la barra — ma solo se
+   serve davvero. Scorrere la pagina a ogni tocco, anche quando si vede gia'
+   tutto, sarebbe fastidioso quanto doverlo fare a mano. */
+function avvicinaCampo(){
+  if (!telefono()) return;
+  const b = $("#boardwrap"), card = $("#ucard");
+  if (!b) return;
+  const limite = card && card.classList.contains("ancorata")
+    ? card.getBoundingClientRect().top : window.innerHeight;
+  const r = b.getBoundingClientRect();
+  if (r.top >= 0 && r.bottom <= limite) return;   /* si vede tutto: non si tocca niente */
+  const lento = !(window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches);
+  try { window.scrollBy({ top: r.top - 8, behavior: lento ? "smooth" : "auto" }); }
+  catch(e){ window.scrollBy(0, r.top - 8); }
+}
+
 function drawCard(){
   const el = $("#ucard"), u = S.sel;
   if (!u){
+    ancora(false);
     el.innerHTML = '<div class="fam">' + (duoMode()
-      ? esc(nameOf(S.turn)) + ": clicca una tua pedina per selezionarla."
-      : "Clicca un tuo Insector per selezionarlo.") + '</div>';
+      ? esc(nameOf(S.turn)) + ": tocca una tua pedina per selezionarla."
+      : "Tocca un tuo Insector per selezionarlo.") + '</div>';
     return;
   }
+  /* La barra serve mentre si decide: se la pedina non e' tua, o ha gia' agito,
+     resta una scheda normale e non ruba spazio al campo. */
+  ancora(u.side === meSide() && S.turn === meSide() && !u.acted && !S.busy);
+  avvicinaCampo();
   const f = FAMS[u.d.fam];
   /* Danno vero contro chi ha davvero di fronte: se un bersaglio e' a tiro mostro
      quello, altrimenti il valore indicativo contro un avversario senza difesa. */
@@ -3947,6 +4007,10 @@ function click(x, y){
 function show(id){
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("on"));
   $("#" + id).classList.add("on");
+  if (id !== "s-battle") ancora(false);
+  /* Finche' la schermata e' nascosta misura zero, e il calcolo dello spazio non
+     puo' funzionare: si riprova appena e' a video. */
+  else setTimeout(avvicinaCampo, 0);
   window.scrollTo(0,0);
   musicaScena(id === "s-battle" ? "campo" : "roster");
   guidaAggiorna();
