@@ -50,8 +50,8 @@ Non c'è build step: quello che sta qui è quello che viene servito.
 Dopo la prima visita il gioco funziona anche senza rete e si può aggiungere alla
 schermata home come un'app.
 
-> **Quando pubblichi una modifica, alza `VERSIONE` in `sw.js`** (`insectron-v5` →
-> `insectron-v6`). È quello che fa buttare via la cache vecchia: senza, chi ha già
+> **Quando pubblichi una modifica, alza `VERSIONE` in `sw.js`** (`insectron-v6` →
+> `insectron-v7`). È quello che fa buttare via la cache vecchia: senza, chi ha già
 > aperto il sito continua a vedere la versione precedente.
 
 **Collegare un dominio proprio.**
@@ -164,6 +164,13 @@ lascia il salvataggio intatto. Quando si cambia la forma dei dati si alza `SCHEM
 scaricare, funziona offline. Tredici suoni costruiti con oscillatori e rumore bianco —
 passo, colpo, speciale, K.O., uscita dal campo, vittoria, pasto, cattura. Il pulsante
 **Suono** in testata li spegne, e la scelta resta.
+
+**Anche la colonna sonora è generata al volo**, e non è un brano registrato: è una regola.
+Ogni battuta sceglie l'accordo successivo di un giro in minore, ci appoggia sopra un
+tappeto lungo e qualche nota sparsa, e quindi **non si ripete mai identica**. Due scene
+decise dalla schermata: più rada fuori dal campo, con basso e percussione leggera durante
+la battaglia. Pulsante **Musica** separato da quello degli effetti — c'è chi vuole i colpi
+ma non la musica — e si ferma da sola quando la scheda va in secondo piano.
 
 Tre cautele, dovute a come si comportano i browser veri: il contesto audio si crea al
 **primo suono** e non al caricamento (prima di un gesto dell'utente i browser lo tengono

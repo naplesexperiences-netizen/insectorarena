@@ -562,6 +562,7 @@ footer.note a{color:var(--accent2)}
   <div class="badge" id="b-round">Round <b>1</b>/5</div>
   <div class="spacer"></div>
   <button id="btn-audio" aria-pressed="true">Suono</button>
+  <button id="btn-musica" aria-pressed="true">Musica</button>
   <button id="btn-mondo">Mondo</button>
   <button id="btn-zoo">Gabbie</button>
   <button id="btn-save">Salvataggio</button>
@@ -1656,6 +1657,131 @@ function importa(testo){
 }
 
 /* =========================================================================
+   MUSICA \u2014 ambient generata al volo
+   Non e' un brano registrato: e' una regola. Ogni battuta sceglie l'accordo
+   successivo del giro e ci appoggia sopra un tappeto lungo e qualche nota
+   sparsa, quindi non si ripete mai identica e non costa un byte di
+   scaricamento. Due scene, decise dalla schermata e non dall'andamento della
+   partita: `calma` fuori dal campo, `campo` durante la battaglia.
+
+   Il punto tecnico che conta e' lo `scheduler` con anticipo: le note NON si
+   fanno partire con setTimeout \u2014 si programmano sul clock audio 200 ms prima
+   del momento giusto. E' la differenza fra una musica a tempo e una che
+   zoppica ogni volta che il browser e' occupato a disegnare.
+   ========================================================================= */
+const MUSICA_CHIAVE = "insectron-musica";
+const SEMI = n => Math.pow(2, n / 12);            /* semitoni -> rapporto di frequenza */
+/* Un giro di quattro accordi in minore naturale: i gradi sono semitoni dalla
+   fondamentale, e ogni accordo e' [fondamentale, terza, quinta]. */
+const GIRO = [[0,3,7], [-4,0,5], [5,8,12], [-2,3,7]];
+const SCENE = {
+  calma: { radice: 110, battuta: 4.2, pad: 0.085, arp: 0.34, arpG: 0.055,
+           basso: 0, tic: 0, lp: 900 },
+  campo: { radice: 98,  battuta: 3.2, pad: 0.075, arp: 0.46, arpG: 0.05,
+           basso: 0.075, tic: 0.035, lp: 700 }
+};
+let musicaOn = true, musBus = null, musTimer = null, musQuando = 0, musBattuta = 0,
+    musScena = "calma";
+
+function musicaBus(c){
+  if (musBus) return musBus;
+  musBus = c.createGain();
+  /* Tarato misurando: a 0,7 il tappeto sta attorno a -35 dBFS di valore
+     efficace, cioe' si sente come sottofondo senza coprire i colpi, che
+     arrivano a un picco circa doppio. */
+  musBus.gain.value = 0.7;
+  musBus.connect(c.destination);
+  return musBus;
+}
+/* Programma una battuta intera a partire da `t`. */
+function battuta(c, t){
+  const S2 = SCENE[musScena], bus = musicaBus(c);
+  const acc = GIRO[musBattuta % GIRO.length];
+  musBattuta++;
+  /* il tappeto: tre note lunghe che si accavallano con la battuta dopo */
+  acc.forEach((semi, i) => voce(c, {
+    t: i === 0 ? "triangle" : "sine",
+    f: S2.radice * SEMI(semi),
+    d: S2.battuta * 1.15, g: S2.pad * (i === 0 ? 1 : 0.7), a: 0.9
+  }, bus, t));
+  /* le note sparse, due ottave sopra, con qualche silenzio: e' quello che
+     evita il giro di carillon */
+  const passi = 8, dt = S2.battuta / passi;
+  for (let i = 0; i < passi; i++){
+    if (Math.random() > S2.arp) continue;
+    const semi = acc[Math.floor(Math.random() * acc.length)] + (Math.random() < 0.3 ? 24 : 12);
+    voce(c, { t:"sine", f: S2.radice * SEMI(semi), d: dt * 1.6, g: S2.arpG, a: 0.05 },
+         bus, t + i * dt);
+  }
+  if (S2.basso){
+    [0, passi / 2].forEach(i => voce(c, {
+      t:"sine", f: S2.radice * SEMI(acc[0] - 12), d: dt * 1.8, g: S2.basso, a: 0.03
+    }, bus, t + i * dt));
+  }
+  if (S2.tic){
+    [2, 6].forEach(i => voce(c, { n:true, d:0.09, g:S2.tic, lp:S2.lp }, bus, t + i * dt));
+  }
+  return S2.battuta;
+}
+function musicaGiro(){
+  const c = actx;
+  if (!c || !musicaOn) return;
+  /* si programma fin dove arriva la finestra di anticipo, e non oltre */
+  while (musQuando < c.currentTime + 0.25){
+    if (musQuando < c.currentTime) musQuando = c.currentTime + 0.05;
+    musQuando += battuta(c, musQuando);
+  }
+}
+function musicaAvvia(){
+  if (!musicaOn || musTimer) return false;
+  const c = audioCtx();
+  if (!c) return false;
+  musQuando = c.currentTime + 0.1;
+  musicaGiro();
+  musTimer = setInterval(musicaGiro, 120);
+  return true;
+}
+function musicaFerma(){
+  if (musTimer){ clearInterval(musTimer); musTimer = null; }
+  musQuando = 0;
+}
+/* La scena la decide la schermata: dentro al campo o fuori. */
+function musicaScena(nome){
+  if (SCENE[nome]) musScena = nome;
+  musicaAvvia();
+}
+function musicaBottone(){
+  const b = $("#btn-musica");
+  if (!b) return;
+  b.title = musicaOn ? "Musica accesa" : "Musica spenta";
+  b.setAttribute("aria-label", b.title);
+  b.setAttribute("aria-pressed", musicaOn ? "true" : "false");
+  b.classList.toggle("spento", !musicaOn);
+}
+function musicaImposta(on){
+  musicaOn = !!on;
+  if (musicaOn) musicaAvvia(); else musicaFerma();
+  musicaBottone();
+  try { localStorage.setItem(MUSICA_CHIAVE, musicaOn ? "1" : "0"); } catch(e){}
+}
+/* All'avvio si legge la scelta e si aggiorna il pulsante, ma NON si fa partire
+   niente: creare il contesto audio prima di un gesto dell'utente vuol dire
+   tenere accesa la scheda audio per una musica che il browser terrebbe
+   sospesa. La prima nota arriva al primo cambio di schermata, cioe' dopo un
+   clic. */
+function musicaCarica(){
+  let on = true;
+  try { on = localStorage.getItem(MUSICA_CHIAVE) !== "0"; } catch(e){}
+  musicaOn = on;
+  musicaBottone();
+}
+/* Scheda in secondo piano: si tace. Cortesia, e batteria del telefono. */
+function musicaVisibilita(nascosta){
+  if (nascosta) musicaFerma();
+  else if (musicaOn) musicaAvvia();
+}
+
+/* =========================================================================
    GUIDA \u2014 il primo minuto
    Quattro righe, una per volta, che compaiono solo quando servono e spariscono
    da sole appena la cosa e' fatta: nessun \u00abavanti\u00bb da premere, nessuna
@@ -1775,16 +1901,19 @@ function rumore(c){
   for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
   return rumoreBuf;
 }
-function voce(c, v){
-  const t0 = c.currentTime + (v.r || 0), g = c.createGain();
+/* `quando` permette di programmare una nota nel futuro del clock audio invece
+   che "adesso": e' quello che serve alla musica per andare a tempo. */
+function voce(c, v, bus, quando){
+  const t0 = (quando || c.currentTime) + (v.r || 0), g = c.createGain();
+  const salita = v.a || 0.012;                    /* attacco: lungo per i tappeti */
   g.gain.setValueAtTime(0.0001, t0);
-  g.gain.exponentialRampToValueAtTime(Math.max(0.0002, v.g || 0.4), t0 + 0.012);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.0002, v.g || 0.4), t0 + salita);
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + v.d);
-  g.connect(master);
+  g.connect(bus || master);
   let src;
   if (v.n){
     src = c.createBufferSource(); src.buffer = rumore(c);
-    const f = c.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 1400;
+    const f = c.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = v.lp || 1400;
     src.connect(f); f.connect(g);
   } else {
     src = c.createOscillator();
@@ -3734,6 +3863,7 @@ function show(id){
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("on"));
   $("#" + id).classList.add("on");
   window.scrollTo(0,0);
+  musicaScena(id === "s-battle" ? "campo" : "calma");
   guidaAggiorna();
 }
 function updBadges(){
@@ -3905,6 +4035,8 @@ $("#btn-zoo-back").onclick = () => {
 };
 $("#btn-guida-basta").onclick = () => { guidaSpegni(); suona("clic"); };
 $("#btn-audio").onclick = () => { audioImposta(!audioOn); suona("clic"); };
+$("#btn-musica").onclick = () => { musicaImposta(!musicaOn); suona("clic"); };
+document.addEventListener("visibilitychange", () => musicaVisibilita(document.hidden));
 $("#btn-eco-apri").onclick = () => { chiudiSalvataggio(); apriEco(); };
 $("#btn-eco-cls").onclick = chiudiEco;
 $("#eco-box").onclick = ev => { if (ev.target === $("#eco-box")) chiudiEco(); };
@@ -4010,6 +4142,7 @@ function applicaEdizione(){
 }
 applicaEdizione();
 audioCarica();
+musicaCarica();
 ecoCarica();
 load();
 /* Un mondo c'e' sempre: se il salvataggio non ne porta uno (partita nuova, o
