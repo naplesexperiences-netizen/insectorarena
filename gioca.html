@@ -452,6 +452,20 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 .tag-sel{font-size:.6rem;background:#16242e;border:1px solid var(--accent2);color:var(--accent2);
   border-radius:999px;padding:2px 8px;vertical-align:2px}
 
+/* --- invito e pannello del feedback --- */
+.invito{
+  margin-top:14px;padding:11px 13px;border:1px dashed var(--line);border-radius:10px;
+  background:var(--panel2);font-size:.8rem;color:var(--muted);text-align:left
+}
+.invito[hidden]{display:none}
+.invito b{color:var(--text)}
+.invito .acts{margin-top:9px}
+.numeri{
+  background:#0b0f16;border:1px solid var(--line);border-radius:8px;padding:10px 12px;
+  font-size:.74rem;color:var(--muted);font-variant-numeric:tabular-nums;line-height:1.7
+}
+.numeri b{color:var(--text)}
+
 /* --- finestra del salvataggio --- */
 .modal{
   position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
@@ -689,6 +703,7 @@ footer.note a{color:var(--accent2)}
       <button id="btn-newteams" hidden>Cambia squadra</button>
       <button id="btn-next" class="primary">Continua</button>
     </div>
+    <p class="invito" id="eco-invito" hidden></p>
   </div>
 </section>
 
@@ -697,6 +712,28 @@ footer.note a{color:var(--accent2)}
 </footer>
 
 <!-- ============ SALVATAGGIO: COPIA DI SICUREZZA E RIPRISTINO ============ -->
+<!-- ============ FEEDBACK: quello che mandi lo vedi prima ============ -->
+<div class="modal" id="eco-box" hidden>
+  <div class="modalbox" role="dialog" aria-modal="true" aria-labelledby="eco-title">
+    <h2 id="eco-title">Dicci com'è andata</h2>
+    <p class="hint">Il gioco non ci manda niente da solo: questi numeri stanno nel tuo
+      browser e partono <b>solo se li mandi tu</b>. Qui sotto c'è esattamente quello che
+      verrebbe fuori — niente nome, niente indirizzo, niente che dica chi sei.</p>
+    <div class="numeri" id="eco-numeri">—</div>
+
+    <label class="opt" for="eco-nota">Cosa ne pensi? (facoltativo)
+      <textarea id="eco-nota" rows="4" placeholder="Cosa ti è piaciuto, cosa no, dove ti sei perso…"></textarea>
+    </label>
+    <p class="esito" id="eco-msg" role="status"></p>
+    <div class="acts">
+      <button id="btn-eco-copia" class="primary">Copia e mandacelo</button>
+      <button id="btn-eco-mail" hidden>Manda per email</button>
+      <button id="btn-eco-dl">Scarica come file</button>
+      <button id="btn-eco-cls">Chiudi</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="save-box" hidden>
   <div class="modalbox" role="dialog" aria-modal="true" aria-labelledby="save-title">
     <h2 id="save-title">Salvataggio</h2>
@@ -722,6 +759,7 @@ footer.note a{color:var(--accent2)}
     <div class="acts">
       <button id="btn-file">Apri da file</button>
       <button id="btn-restore" class="primary">Ripristina</button>
+      <button id="btn-eco-apri">Dicci com'è andata</button>
       <button id="btn-savecls">Chiudi</button>
     </div>
     <input type="file" id="save-file" accept=".txt,.json,text/plain,application/json" hidden>
@@ -808,6 +846,33 @@ const RANKS = [
 ];
 
 const NX = 5, NY = 7;                /* campo largo 5 caselle e profondo 7, come l'originale */
+
+/* =========================================================================
+   EDIZIONE
+   La demo e' questo stesso gioco senza le due sezioni laterali: si gioca il
+   torneo, non si allevano ne' si catturano esemplari. Non c'e' niente da
+   proteggere \u2014 chi cambia questa riga vede il gioco intero, e va benissimo \u2014
+   quindi l'edizione a pagamento, se un giorno ci sara', sara' un file diverso
+   e non un flag. La build della demo si genera con `crea-demo.sh`.
+   ========================================================================= */
+let EDIZIONE = "completa";                        /* "completa" | "demo" */
+const demo = () => EDIZIONE === "demo";
+
+/* =========================================================================
+   ECO \u2014 cinque tappe e qualche conteggio, per sapere dove la gente smette.
+   Regole che questo codice rispetta, e che vanno lette insieme:
+     - niente cookie, niente identificatori, niente profilazione;
+     - i numeri restano in questo browser e non partono da soli;
+     - chi vuole mandarli li vede prima, per intero, in chiaro.
+   Con TELEMETRIA_URL vuota il gioco non fa una sola richiesta di rete: e'
+   la condizione di adesso, e i controlli automatici la verificano.
+   ========================================================================= */
+const ECO_CHIAVE = "insectron-eco";
+const TELEMETRIA_URL = "";                        /* con un indirizzo, l'invio parte su richiesta */
+const EMAIL_FEEDBACK = "";                        /* con un indirizzo, compare "Manda per email" */
+const TAPPE = ["apre", "squadra", "prima", "rankD", "ritorno"];
+const oggiStr = () => new Date().toISOString().slice(0, 10);
+let ECO = { v:1, ed:"completa", primo:"", ultimo:"", giorni:0, t:{}, n:{} };
 const byId = {}; UNITS.forEach(u => byId[u.id] = u);
 
 /* =========================================================================
@@ -1566,11 +1631,64 @@ function importa(testo){
 }
 
 /* =========================================================================
-   GABBIE — si sceglie un esemplare, si sceglie un cibo, si vede cosa succede
+   ECO \u2014 funzioni
+   ========================================================================= */
+function ecoSalva(){
+  try { localStorage.setItem(ECO_CHIAVE, JSON.stringify(ECO)); }
+  catch(e){ /* storage bloccato: i numeri restano in sessione, non e' grave */ }
+}
+function ecoCarica(){
+  try {
+    const v = JSON.parse(localStorage.getItem(ECO_CHIAVE) || "null");
+    if (v && typeof v === "object"){
+      ECO = { v:1, ed:EDIZIONE, primo:String(v.primo || ""), ultimo:String(v.ultimo || ""),
+              giorni:Math.max(0, v.giorni|0),
+              t:(v.t && typeof v.t === "object") ? v.t : {},
+              n:(v.n && typeof v.n === "object") ? v.n : {} };
+    }
+  } catch(e){ /* dato illeggibile: si riparte da zero, non e' un salvataggio */ }
+  const g = oggiStr();
+  ECO.ed = EDIZIONE;
+  if (!ECO.primo) ECO.primo = g;
+  if (ECO.ultimo !== g){ ECO.giorni++; ECO.ultimo = g; }
+  if (ECO.giorni >= 2) tappa("ritorno");
+  tappa("apre");
+  ecoSalva();
+}
+/* Una tappa si segna una volta sola: interessa *se* e *quando*, non quante volte. */
+function tappa(nome){
+  if (TAPPE.indexOf(nome) < 0 || ECO.t[nome]) return;
+  ECO.t[nome] = oggiStr();
+  ecoSalva();
+}
+function conta(nome){
+  ECO.n[nome] = (ECO.n[nome]|0) + 1;
+  ecoSalva();
+}
+/* Il rapporto: quello che si vede nel pannello e quello che si manda sono lo
+   stesso testo. Non esiste un campo nascosto. */
+function ecoRapporto(nota){
+  const r = {
+    gioco: "insectron", v: 1, edizione: ECO.ed,
+    primo: ECO.primo, giorni: ECO.giorni,
+    tappe: TAPPE.filter(k => ECO.t[k]),
+    partite: ECO.n.partite|0, vinte: ECO.n.vinte|0, perse: ECO.n.perse|0,
+    rank: RANKS[S.rankIdx].id, squadra: S.team.length,
+    modi: { hvp: ECO.n.hvp|0, hvh: ECO.n.hvh|0, pvp: ECO.n.pvp|0 }
+  };
+  if (!demo()) { r.esemplari = S.zoo.length; r.catture = (S.mondo && S.mondo.presi)|0; }
+  if (nota) r.nota = String(nota).slice(0, 800);
+  return r;
+}
+function ecoTesto(nota){ return "INSECTRON-ECO " + JSON.stringify(ecoRapporto(nota)); }
+
+/* =========================================================================
+   GABBIE \u2014 si sceglie un esemplare, si sceglie un cibo, si vede cosa succede
    prima di confermare. Stessa regola della scheda del roster: si conferma, non
    si subisce.
    ========================================================================= */
 function apriGabbie(u){
+  if (demo()) return;                             /* nella demo non esistono: nemmeno forzando */
   S.nutri = u || (S.zoo[0] && S.zoo[0].u) || null;
   drawGabbie(); show("s-zoo");
 }
@@ -1738,6 +1856,7 @@ function esitoSpedizione(p){
 }
 
 function apriMondo(){
+  if (demo()) return;                             /* idem: la demo e' solo arena */
   if (!S.mondo) S.mondo = mondoNuovo();
   if (!S.luogo) S.luogo = HABITAT[0].id;
   drawMondo(); show("s-mondo");
@@ -2042,13 +2161,18 @@ function detail(rif){
             (e && !adulto(e) ? '\u00c8 ancora una larva'
               : (!e && !ok ? 'Bloccato'
                 : (piena ? 'Squadra al completo' : 'Aggiungi alla squadra'))) + '</button>') +
-        (e ? '<button id="btn-vaigabbie">Nutri nelle gabbie</button>'
+        (demo() ? ''
+         : e ? '<button id="btn-vaigabbie">Nutri nelle gabbie</button>'
            : (restano > 0
               ? '<button id="btn-alleva"' + (puoiAllevare ? '' : ' disabled') + '>' +
                 (S.zoo.length >= MAX_GABBIE ? 'Gabbie piene' : 'Alleva un esemplare') + '</button>'
               : '<button id="btn-vaimondo">Catturane uno nel Mondo</button>')) +
       '</div>' +
-      (e ? '' : '<p class="notarella">Allevare parte da una larva con le statistiche base: cresce ' +
+      (demo()
+        ? '<p class="notarella">Questa \u00e8 la <b>demo</b>: c\u2019\u00e8 tutto il torneo, ' +
+          'ma non le gabbie e il mondo, dove nella versione completa gli Insector si ' +
+          'allevano e si catturano.</p>'
+        : e ? '' : '<p class="notarella">Allevare parte da una larva con le statistiche base: cresce ' +
         'con il cibo che vinci nel torneo, e pu\u00f2 superare di molto l\u2019esemplare del roster.' +
         (restano > 0
           ? ' Esemplari in regalo: ancora <b>' + restano + '</b> su ' + ALLEVA_GRATIS + '.'
@@ -3086,6 +3210,8 @@ function finish(win){
      minuti d'attesa dell'originale, la stessa gia' fatta per il cibo. Conta
      anche una sconfitta: il tempo passa comunque. */
   S.giocate = (S.giocate|0) + 1;
+  conta("partite"); conta(win ? "vinte" : "perse");
+  if (win) tappa("prima");
   const R = RANKS[S.rankIdx];
   if (win){
     S.round++;
@@ -3093,15 +3219,20 @@ function finish(win){
       S.round = 0;
       const last = S.rankIdx >= RANKS.length - 1;
       $("#r-title").innerHTML = '<span class="win">Rank ' + R.id + ' conquistato!</span>';
-      const bottino = premiaConCibo(PREMIO_RANK) + (S.rankIdx >= 3 ? ", Royal Fruit" : "");
-      if (S.rankIdx >= 3) S.dispensa["Royal Fruit"] = (S.dispensa["Royal Fruit"] || 0) + 1;
-      const attrezzo = premiaConTrappola();
+      let premi = "";
+      if (!demo()){
+        const bottino = premiaConCibo(PREMIO_RANK) + (S.rankIdx >= 3 ? ", Royal Fruit" : "");
+        if (S.rankIdx >= 3) S.dispensa["Royal Fruit"] = (S.dispensa["Royal Fruit"] || 0) + 1;
+        premi = ", per le gabbie: <b>" + bottino + "</b>, e per il mondo: <b>" +
+                premiaConTrappola() + "</b>";
+      }
       $("#r-text").innerHTML = "Cinque round vinti di fila. Premio: <b>" + R.prize +
-        "</b>, per le gabbie: <b>" + bottino + "</b>, e per il mondo: <b>" + attrezzo + "</b>." +
+        "</b>" + premi + "." +
         (last ? "<br><br>Hai chiuso il Rank S: il torneo Insectron \u00e8 tuo. Il <b>Dark Emperor</b> \u00e8 ora reclutabile."
               : "<br><br>Prossimo traguardo: <b>Rank " + RANKS[S.rankIdx+1].id +
                 "</b> (iscrizione " + RANKS[S.rankIdx+1].fee + "z).");
       if (last) S.champion = true; else S.rankIdx++;
+      if (S.rankIdx >= 1) tappa("rankD");
     } else {
       $("#r-title").innerHTML = '<span class="win">Round vinto</span>';
       $("#r-text").innerHTML = "Hai battuto <b>" + R.names[S.round-1] + "</b>. Avanti il prossimo: <b>" +
@@ -3113,7 +3244,22 @@ function finish(win){
       ". Il rank riparte dal primo avversario: rivedi la squadra o cambia il Re.";
     S.round = 0;
   }
-  save(); updBadges(); show("s-result");
+  save(); updBadges(); mostraInvito(win); show("s-result");
+}
+/* L'invito compare una volta sola, dopo la prima vittoria, e si puo' spegnere.
+   Chiederlo a ogni partita sarebbe molestia, non ricerca. */
+function mostraInvito(win){
+  const box = $("#eco-invito");
+  if (!box) return;
+  box.hidden = true;
+  if (!win || ECO.n.invito || !ECO.t.prima) return;
+  box.innerHTML = "<b>Prima vittoria.</b> Se hai due minuti, ci diresti com\u2019\u00e8 " +
+    "andata? Non parte niente da solo: vedi prima quello che mandi." +
+    '<div class="acts"><button id="btn-invito-si" class="primary">Dicci com\u2019\u00e8 andata</button>' +
+    '<button id="btn-invito-no">Non adesso</button></div>';
+  box.hidden = false;
+  $("#btn-invito-si").onclick = () => { ECO.n.invito = 1; ecoSalva(); box.hidden = true; apriEco(); };
+  $("#btn-invito-no").onclick = () => { ECO.n.invito = 1; ecoSalva(); box.hidden = true; };
 }
 /* PC vs PC e' una prova: nessun rank da aggiornare, si riassume come e' andata. */
 function finishPvp(win){
@@ -3399,7 +3545,10 @@ function updBadges(){
 /* Si esce dalla partita: i badge del torneo tornano a valere. */
 function leaveMatch(){ S.matchMode = "hvp"; updBadges(); }
 
-$("#btn-start").onclick = () => { drawWho(); drawBrief(); show("s-brief"); };
+$("#btn-start").onclick = () => {
+  tappa("squadra"); conta(S.vs);
+  drawWho(); drawBrief(); show("s-brief");
+};
 $("#btn-back").onclick = () => { drawWho(); drawRoster(); drawSlots(); show("s-team"); };
 /* Dal riepilogo si scende in campo. In due giocatori il primo, confermando, passa
    il dispositivo all'altro: si scende in campo quando anche la seconda squadra c'e'. */
@@ -3473,6 +3622,46 @@ function apriSalvataggio(){
   $("#save-box").hidden = false;
   $("#btn-copy").focus();
 }
+/* --- pannello del feedback: si vede quello che si manda, e parte solo a mano --- */
+function ecoRighe(){
+  const r = ecoRapporto("");
+  const nomi = { apre:"ha aperto il gioco", squadra:"ha composto una squadra",
+                 prima:"ha vinto la prima battaglia", rankD:"\u00e8 arrivato al Rank D",
+                 ritorno:"\u00e8 tornato un altro giorno" };
+  return "<b>Dove sei arrivato</b><br>" +
+    TAPPE.map(k => (r.tappe.indexOf(k) >= 0 ? "\u2713 " : "\u00b7 ") + nomi[k]).join("<br>") +
+    "<br><br><b>Qualche numero</b><br>" +
+    "partite giocate <b>" + r.partite + "</b>, vinte <b>" + r.vinte + "</b><br>" +
+    "rank raggiunto <b>" + r.rank + "</b>, giorni di gioco <b>" + r.giorni + "</b><br>" +
+    "edizione <b>" + r.edizione + "</b>" +
+    (r.esemplari !== undefined ? ", esemplari <b>" + r.esemplari + "</b>, catture <b>" +
+      r.catture + "</b>" : "");
+}
+function apriEco(){
+  fuocoPrima = document.activeElement;
+  $("#eco-numeri").innerHTML = ecoRighe();
+  ecoMsg("", "");
+  $("#btn-eco-mail").hidden = !EMAIL_FEEDBACK;
+  $("#eco-box").hidden = false;
+  $("#eco-nota").focus();
+  ECO.n.pannello = (ECO.n.pannello|0) + 1; ecoSalva();
+}
+function chiudiEco(){
+  $("#eco-box").hidden = true;
+  if (fuocoPrima && fuocoPrima.focus) fuocoPrima.focus();
+}
+function ecoMsg(testo, cls){
+  const el = $("#eco-msg");
+  el.textContent = testo;
+  el.className = "esito" + (cls ? " " + cls : "");
+}
+/* Se un giorno ci sara' un indirizzo dove raccoglierli, parte da qui \u2014 e resta
+   un gesto dell'utente, non un invio automatico. */
+function ecoInvia(testo){
+  if (!TELEMETRIA_URL) return false;
+  try { return navigator.sendBeacon(TELEMETRIA_URL, testo); }
+  catch(e){ return false; }
+}
 function chiudiSalvataggio(){
   $("#save-box").hidden = true;
   if (fuocoPrima && fuocoPrima.focus) fuocoPrima.focus();
@@ -3510,11 +3699,44 @@ $("#btn-zoo").onclick = () => apriGabbie();
 $("#btn-zoo-back").onclick = () => {
   drawRoster(); drawSlots(); detail(S.look || null); show("s-team");
 };
+$("#btn-eco-apri").onclick = () => { chiudiSalvataggio(); apriEco(); };
+$("#btn-eco-cls").onclick = chiudiEco;
+$("#eco-box").onclick = ev => { if (ev.target === $("#eco-box")) chiudiEco(); };
+$("#btn-eco-copia").onclick = async () => {
+  const testo = ecoTesto($("#eco-nota").value);
+  ecoInvia(testo);
+  try {
+    await navigator.clipboard.writeText(testo);
+    ecoMsg("Copiato. Incollalo in una email o in un messaggio: grazie davvero.", "ok");
+  } catch(e){
+    ecoMsg("Copia bloccata dal browser: usa \u00abScarica come file\u00bb.", "ko");
+  }
+};
+$("#btn-eco-mail").onclick = () => {
+  const testo = ecoTesto($("#eco-nota").value);
+  ecoInvia(testo);
+  location.href = "mailto:" + EMAIL_FEEDBACK + "?subject=" +
+    encodeURIComponent("Insectron Arena \u2014 feedback") +
+    "&body=" + encodeURIComponent(testo);
+};
+$("#btn-eco-dl").onclick = () => {
+  const testo = ecoTesto($("#eco-nota").value);
+  ecoInvia(testo);
+  const blob = new Blob([testo + "\n"], { type:"text/plain;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "insectron-feedback-" + oggiStr() + ".txt";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  ecoMsg("File scaricato. Mandacelo quando ti fa comodo.", "ok");
+};
 $("#btn-save").onclick = apriSalvataggio;
 $("#btn-savecls").onclick = chiudiSalvataggio;
 $("#save-box").onclick = ev => { if (ev.target === $("#save-box")) chiudiSalvataggio(); };
 document.addEventListener("keydown", ev => {
-  if (ev.key === "Escape" && !$("#save-box").hidden) chiudiSalvataggio();
+  if (ev.key !== "Escape") return;
+  if (!$("#eco-box").hidden) chiudiEco();
+  else if (!$("#save-box").hidden) chiudiSalvataggio();
 });
 $("#btn-copy").onclick = async () => {
   const area = $("#save-code");
@@ -3574,6 +3796,14 @@ $("#btn-reset").onclick = () => {
   save(); updBadges(); drawRoster(); drawSlots(); show("s-team");
 };
 
+/* Nella demo le due sezioni laterali spariscono dalla testata; le funzioni che
+   le aprono si rifiutano comunque, cosi' non bastano gli strumenti per
+   sviluppatori per entrarci. */
+function applicaEdizione(){
+  ["#btn-mondo", "#btn-zoo"].forEach(id => { const b = $(id); if (b) b.hidden = demo(); });
+}
+applicaEdizione();
+ecoCarica();
 load();
 /* Un mondo c'e' sempre: se il salvataggio non ne porta uno (partita nuova, o
    salvataggio di schema 2) se ne semina uno adesso, con la prima trappola. */

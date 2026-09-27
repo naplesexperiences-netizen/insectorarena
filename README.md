@@ -50,8 +50,8 @@ Non c'è build step: quello che sta qui è quello che viene servito.
 Dopo la prima visita il gioco funziona anche senza rete e si può aggiungere alla
 schermata home come un'app.
 
-> **Quando pubblichi una modifica, alza `VERSIONE` in `sw.js`** (`insectron-v3` →
-> `insectron-v4`). È quello che fa buttare via la cache vecchia: senza, chi ha già
+> **Quando pubblichi una modifica, alza `VERSIONE` in `sw.js`** (`insectron-v4` →
+> `insectron-v5`). È quello che fa buttare via la cache vecchia: senza, chi ha già
 > aperto il sito continua a vedere la versione precedente.
 
 **Collegare un dominio proprio.**
@@ -157,6 +157,49 @@ i salvataggi vecchi quando la forma dei dati cambia, e **rifiutare** quelli scri
 versione futura del gioco invece di interpretarli a caso — in quel caso il gioco lo dice e
 lascia il salvataggio intatto. Quando si cambia la forma dei dati si alza `SCHEMA` in
 `gioca.html` e si aggiunge il gradino di migrazione dentro `migra()`.
+
+## Feedback e numeri
+
+Il gioco **non traccia nessuno**, e questo non è cambiato: nessun cookie, nessun
+identificatore, nessuna richiesta di rete. Quello che c'è è un contatore locale di cinque
+tappe — ha aperto il gioco, ha composto una squadra, ha vinto la prima battaglia, è
+arrivato al Rank D, è tornato un altro giorno — più qualche conteggio di partite. Vive in
+`localStorage`, nella chiave `insectron-eco`, **separata dal salvataggio della partita**.
+
+Dopo la prima vittoria compare, una volta sola e con il suo «non adesso», l'invito a dire
+com'è andata. Il pannello mostra **per intero e in chiaro** quello che verrebbe mandato,
+più un campo di testo facoltativo; da lì si copia, si scarica come file o si manda per
+email. **Non parte niente da solo.** I controlli automatici verificano che in un'intera
+sessione di gioco il browser non faccia una sola richiesta verso l'esterno.
+
+Due costanti in testa a `gioca.html` decidono il resto, e sono vuote di proposito:
+
+| Costante | Se la riempi |
+|---|---|
+| `EMAIL_FEEDBACK` | compare il pulsante «Manda per email», che apre il client di posta già compilato |
+| `TELEMETRIA_URL` | il rapporto viene spedito anche a quell'indirizzo — **sempre e solo quando è l'utente a premere**, mai da solo |
+
+Finché restano vuote il gioco è muto verso l'esterno, e la pagina non ha bisogno di nessun
+banner del consenso.
+
+## Edizioni
+
+`gioca.html` è l'edizione **completa**. La **demo** è lo stesso gioco senza le due sezioni
+laterali — si gioca tutto il torneo, non si allevano né si catturano esemplari — e si
+genera con lo script `crea-demo.sh`, che cambia una riga sola:
+
+```sh
+./crea-demo.sh                      # gioca.html → gioca-demo.html
+```
+
+Nella demo i pulsanti *Mondo* e *Gabbie* spariscono e le funzioni che aprono quelle
+schermate si rifiutano, quindi non bastano gli strumenti per sviluppatori per entrarci. Il
+salvataggio resta, ed è compatibile: una partita cominciata nella demo si apre nel gioco
+completo.
+
+Non c'è niente da proteggere in una demo, quindi il flag va benissimo così. Se un giorno
+esisterà un'edizione **a pagamento**, quella dovrà essere un file diverso consegnato da uno
+store, non un flag: le ragioni stanno nel piano di vendita, che è documentazione interna.
 
 ## Sviluppo
 
