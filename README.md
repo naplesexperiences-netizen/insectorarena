@@ -50,8 +50,8 @@ Non c'è build step: quello che sta qui è quello che viene servito.
 Dopo la prima visita il gioco funziona anche senza rete e si può aggiungere alla
 schermata home come un'app.
 
-> **Quando pubblichi una modifica, alza `VERSIONE` in `sw.js`** (`insectron-v4` →
-> `insectron-v5`). È quello che fa buttare via la cache vecchia: senza, chi ha già
+> **Quando pubblichi una modifica, alza `VERSIONE` in `sw.js`** (`insectron-v5` →
+> `insectron-v6`). È quello che fa buttare via la cache vecchia: senza, chi ha già
 > aperto il sito continua a vedere la versione precedente.
 
 **Collegare un dominio proprio.**
@@ -157,6 +157,25 @@ i salvataggi vecchi quando la forma dei dati cambia, e **rifiutare** quelli scri
 versione futura del gioco invece di interpretarli a caso — in quel caso il gioco lo dice e
 lascia il salvataggio intatto. Quando si cambia la forma dei dati si alza `SCHEMA` in
 `gioca.html` e si aggiunge il gradino di migrazione dentro `migra()`.
+
+## Suono e primo minuto
+
+**Il suono è sintetizzato dal gioco**, come gli sprite: nessun file audio, niente da
+scaricare, funziona offline. Tredici suoni costruiti con oscillatori e rumore bianco —
+passo, colpo, speciale, K.O., uscita dal campo, vittoria, pasto, cattura. Il pulsante
+**Suono** in testata li spegne, e la scelta resta.
+
+Tre cautele, dovute a come si comportano i browser veri: il contesto audio si crea al
+**primo suono** e non al caricamento (prima di un gesto dell'utente i browser lo tengono
+sospeso); il volume è basso di proposito, perché si gioca anche in ufficio; e se il browser
+non supporta l'audio il gioco resta muto invece di rompersi — c'è un controllo automatico
+che glielo toglie apposta per verificarlo.
+
+**La guida del primo minuto** sono quattro righe, una per volta, che compaiono solo quando
+servono e spariscono da sole appena la cosa è fatta: comporre la squadra, scegliere il Re,
+schierare, muovere. Nessun «avanti» da premere, nessuna finestra da chiudere. Chi ha già
+una partita in corso non la vede mai, e chiunque può spegnerla per sempre con **Salta la
+guida**.
 
 ## Feedback e numeri
 

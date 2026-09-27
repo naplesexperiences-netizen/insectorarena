@@ -452,6 +452,24 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 .tag-sel{font-size:.6rem;background:#16242e;border:1px solid var(--accent2);color:var(--accent2);
   border-radius:999px;padding:2px 8px;vertical-align:2px}
 
+header.top button.spento{opacity:.55;text-decoration:line-through}
+
+/* --- guida del primo minuto --- */
+.guida{
+  display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+  background:linear-gradient(90deg,#1d2a3f,var(--panel));
+  border:1px solid var(--accent2);border-left:4px solid var(--accent2);
+  border-radius:var(--r);padding:11px 14px;margin-bottom:16px;font-size:.84rem
+}
+.guida[hidden]{display:none}
+.guida .passo{
+  background:var(--panel2);border:1px solid var(--line);border-radius:999px;
+  padding:3px 10px;font-size:.7rem;color:var(--muted);white-space:nowrap
+}
+.guida p{margin:0;flex:1 1 260px;line-height:1.5}
+.guida b{color:var(--accent2)}
+.guida button{font-size:.72rem;padding:5px 10px}
+
 /* --- invito e pannello del feedback --- */
 .invito{
   margin-top:14px;padding:11px 13px;border:1px dashed var(--line);border-radius:10px;
@@ -543,6 +561,7 @@ footer.note a{color:var(--accent2)}
   <div class="badge" id="b-rank">Rank <b>E</b></div>
   <div class="badge" id="b-round">Round <b>1</b>/5</div>
   <div class="spacer"></div>
+  <button id="btn-audio" aria-pressed="true">Suono</button>
   <button id="btn-mondo">Mondo</button>
   <button id="btn-zoo">Gabbie</button>
   <button id="btn-save">Salvataggio</button>
@@ -573,6 +592,12 @@ footer.note a{color:var(--accent2)}
     </div>
   </div>
 </section>
+
+<div class="guida" id="guida" hidden>
+  <span class="passo" id="guida-n">1 di 4</span>
+  <p id="guida-testo">&nbsp;</p>
+  <button id="btn-guida-basta">Salta la guida</button>
+</div>
 
 <!-- ============ MONDO: CATTURA CON TRAPPOLE ED ESCHE ============ -->
 <section id="s-mondo" class="screen">
@@ -1631,6 +1656,175 @@ function importa(testo){
 }
 
 /* =========================================================================
+   GUIDA \u2014 il primo minuto
+   Quattro righe, una per volta, che compaiono solo quando servono e spariscono
+   da sole appena la cosa e' fatta: nessun \u00abavanti\u00bb da premere, nessuna
+   finestra da chiudere. Chi ha gia' una partita salvata non la vede mai, e
+   chiunque puo' spegnerla per sempre con un pulsante.
+   ========================================================================= */
+const GUIDA_CHIAVE = "insectron-guida";
+let guidaViva = true;
+const visibile = id => { const e = $("#" + id); return !!e && e.classList.contains("on"); };
+const GUIDA = [
+  { id:"squadra",
+    quando: () => visibile("s-team") && S.team.length < 5,
+    testo: "Tocca una scheda del roster per vedere cosa sa fare, poi <b>Aggiungi alla " +
+           "squadra</b>. Te ne servono <b>cinque</b>." },
+  { id:"re",
+    quando: () => visibile("s-brief") && !S.kingId,
+    testo: "Adesso scegli il <b>Re</b> fra i cinque. \u00c8 la pedina da proteggere: se " +
+           "cade, la partita finisce subito, anche con le altre quattro in piedi." },
+  { id:"schiera",
+    quando: () => visibile("s-battle") && S.phase === "deploy",
+    testo: "Piazza le pedine nelle caselle <b>illuminate</b>: le lente davanti, il Re " +
+           "coperto dietro." },
+  { id:"muovi",
+    quando: () => visibile("s-battle") && S.phase === "battle" && !S.sel &&
+                  S.turn === "p" && !S.over,
+    testo: "Tocca una tua pedina: si sposta <b>una volta</b> per turno, e dopo pu\u00f2 " +
+           "ancora attaccare o usare la speciale." }
+];
+function guidaSpegni(){
+  guidaViva = false;
+  const g = $("#guida"); if (g) g.hidden = true;
+  try { localStorage.setItem(GUIDA_CHIAVE, "fatta"); } catch(e){}
+}
+function guidaAggiorna(){
+  const g = $("#guida");
+  if (!g) return;
+  if (!guidaViva){ g.hidden = true; return; }
+  const passo = GUIDA.filter(p => p.quando())[0];
+  if (!passo){
+    /* Finiti i quattro passi si spegne per sempre: superato l'ultimo, il
+       giocatore ha gia' fatto tutto quello che la guida sapeva insegnargli. */
+    if (GUIDA[GUIDA.length - 1].fatto) guidaSpegni();
+    g.hidden = true;
+    return;
+  }
+  passo.fatto = true;
+  $("#guida-n").textContent = (GUIDA.indexOf(passo) + 1) + " di " + GUIDA.length;
+  $("#guida-testo").innerHTML = passo.testo;
+  g.hidden = false;
+}
+/* Chi torna con una partita in corso non e' un principiante: niente guida. */
+function guidaCarica(){
+  let fatta = false;
+  try { fatta = localStorage.getItem(GUIDA_CHIAVE) === "fatta"; } catch(e){}
+  if (fatta || S.rankIdx > 0 || S.round > 0 || S.team.length || S.champion) guidaViva = false;
+}
+
+/* =========================================================================
+   SUONO \u2014 sintetizzato qui, come gli sprite
+   Stessa promessa della grafica: nessun file, nessuna dipendenza, niente da
+   scaricare. Oscillatori e rumore bianco bastano per un gioco a turni, e
+   quello che serve e' che un colpo si senta diverso da un passo.
+
+   Tre cautele, tutte dovute a come si comportano i browser veri:
+     - l'AudioContext si crea al primo suono, non al caricamento: prima di un
+       gesto dell'utente i browser lo tengono sospeso, e crearlo a vuoto
+       lascerebbe acceso un pezzo di scheda audio per niente;
+     - se il browser non lo supporta il gioco continua a funzionare muto,
+       perche' ogni chiamata torna false invece di rompersi;
+     - il volume e' basso di proposito: si gioca anche in ufficio.
+   ========================================================================= */
+const AUDIO_CHIAVE = "insectron-audio";
+let audioOn = true, actx = null, master = null, rumoreBuf = null;
+
+/* nome: [voci]. Ogni voce e' un oscillatore che scivola da f a f2, oppure una
+   scarica di rumore (n:true). r = ritardo, d = durata, g = volume relativo. */
+const SUONI = {
+  clic:      [{ t:"square",   f:520, f2:430, d:0.05, g:0.30 }],
+  seleziona: [{ t:"triangle", f:430, f2:650, d:0.09, g:0.35 }],
+  passo:     [{ t:"sine",     f:190, f2:120, d:0.10, g:0.45 }],
+  colpo:     [{ n:true, d:0.11, g:0.40 },
+              { t:"sine",     f:230, f2:60,  d:0.16, g:0.60 }],
+  speciale:  [{ t:"sawtooth", f:180, f2:740, d:0.20, g:0.35 },
+              { n:true, d:0.18, g:0.30, r:0.06 }],
+  ko:        [{ t:"square",   f:300, f2:70,  d:0.28, g:0.45 }],
+  fuori:     [{ n:true, d:0.32, g:0.45 },
+              { t:"sine",     f:540, f2:90,  d:0.32, g:0.45 }],
+  turno:     [{ t:"triangle", f:392, f2:523, d:0.13, g:0.30 }],
+  vittoria:  [{ t:"triangle", f:523, d:0.12, g:0.45 },
+              { t:"triangle", f:659, d:0.12, g:0.45, r:0.11 },
+              { t:"triangle", f:784, d:0.26, g:0.50, r:0.22 }],
+  sconfitta: [{ t:"triangle", f:392, d:0.16, g:0.42 },
+              { t:"triangle", f:330, d:0.16, g:0.42, r:0.15 },
+              { t:"triangle", f:262, d:0.34, g:0.42, r:0.30 }],
+  pasto:     [{ t:"sine",     f:520, f2:790, d:0.12, g:0.35 }],
+  cattura:   [{ t:"triangle", f:660, d:0.09, g:0.40 },
+              { t:"triangle", f:990, d:0.18, g:0.40, r:0.08 }],
+  vuoto:     [{ t:"sine",     f:210, f2:150, d:0.18, g:0.30 }]
+};
+function audioCtx(){
+  if (actx){ if (actx.state === "suspended" && actx.resume) actx.resume(); return actx; }
+  const C = window.AudioContext || window.webkitAudioContext;
+  if (!C) return null;
+  try {
+    actx = new C();
+    master = actx.createGain();
+    master.gain.value = 0.22;                     /* basso: si gioca anche in ufficio */
+    master.connect(actx.destination);
+  } catch(e){ actx = null; }
+  return actx;
+}
+function rumore(c){
+  if (rumoreBuf) return rumoreBuf;
+  const n = Math.floor(c.sampleRate * 0.4);
+  rumoreBuf = c.createBuffer(1, n, c.sampleRate);
+  const d = rumoreBuf.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+  return rumoreBuf;
+}
+function voce(c, v){
+  const t0 = c.currentTime + (v.r || 0), g = c.createGain();
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.0002, v.g || 0.4), t0 + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + v.d);
+  g.connect(master);
+  let src;
+  if (v.n){
+    src = c.createBufferSource(); src.buffer = rumore(c);
+    const f = c.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 1400;
+    src.connect(f); f.connect(g);
+  } else {
+    src = c.createOscillator();
+    src.type = v.t || "sine";
+    src.frequency.setValueAtTime(v.f, t0);
+    if (v.f2) src.frequency.exponentialRampToValueAtTime(Math.max(20, v.f2), t0 + v.d);
+    src.connect(g);
+  }
+  src.start(t0);
+  src.stop(t0 + v.d + 0.02);
+}
+/* Torna true se il suono e' davvero partito: e' quello che i controlli guardano. */
+function suona(nome){
+  if (!audioOn || !SUONI[nome]) return false;
+  const c = audioCtx();
+  if (!c) return false;
+  try { SUONI[nome].forEach(v => voce(c, v)); return true; }
+  catch(e){ return false; }                       /* mai far cadere una partita per un suono */
+}
+function audioImposta(on){
+  audioOn = !!on;
+  const b = $("#btn-audio");
+  if (b){
+    /* Etichetta corta: in testata ci sono gia' cinque pulsanti e su un telefono
+       ogni parola in piu' e' una riga in piu' prima del gioco. Lo stato lo dicono
+       il titolo, aria-pressed e il tratto sopra il testo. */
+    b.title = audioOn ? "Suono acceso" : "Suono spento";
+    b.setAttribute("aria-label", b.title);
+    b.setAttribute("aria-pressed", audioOn ? "true" : "false");
+    b.classList.toggle("spento", !audioOn);
+  }
+  try { localStorage.setItem(AUDIO_CHIAVE, audioOn ? "1" : "0"); } catch(e){}
+}
+function audioCarica(){
+  let on = true;
+  try { on = localStorage.getItem(AUDIO_CHIAVE) !== "0"; } catch(e){}
+  audioImposta(on);
+}
+
+/* =========================================================================
    ECO \u2014 funzioni
    ========================================================================= */
 function ecoSalva(){
@@ -1771,6 +1965,7 @@ function nutriCon(nome){
   S.dispensa[nome]--;
   if (S.dispensa[nome] <= 0) delete S.dispensa[nome];
   save();
+  suona("pasto");
   drawGabbie();
   if (eraLarva && adulto(e)){
     const u = byId[e.id];
@@ -1973,6 +2168,7 @@ function piazzaTrappola(){
   if (!l || !S.escaSel || !(S.dispensa[S.escaSel] > 0)) return;
   if (!(S.mondo.trappole[S.trapSel] > 0)) return;
   if (S.mondo.poste.length >= MAX_POSTE || S.zoo.length >= MAX_GABBIE) return;
+  suona("clic");
   S.dispensa[S.escaSel]--;
   if (S.dispensa[S.escaSel] <= 0) delete S.dispensa[S.escaSel];
   S.mondo.trappole[S.trapSel]--;
@@ -1990,6 +2186,7 @@ function raccogli(n){
   const preso = esitoSpedizione(p);
   S.mondo.poste.splice(i, 1);
   let msg;
+  suona(preso ? "cattura" : "vuoto");
   if (preso && S.zoo.length < MAX_GABBIE){
     const e = nuovoEsemplare(preso.id, preso.b, true);
     S.zoo.push(e); S.mondo.presi++;
@@ -2214,6 +2411,7 @@ function toggle(id){
   if (b) b.focus();
 }
 function drawSlots(){
+  guidaAggiorna();
   const el = $("#slots"); el.innerHTML = "";
   for (let i = 0; i < 5; i++){
     const id = S.team[i], u = id && defOf(id);
@@ -2240,6 +2438,7 @@ function drawSlots(){
    RIEPILOGO SQUADRA — si controlla il quintetto e si sceglie il Re
    ========================================================================= */
 function drawBrief(){
+  setTimeout(guidaAggiorna, 0);                   /* dopo che il Re e' stato scelto o tolto */
   const el = $("#brief"); el.innerHTML = "";
   S.team.forEach(id => {
     const u = defOf(id), st = statsOf(id), e = esemplare(id), f = FAMS[u.fam], isK = S.kingId === id;
@@ -2795,6 +2994,7 @@ function strike(a, t, mult, label){
   /* la difesa riduce il colpo ma non lo annulla mai: resta almeno il 30% della forza,
      altrimenti un DEF alto renderebbe l'unit\u00e0 invulnerabile agli attaccanti deboli */
   const core = Math.max(a.str * 0.3, a.str * 2 - t.dfn);
+  suona(mult > 1 ? "speciale" : "colpo");
   lunge(a, t);
   const d = raw(t, core * mult * (0.9 + Math.random() * 0.2), label);
   if (d) log('<b>' + a.d.name + '</b> ' + label + ' <b>' + t.d.name + '</b>: <span class="hit">' + d + ' danni</span>');
@@ -2818,6 +3018,7 @@ function basicAttack(a, t){
 }
 function ko(t, why){
   t.alive = false;
+  suona(why === "ring" ? "fuori" : "ko");
   const e = tokEl(t);
   if (e){
     if (why === "ring"){
@@ -3210,6 +3411,7 @@ function finish(win){
      minuti d'attesa dell'originale, la stessa gia' fatta per il cibo. Conta
      anche una sconfitta: il tempo passa comunque. */
   S.giocate = (S.giocate|0) + 1;
+  suona(win ? "vittoria" : "sconfitta");
   conta("partite"); conta(win ? "vinte" : "perse");
   if (win) tappa("prima");
   const R = RANKS[S.rankIdx];
@@ -3378,6 +3580,7 @@ const vX = x => flipBoard() ? NX - 1 - x : x;
 const vY = y => flipBoard() ? NY - 1 - y : y;
 const topSide = () => flipBoard() ? "p" : "e";
 function draw(){
+  guidaAggiorna();
   if (!BOARD_READY) initBoard();
   const dep = S.phase === "deploy";
   $("#deploybar").style.display = dep ? "" : "none";
@@ -3512,7 +3715,7 @@ function click(x, y){
   if (S.busy || S.over || S.turn !== meSide()) return;
   const u = at(x,y);
   if (S.sel && S.mode === "move" && !S.sel.moved && moves(S.sel).some(p => p.x === x && p.y === y)){
-    S.sel.x = x; S.sel.y = y; S.sel.moved = true; S.mode = "idle"; draw(); passo(S.sel); return;
+    S.sel.x = x; S.sel.y = y; S.sel.moved = true; S.mode = "idle"; suona("passo"); draw(); passo(S.sel); return;
   }
   if (S.sel && S.mode === "atk" && u && foesAdj(S.sel).includes(u)){
     basicAttack(S.sel, u); S.sel.acted = true; S.sel = null; S.mode = "idle"; draw(); return;
@@ -3520,7 +3723,7 @@ function click(x, y){
   if (S.sel && S.mode === "spec" && u && specTargets(S.sel).includes(u)){
     doSpecial(S.sel, u); S.sel.acted = true; S.sel = null; S.mode = "idle"; draw(); return;
   }
-  if (u && u.side === meSide() && !u.acted){ S.sel = u; S.mode = "idle"; draw(); return; }
+  if (u && u.side === meSide() && !u.acted){ S.sel = u; S.mode = "idle"; suona("seleziona"); draw(); return; }
   S.sel = null; S.mode = "idle"; draw();
 }
 
@@ -3531,6 +3734,7 @@ function show(id){
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("on"));
   $("#" + id).classList.add("on");
   window.scrollTo(0,0);
+  guidaAggiorna();
 }
 function updBadges(){
   const duo = S.matchMode === "hvh", pc = S.matchMode === "pvp";
@@ -3699,6 +3903,8 @@ $("#btn-zoo").onclick = () => apriGabbie();
 $("#btn-zoo-back").onclick = () => {
   drawRoster(); drawSlots(); detail(S.look || null); show("s-team");
 };
+$("#btn-guida-basta").onclick = () => { guidaSpegni(); suona("clic"); };
+$("#btn-audio").onclick = () => { audioImposta(!audioOn); suona("clic"); };
 $("#btn-eco-apri").onclick = () => { chiudiSalvataggio(); apriEco(); };
 $("#btn-eco-cls").onclick = chiudiEco;
 $("#eco-box").onclick = ev => { if (ev.target === $("#eco-box")) chiudiEco(); };
@@ -3803,11 +4009,13 @@ function applicaEdizione(){
   ["#btn-mondo", "#btn-zoo"].forEach(id => { const b = $(id); if (b) b.hidden = demo(); });
 }
 applicaEdizione();
+audioCarica();
 ecoCarica();
 load();
 /* Un mondo c'e' sempre: se il salvataggio non ne porta uno (partita nuova, o
    salvataggio di schema 2) se ne semina uno adesso, con la prima trappola. */
 if (!S.mondo) S.mondo = mondoNuovo();
+guidaCarica();
 updBadges(); drawRoster(); drawSlots(); detail(null); drawModes();
 if (saveFuturo){
   /* Meglio una riga onesta che far credere di aver perso tutto: il salvataggio
