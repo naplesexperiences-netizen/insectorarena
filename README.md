@@ -50,8 +50,8 @@ Non c'è build step: quello che sta qui è quello che viene servito.
 Dopo la prima visita il gioco funziona anche senza rete e si può aggiungere alla
 schermata home come un'app.
 
-> **Quando pubblichi una modifica, alza `VERSIONE` in `sw.js`** (`insectron-v9` →
-> `insectron-v10`). È quello che fa buttare via la cache vecchia: senza, chi ha già
+> **Quando pubblichi una modifica, alza `VERSIONE` in `sw.js`** (`insectron-v10` →
+> `insectron-v11`). È quello che fa buttare via la cache vecchia: senza, chi ha già
 > aperto il sito continua a vedere la versione precedente.
 
 **Collegare un dominio proprio.**
@@ -121,6 +121,34 @@ copia dalla schermata Mondo e si detta a voce; chi lo scrive nel proprio gioca i
 Il mondo non si salva come mappa: nel salvataggio stanno **il seme e quello che ci hai
 preso**, e la mappa si ricostruisce dal seme ogni volta. È il motivo per cui un mondo
 intero costa sei caratteri invece di qualche KB.
+
+## La sfida del giorno
+
+Una battaglia sola, **uguale per tutti**, che cambia a mezzanotte. Stessa squadra, stesso
+avversario, stessi tiri di dado: la squadra è pescata dal seme della data fra le unità
+fino al rango 4, quindi non conta quanto hai giocato — conta come giochi.
+
+Si affronta **una volta al giorno**: se si potesse riprovare, il punteggio non direbbe
+più niente. A fine partita il gioco dice in quanti turni l'hai chiusa e con quante pedine
+in piedi, e c'è un pulsante per **copiare il risultato** in una riga da mandare a qualcuno.
+
+Non tocca il torneo: rank, round e squadra restano dov'erano.
+
+Perché funzioni, tutto il caso della battaglia — la squadra avversaria, il tiro del danno,
+le scelte dell'IA — passa da un unico punto (`caso()`), che durante la sfida è un
+generatore innescato dal seme del giorno. Due persone che giocano la stessa sfida con le
+stesse mosse vedono esattamente la stessa partita, colpo per colpo.
+
+## Collezione e traguardi
+
+Gli Insector si conoscono **incontrandoli**, da una parte o dall'altra del campo: la
+schermata **Collezione**, nel menu, mostra chi hai già visto e quanti mancano dei 34. Più
+**otto traguardi** — la prima vittoria, una battaglia senza perdere pedine, un esemplare
+portato all'età adulta, una cattura, un figlio, una sfida superata, il Rank S, la
+collezione completa.
+
+Non c'è niente da comprare e niente da sbloccare con i soldi: è solo un modo per vedere
+cosa manca.
 
 ## Gabbie e allevamento
 

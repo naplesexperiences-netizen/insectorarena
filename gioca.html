@@ -413,6 +413,34 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 .bonus{font-style:normal;font-size:.7rem;color:var(--ok)}
 .notarella{font-size:.72rem;color:var(--muted);margin-top:9px;line-height:1.5}
 
+/* --- collezione e traguardi --- */
+.collgriglia{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:9px}
+.colcard{
+  background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+  padding:9px 7px;text-align:center
+}
+.colcard .art{width:40px;height:40px;margin:0 auto 5px}
+.colcard b{display:block;font-size:.74rem}
+.colcard .st{display:block;font-size:.64rem;color:var(--muted);margin-top:2px}
+.colcard.ignoto{opacity:.42}
+.colcard.ignoto .art{filter:grayscale(1) brightness(.5)}
+.trofei{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:9px}
+.trofeo{
+  background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;opacity:.55
+}
+.trofeo.preso{opacity:1;border-color:var(--accent);background:#2a2415}
+.trofeo b{font-size:.82rem}
+.trofeo .st{display:block;font-size:.68rem;color:var(--muted);margin-top:3px;line-height:1.45}
+
+/* --- sfida del giorno --- */
+.sfida{
+  display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:14px;
+  background:var(--panel2);border:1px solid var(--accent);border-left:4px solid var(--accent);
+  border-radius:var(--r);padding:12px 14px;font-size:.84rem
+}
+.sfida .st{display:block;font-size:.73rem;color:var(--muted);margin-top:3px;line-height:1.5}
+.sfida b{color:var(--text)}
+
 /* --- accoppiamento --- */
 .gab.gen{border-color:var(--ok);background:#15251c}
 .sesso{font-size:.64rem;border-radius:999px;padding:2px 7px;vertical-align:2px;
@@ -587,7 +615,7 @@ footer.note a{color:var(--accent2)}
   /* Sul telefono la scheda dell'unita' non sta sotto alla scacchiera: si
      ancora in basso, sopra a tutto, cosi' si tocca una pedina e le azioni
      sono li' sotto il pollice. Senza, servivano trecento pixel di scorrimento
-     per ogni singola mossa \u2014 misurati. */
+     per ogni singola mossa — misurati. */
   .unitcard.ancorata{
     position:fixed;left:8px;right:8px;bottom:8px;z-index:35;
     max-height:var(--barra);overflow:auto;padding:10px;
@@ -635,6 +663,7 @@ footer.note a{color:var(--accent2)}
     <div class="menubox" id="menu-box" role="menu" aria-labelledby="btn-menu" hidden>
       <button id="btn-mondo" role="menuitem">Mondo</button>
       <button id="btn-zoo" role="menuitem">Gabbie</button>
+      <button id="btn-coll" role="menuitem">Collezione</button>
       <div class="sep" id="menu-sep"></div>
       <button id="btn-audio" role="menuitemcheckbox" aria-checked="true"><span class="grow">Suono</span><span class="st" id="st-audio">acceso</span></button>
       <button id="btn-musica" role="menuitemcheckbox" aria-checked="true"><span class="grow">Musica</span><span class="st" id="st-musica">accesa</span></button>
@@ -675,6 +704,22 @@ footer.note a{color:var(--accent2)}
   <p id="guida-testo">&nbsp;</p>
   <button id="btn-guida-basta">Salta la guida</button>
 </div>
+
+<!-- ============ COLLEZIONE E TRAGUARDI ============ -->
+<section id="s-coll" class="screen">
+  <div class="card">
+    <h2>Collezione <span class="badge" id="coll-n">0/34</span></h2>
+    <p class="hint">Gli Insector si conoscono <b>incontrandoli</b>, da una parte o dall&rsquo;altra
+      del campo. Qui c&rsquo;è chi hai già visto e quanto manca.</p>
+    <div class="vita" style="height:7px;margin-bottom:14px"><i id="coll-barra" style="width:0%"></i></div>
+    <div class="collgriglia" id="coll-griglia"></div>
+    <h3 class="sez" style="margin-top:18px">Traguardi</h3>
+    <div class="trofei" id="coll-trofei"></div>
+    <div class="acts" style="margin-top:16px">
+      <button id="btn-coll-back" class="primary">Torna al roster</button>
+    </div>
+  </div>
+</section>
 
 <!-- ============ ACCOPPIAMENTO ============ -->
 <section id="s-cop" class="screen">
@@ -745,6 +790,7 @@ footer.note a{color:var(--accent2)}
       ha in mano l’altra metà del campo. Si cambia quando vuoi, dal roster.</p>
     <div class="modes" id="modes" role="group" aria-label="Modalità di gioco"></div>
     <div id="modeopts"></div>
+    <div id="sfidabox"></div>
     <div class="acts" style="margin-top:16px">
       <button id="btn-modeback" hidden>Torna alla squadra</button>
       <button id="btn-modego" class="primary">Entra in arena</button>
@@ -975,6 +1021,19 @@ const RANKS = [
 const NX = 5, NY = 7;                /* campo largo 5 caselle e profondo 7, come l'originale */
 
 /* =========================================================================
+   IL CASO PILOTATO
+   Di solito una battaglia e' casuale: la squadra avversaria, il tiro del danno,
+   le scelte dell'IA. Per la sfida del giorno non puo' esserlo \u2014 se a due
+   persone capitano avversari diversi, i punteggi non si confrontano. Tutto il
+   caso della battaglia passa da qui: `CASO` vuoto vuol dire Math.random, e
+   durante la sfida e' il generatore col seme del giorno.
+   Restano fuori di proposito: gli identificativi delle pedine, il ritardo
+   delle animazioni e il rumore dell'audio, che non cambiano una partita.
+   ========================================================================= */
+let CASO = null;
+const caso = () => CASO ? CASO() : Math.random();
+
+/* =========================================================================
    EDIZIONE
    La demo e' questo stesso gioco senza le due sezioni laterali: si gioca il
    torneo, non si allevano ne' si catturano esemplari. Non c'e' niente da
@@ -1170,6 +1229,70 @@ const TRAPPOLE = [
 const ATTESA = 2;                                 /* partite di torneo prima di raccogliere */
 const MAX_POSTE = 3;                              /* trappole contemporaneamente in giro */
 const ALLEVA_GRATIS = 3;                          /* esemplari regalati prima che serva catturare */
+
+/* =========================================================================
+   SFIDA DEL GIORNO
+   Una battaglia sola, uguale per tutti, che cambia a mezzanotte: stessa
+   squadra, stesso avversario, stessi tiri di dado. Non tocca il torneo, non
+   da' premi, e si gioca una volta al giorno \u2014 se si potesse riprovare, il
+   punteggio non direbbe piu' niente.
+   ========================================================================= */
+const SFIDA_PROF = { id:"Sfida", pool:[3,5], mul:1.0, fee:0, prize:"",
+                     names:["l\u2019avversario del giorno","l\u2019avversario del giorno",
+                            "l\u2019avversario del giorno","l\u2019avversario del giorno",
+                            "l\u2019avversario del giorno"] };
+const SFIDA_AI = 3;                               /* esperto, uguale per tutti */
+
+/* =========================================================================
+   COLLEZIONE E TRAGUARDI
+   Otto righe e una griglia: e' la cosa piu' economica che esista per far
+   riaprire un gioco, perche' mostra cosa manca invece di chiederlo.
+   Gli Insector "visti" sono quelli incontrati in campo, da una parte o
+   dall'altra: si scoprono giocando, non comprandoli.
+   ========================================================================= */
+const TROFEI = [
+  { id:"prima",    nome:"Primo sangue",   desc:"Vinci la tua prima battaglia." },
+  { id:"invitto",  nome:"Invitto",        desc:"Vinci una battaglia senza perdere una pedina." },
+  { id:"adulto",   nome:"Allevatore",     desc:"Porta un esemplare all\u2019et\u00e0 adulta." },
+  { id:"cattura",  nome:"Cacciatore",     desc:"Cattura un Insector nel Mondo." },
+  { id:"figlio",   nome:"Genitore",       desc:"Fai nascere un figlio da due adulti." },
+  { id:"sfida",    nome:"Puntuale",       desc:"Supera una sfida del giorno." },
+  { id:"campione", nome:"Campione",       desc:"Conquista il Rank S." },
+  { id:"tutti",    nome:"Collezionista",  desc:"Incontra tutti e 34 gli Insector." }
+];
+function vedi(id){
+  if (!byId[id] || S.visti[id]) return;
+  S.visti[id] = 1;
+  if (Object.keys(S.visti).length >= UNITS.length) trofeo("tutti");
+  save();
+}
+function trofeo(id){
+  if (!TROFEI.some(t => t.id === id) || S.trofei[id]) return false;
+  S.trofei[id] = giornoOggi();
+  save();
+  return true;
+}
+const inSfida = () => S.matchMode === "sfida";
+const profRank = () => inSfida() ? SFIDA_PROF : RANKS[S.rankIdx];
+const giornoOggi = () => new Date().toISOString().slice(0, 10);
+const GIORNI = ["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio",
+                "agosto","settembre","ottobre","novembre","dicembre"];
+function giornoScritto(g){
+  const p = String(g).split("-");
+  return p.length === 3 ? (+p[2]) + " " + GIORNI[(+p[1]) - 1] : g;
+}
+/* La squadra della sfida non e' la tua: e' la stessa per tutti, pescata dal
+   seme del giorno fra le unita' fino al rango 4. Cosi' vince chi gioca meglio,
+   non chi ha allevato di piu'. */
+function squadraSfida(rnd){
+  const pool = UNITS.filter(u => u.rank <= 4 && u.id !== "dark_emperor");
+  const scelti = [];
+  while (scelti.length < 5){
+    const c = pool[Math.floor(rnd() * pool.length)];
+    if (!scelti.includes(c.id)) scelti.push(c.id);
+  }
+  return scelti;
+}
 const SEME_ALFA = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   /* niente I, O, 0, 1: si detta al telefono */
 
 /* Generatore con seme: stesso seme, stesso mondo, su qualsiasi dispositivo.
@@ -1641,6 +1764,8 @@ const S = {
   setup: "p", deploySide: "p", careerHeld: false,
   zoo: [], dispensa: {}, nutri: null,             /* esemplari allevati, cibo in magazzino, chi si sta nutrendo */
   cop: [],                                        /* i due esemplari scelti per accoppiarsi */
+  sfida: null, sfidaGiorno: "", turni: 0,         /* sfida del giorno: esito, data, turni */
+  visti: {}, trofei: {},                          /* collezione e traguardi */
   mondo: null,                                    /* seme, trappole in magazzino, trappole posate */
   luogo: null, trapSel: 1, escaSel: null,         /* la spedizione che si sta preparando */
   gratis: 0, giocate: 0,                          /* esemplari regalati; partite di torneo giocate */
@@ -1671,7 +1796,7 @@ const kingOf = side => S.units.find(u => u.alive && u.side === side && u.isKing)
    leggere i salvataggi vecchi quando la forma dei dati cambia, e rifiutare quelli
    scritti da una versione futura del gioco invece di interpretarli a caso.
    ========================================================================= */
-const SCHEMA = 4;                                 /* alzare quando cambia la forma dei dati */
+const SCHEMA = 5;                                 /* alzare quando cambia la forma dei dati */
 const CHIAVE = "insectron";
 const MARCA = "INSECTRON-";                       /* prefisso dei codici esportati */
 
@@ -1686,7 +1811,8 @@ function datiSalvataggio(){
     c: S.champion ? 1 : 0,
     a: S.lvl.e || 0, ap: S.lvl.p || 0, v: S.vs,
     z: S.zoo, p: S.dispensa,                      /* gabbie e dispensa (schema 2) */
-    m: S.mondo, g: S.gratis|0, gi: S.giocate|0    /* mondo, esemplari regalati, partite giocate (schema 3) */
+    m: S.mondo, g: S.gratis|0, gi: S.giocate|0,   /* mondo, esemplari regalati, partite giocate (schema 3) */
+    f: S.sfida, vs: S.visti, tr: S.trofei         /* sfida, collezione e traguardi (schema 5) */
   };
 }
 function save(){
@@ -1706,7 +1832,11 @@ function migra(v){
      prima trappola, e non perde ne' torneo ne' gabbie.
      v3 -> v4: arriva la riproduzione, e con lei il sesso degli esemplari. A
      chi ne aveva gia' viene assegnato alternandolo, cosi' una gabbia piena di
-     larve non nasce tutta maschio. Le migrazioni future si aggiungono qui. */
+     larve non nasce tutta maschio.
+     v4 -> v5: arrivano la sfida del giorno, la collezione e i traguardi. Chi
+     giocava prima parte con la collezione vuota: si riempie alla prima
+     battaglia, e non c'e' niente da ricostruire. Le migrazioni future si
+     aggiungono qui, una per gradino. */
   const zoo = Array.isArray(v.z) ? v.z.filter(e => e && byId[e.id]).map((e, i) => ({
     u: String(e.u || ""), id: e.id,
     b: { hp:(e.b&&e.b.hp)|0, str:(e.b&&e.b.str)|0, def:(e.b&&e.b.def)|0 },
@@ -1718,8 +1848,19 @@ function migra(v){
   const disp = {};
   if (v.p && typeof v.p === "object")
     Object.keys(v.p).forEach(k => { if (CIBI[k] && (v.p[k]|0) > 0) disp[k] = v.p[k]|0; });
+  const sf = v.f && typeof v.f === "object" && /^\d{4}-\d{2}-\d{2}$/.test(String(v.f.g))
+    ? { g: String(v.f.g), esito: v.f.esito === "v" ? "v" : "s",
+        turni: Math.max(0, v.f.turni|0), vive: Math.max(0, Math.min(5, v.f.vive|0)) }
+    : null;
+  const visti = {};
+  if (v.vs && typeof v.vs === "object")
+    Object.keys(v.vs).forEach(k => { if (byId[k]) visti[k] = 1; });
+  const trofei = {};
+  if (v.tr && typeof v.tr === "object")
+    TROFEI.forEach(t => { if (v.tr[t.id]) trofei[t.id] = String(v.tr[t.id]).slice(0, 10); });
   return { sv: SCHEMA, r: v.r|0, n: v.n|0, t: v.t.slice(), k: v.k,
-           c: v.c ? 1 : 0, a: (v.a|0) || 0, ap: (v.ap|0) || 0, v: v.v,
+           c: v.c ? 1 : 0, a: (v.a|0) || 0, ap: (v.ap|0) || 0, v: v.v, f: sf,
+           vs: visti, tr: trofei,
            z: zoo, p: disp, m: mondoSano(v.m),
            g: Math.max(0, Math.min(ALLEVA_GRATIS, v.g|0)), gi: Math.max(0, v.gi|0) };
 }
@@ -1750,6 +1891,8 @@ function applica(d){
   S.dispensa = d.p || {};
   S.mondo = d.m || mondoNuovo();
   S.gratis = d.g|0; S.giocate = d.gi|0;
+  S.sfida = d.f || null;
+  S.visti = d.vs || {}; S.trofei = d.tr || {};
   /* gli identificativi degli esemplari devono restare unici anche dopo un
      ripristino: si riparte a contare da quello piu' alto trovato */
   ZOO_SEQ = S.zoo.reduce((m,e) => Math.max(m, parseInt(String(e.u).slice(1), 10) || 0), 0);
@@ -2310,6 +2453,7 @@ function nutriCon(nome){
   suona("pasto");
   drawGabbie();
   if (eraLarva && adulto(e)){
+    trofeo("adulto");
     const u = byId[e.id];
     $("#anteprima").innerHTML = '<p class="notarella" style="color:var(--ok)"><b>' + u.name +
       '</b> \u00e8 diventato adulto: ora puoi portarlo in squadra dal roster.</p>';
@@ -2348,6 +2492,7 @@ function accoppia(ua, ub){
   /* Il figlio entra dopo, altrimenti gli indici dei genitori da togliere
      ballerebbero sotto i piedi. */
   S.zoo.push(figlio);
+  trofeo("figlio"); vedi(figlio.id);
   S.cop = [];
   save();
   return { figlio, speciale: f.speciale, padre: a, madre: b };
@@ -2668,7 +2813,7 @@ function raccogli(n){
   suona(preso ? "cattura" : "vuoto");
   if (preso && S.zoo.length < MAX_GABBIE){
     const e = nuovoEsemplare(preso.id, preso.b, true);
-    S.zoo.push(e); S.mondo.presi++;
+    S.zoo.push(e); S.mondo.presi++; trofeo("cattura"); vedi(e.id);
     const u = byId[preso.id];
     msg = '<p class="notarella" style="color:var(--ok)">Preso: <b>' + u.name + '</b>' +
       (preso.b.hp ? ' (nato con +' + preso.b.hp + ' vita, +' + preso.b.str + ' forza, +' +
@@ -3017,6 +3162,7 @@ function drawModes(){
     box.appendChild(b);
   });
   drawModeOpts();
+  drawSfida();
 }
 function pickMode(k){
   S.vs = k;
@@ -3195,19 +3341,19 @@ function mk(rif, side, isKing, mul){
   };
 }
 function buildEnemy(){
-  const R = RANKS[S.rankIdx];
+  const R = profRank();
   const pool = UNITS.filter(u => u.rank >= R.pool[0] && u.rank <= R.pool[1] && u.id !== "dark_emperor");
   const pick = [];
   while (pick.length < 5){
-    const c = pool[Math.floor(Math.random()*pool.length)];
+    const c = pool[Math.floor(caso()*pool.length)];
     if (pick.filter(p => p.id === c.id).length < 2) pick.push(c);
   }
   const kIdx = pick.reduce((best,u,i) => u.hp > pick[best].hp ? i : best, 0);
   return pick.map((u,i) => mk(u, "e", i === kIdx, R.mul));
 }
-function startBattle(){
-  S.matchMode = "hvp";
-  const R = RANKS[S.rankIdx];
+function startBattle(sfida){
+  S.matchMode = sfida ? "sfida" : "hvp";
+  const R = profRank();
   S.units = [];
   S.team.forEach(ref => S.units.push(mk(ref, "p", ref === S.kingId, 1)));
   buildEnemy().forEach(u => S.units.push(u));
@@ -3221,12 +3367,17 @@ function startBattle(){
 
   S.turn = "p"; S.sel = null; S.mode = "idle"; S.over = false; S.busy = false;
   S.phase = "deploy"; S.pick = null;
+  S.units.forEach(u => vedi(u.d.id));             /* si conoscono incontrandoli */
   resetBoard();
   $("#log").innerHTML = "";
   const P = AI_PROFILES[aiLevel()];
   $("#b-opp").innerHTML = "Avversario: <b>" + R.names[S.round] + "</b> \u00b7 " + P.nome;
   $("#b-opp").title = P.desc;
-  log('<b>Rank ' + R.id + ' \u2014 Round ' + (S.round+1) + '/5</b> contro <b>' + R.names[S.round] + '</b>.');
+  if (inSfida())
+    log('<b>Sfida del ' + giornoScritto(S.sfidaGiorno) + '</b>: questa battaglia \u00e8 ' +
+        'identica per tutti, e si gioca una volta sola.');
+  else
+    log('<b>Rank ' + R.id + ' \u2014 Round ' + (S.round+1) + '/5</b> contro <b>' + R.names[S.round] + '</b>.');
   log('Schiera le tue 5 pedine nelle <b>due file pi\u00f9 vicine a te</b>, poi inizia la battaglia.');
   show("s-battle"); draw();
 }
@@ -3245,7 +3396,7 @@ function randomDeploy(){
   for (let y = y0; y < y0 + 2; y++) for (let x = 0; x < NX; x++) if (!at(x,y)) free.push({x,y});
   S.units.filter(u => u.side === side && !placed(u)).forEach(u => {
     if (!free.length) return;
-    const i = Math.floor(Math.random() * free.length);
+    const i = Math.floor(caso() * free.length);
     u.x = free[i].x; u.y = free[i].y; free.splice(i,1);
   });
   S.pick = null; draw();
@@ -3477,7 +3628,7 @@ function strike(a, t, mult, label){
   const core = Math.max(a.str * 0.3, a.str * 2 - t.dfn);
   suona(mult > 1 ? "speciale" : "colpo");
   lunge(a, t);
-  const d = raw(t, core * mult * (0.9 + Math.random() * 0.2), label);
+  const d = raw(t, core * mult * (0.9 + caso() * 0.2), label);
   if (d) log('<b>' + a.d.name + '</b> ' + label + ' <b>' + t.d.name + '</b>: <span class="hit">' + d + ' danni</span>');
   settle(t, label);
   return d;
@@ -3656,6 +3807,7 @@ function newTurn(side){
     else u.acted = false;
   });
   S.units.filter(u => u.alive && u.side !== side).forEach(u => { u.acted = true; u.moved = true; });
+  if (side === "p") S.turni = (S.turni|0) + 1;    /* per il punteggio della sfida */
   S.turn = side;
   $("#turnpill").className = "pill " + side;
   $("#turnpill").textContent = duoMode() || pcMode()
@@ -3715,6 +3867,7 @@ const RANK_AI = { E:1, D:2, C:2, B:3, A:3, S:4 };
    rank); quello in basso e' guidato dall'IA solo in PC vs PC \u2014 altrove resta sul
    profilo Normale, il metro fisso con cui sono state misurate le difficolta'. */
 function levelOf(side){
+  if (inSfida()) return SFIDA_AI;                 /* uguale per tutti, sempre */
   if (side === "e") return S.lvl.e || RANK_AI[RANKS[S.rankIdx].id] || 2;
   return pcMode() ? (S.lvl.p || RANK_AI[RANKS[S.rankIdx].id] || 2) : 2;
 }
@@ -3848,20 +4001,20 @@ function aiSimple(u, prof){
   /* speciale se conviene */
   if (canSpecial(u)){
     const sp = FAMS[u.d.fam].sp;
-    let go = Math.random() < prof.specialProb;
+    let go = caso() < prof.specialProb;
     if (sp === "healing_jig") go = S.units.some(a => a.alive && a.side === u.side && a !== u && cheb(u.x,u.y,a.x,a.y) === 1 && a.hp < a.maxHp * 0.6);
     if (sp === "fill_hole")   go = u.hp < u.maxHp * 0.55;
     if (go){
       const tg = specTargets(u);
       const t = (prof.mirato ? tg.find(x => x.isKing) : null)
-        || (prof.mirato ? tg.slice().sort((a,b) => a.hp - b.hp)[0] : tg[Math.floor(Math.random()*tg.length)])
+        || (prof.mirato ? tg.slice().sort((a,b) => a.hp - b.hp)[0] : tg[Math.floor(caso()*tg.length)])
         || null;
       if (selfCast(u) || t){ doSpecial(u, t); return; }
     }
   }
   /* attacco diretto */
   const scegli = list => (prof.mirato ? list.find(f => f.isKing) : null)
-    || (prof.mirato ? list.slice().sort((a,b)=>a.hp-b.hp)[0] : list[Math.floor(Math.random()*list.length)]);
+    || (prof.mirato ? list.slice().sort((a,b)=>a.hp-b.hp)[0] : list[Math.floor(caso()*list.length)]);
   let adj = foesAdj(u);
   if (adj.length){ basicAttack(u, scegli(adj)); return; }
 
@@ -3886,6 +4039,7 @@ function checkEnd(){
   else if (!ek || !alive("e").length){ S.over = true; setTimeout(() => finish(true), 700); }
 }
 function finish(win){
+  if (inSfida()){ finishSfida(win); return; }
   if (duoMode()){ finishDuo(win); return; }
   if (pcMode()){ finishPvp(win); return; }
   /* Le trappole si raccolgono dopo N *partite di torneo*: e' la traduzione dei
@@ -3894,7 +4048,10 @@ function finish(win){
   S.giocate = (S.giocate|0) + 1;
   suona(win ? "vittoria" : "sconfitta");
   conta("partite"); conta(win ? "vinte" : "perse");
-  if (win) tappa("prima");
+  if (win){
+    tappa("prima"); trofeo("prima");
+    if (alive("p").length === 5) trofeo("invitto");
+  }
   const R = RANKS[S.rankIdx];
   if (win){
     S.round++;
@@ -3914,7 +4071,7 @@ function finish(win){
         (last ? "<br><br>Hai chiuso il Rank S: il torneo Insectron \u00e8 tuo. Il <b>Dark Emperor</b> \u00e8 ora reclutabile."
               : "<br><br>Prossimo traguardo: <b>Rank " + RANKS[S.rankIdx+1].id +
                 "</b> (iscrizione " + RANKS[S.rankIdx+1].fee + "z).");
-      if (last) S.champion = true; else S.rankIdx++;
+      if (last){ S.champion = true; trofeo("campione"); } else S.rankIdx++;
       if (S.rankIdx >= 1) tappa("rankD");
     } else {
       $("#r-title").innerHTML = '<span class="win">Round vinto</span>';
@@ -3953,6 +4110,121 @@ function mostraInvito(win){
   $("#btn-invito-si").onclick = () => { ECO.n.invito = 1; ecoSalva(); box.hidden = true; apriEco(); };
   $("#btn-invito-no").onclick = () => { ECO.n.invito = 1; ecoSalva(); box.hidden = true; };
 }
+/* --- collezione --- */
+function apriCollezione(){
+  drawCollezione();
+  show("s-coll");
+}
+function drawCollezione(){
+  const griglia = $("#coll-griglia"), n = Object.keys(S.visti).length;
+  $("#coll-n").textContent = n + "/" + UNITS.length;
+  $("#coll-barra").style.width = Math.round(n / UNITS.length * 100) + "%";
+  griglia.innerHTML = "";
+  UNITS.slice().sort((a,b) => (a.rank - b.rank) || a.name.localeCompare(b.name)).forEach(u => {
+    const visto = !!S.visti[u.id];
+    const d = document.createElement("div");
+    d.className = "colcard" + (visto ? "" : " ignoto");
+    d.innerHTML = art(u.fam, false, u.rank) +
+      '<b>' + (visto ? u.name : "???") + '</b>' +
+      '<span class="st">' + (visto ? u.fam + " \u00b7 rango " + u.rank : "mai incontrato") + '</span>';
+    griglia.appendChild(d);
+  });
+  const box = $("#coll-trofei"); box.innerHTML = "";
+  TROFEI.forEach(t => {
+    const preso = S.trofei[t.id];
+    const d = document.createElement("div");
+    d.className = "trofeo" + (preso ? " preso" : "");
+    d.innerHTML = '<b>' + t.nome + '</b><span class="st">' + t.desc +
+      (preso ? ' \u00b7 <i>' + giornoScritto(preso) + '</i>' : '') + '</span>';
+    box.appendChild(d);
+  });
+}
+
+/* --- sfida del giorno --- */
+function sfidaFatta(){
+  return S.sfida && S.sfida.g === giornoOggi() ? S.sfida : null;
+}
+function avviaSfida(){
+  if (demo() || sfidaFatta()) return false;
+  const g = giornoOggi();
+  /* La squadra del torneo si mette da parte, come quando gioca il secondo
+     giocatore: la sfida non deve toccarla. */
+  if (!S.careerHeld){ S.career = { team: S.team.slice(), king: S.kingId }; S.careerHeld = true; }
+  S.sfidaGiorno = g;
+  CASO = rngDa(semeNum("SFIDA-" + g));
+  S.team = squadraSfida(CASO);
+  S.kingId = S.team.slice().sort((a,b) => byId[b].hp - byId[a].hp)[0];
+  S.turni = 0;
+  startBattle(true);
+  updBadges();
+  show("s-battle");
+  return true;
+}
+function finishSfida(win){
+  const vive = alive("p").length, turni = S.turni|0;
+  S.sfida = { g: S.sfidaGiorno || giornoOggi(), esito: win ? "v" : "s", turni: turni, vive: vive };
+  if (win) trofeo("sfida");
+  CASO = null;                                    /* il caso torna libero */
+  suona(win ? "vittoria" : "sconfitta");
+  conta("sfide");
+  backToCareer();
+  save(); updBadges();
+  $("#r-title").innerHTML = win
+    ? '<span class="win">Sfida superata</span>'
+    : '<span class="lose">Sfida non superata</span>';
+  $("#r-text").innerHTML = (win
+      ? "Hai chiuso la sfida del " + giornoScritto(S.sfida.g) + " in <b>" + turni +
+        "</b> turni, con <b>" + vive + "</b> pedine su 5 in piedi."
+      : "Il tuo Re \u00e8 caduto al turno <b>" + turni + "</b>.") +
+    "<br><br>La battaglia era la stessa per tutti, e torna <b>domani</b> con un\u2019altra. " +
+    "Il torneo \u00e8 rimasto dov\u2019era." +
+    '<div class="acts"><button id="btn-sfida-copia">Copia il risultato</button></div>';
+  const c = $("#btn-sfida-copia");
+  if (c) c.onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(testoSfida());
+      c.textContent = "Copiato";
+    } catch(e){ c.textContent = "Copia bloccata dal browser"; }
+  };
+  show("s-result");
+}
+function testoSfida(){
+  const f = S.sfida;
+  if (!f) return "";
+  return "Insectron Arena \u2014 sfida del " + giornoScritto(f.g) + ": " +
+    (f.esito === "v"
+      ? "vinta in " + f.turni + " turni, " + f.vive + "/5 in piedi."
+      : "persa al turno " + f.turni + ".") +
+    " https://naplesexperiences-netizen.github.io/insectorarena/";
+}
+function drawSfida(){
+  const box = $("#sfidabox");
+  if (!box) return;
+  if (demo()){ box.hidden = true; return; }
+  box.hidden = false;
+  const f = sfidaFatta();
+  box.innerHTML =
+    '<div class="sfida">' +
+      '<div class="grow"><b>Sfida del giorno</b> \u00b7 ' + giornoScritto(giornoOggi()) +
+      '<span class="st">' + (f
+        ? (f.esito === "v"
+            ? "Superata in <b>" + f.turni + "</b> turni, con <b>" + f.vive + "</b> pedine in piedi."
+            : "Non superata: il Re \u00e8 caduto al turno <b>" + f.turni + "</b>.") +
+          " Torna domani."
+        : "Stessa squadra e stesso avversario per tutti, una volta sola. Non tocca il torneo.") +
+      '</span></div>' +
+      (f ? '<button id="btn-sfida-cond">Copia il risultato</button>'
+         : '<button id="btn-sfida-go" class="primary">Gioca la sfida</button>') +
+    '</div>';
+  const go = $("#btn-sfida-go");
+  if (go) go.onclick = () => { suona("clic"); avviaSfida(); };
+  const cond = $("#btn-sfida-cond");
+  if (cond) cond.onclick = async () => {
+    try { await navigator.clipboard.writeText(testoSfida()); cond.textContent = "Copiato"; }
+    catch(e){ cond.textContent = "Copia bloccata"; }
+  };
+}
+
 /* PC vs PC e' una prova: nessun rank da aggiornare, si riassume come e' andata. */
 function finishPvp(win){
   const vince = win ? "p" : "e";
@@ -4264,7 +4536,7 @@ function show(id){
   guidaAggiorna();
 }
 function updBadges(){
-  const duo = S.matchMode === "hvh", pc = S.matchMode === "pvp";
+  const duo = S.matchMode === "hvh" || inSfida(), pc = S.matchMode === "pvp";
   $("#b-rank").innerHTML = "Rank <b>" + RANKS[S.rankIdx].id + "</b>";
   $("#b-round").innerHTML = "Round <b>" + (S.round+1) + "</b>/5";
   /* Rank, round e azzeramento riguardano il torneo: mentre giocano due persone
@@ -4427,6 +4699,8 @@ $("#btn-seme-va").onclick = () => {
 $("#seme-in").onkeydown = ev => { if (ev.key === "Enter") $("#btn-seme-va").click(); };
 
 $("#btn-zoo").onclick = () => { menuApri(false); apriGabbie(); };
+$("#btn-coll").onclick = () => { menuApri(false); apriCollezione(); };
+$("#btn-coll-back").onclick = () => { drawRoster(); drawSlots(); detail(S.look); show("s-team"); };
 $("#btn-vai-cop").onclick = () => apriCoppia();
 $("#btn-cop-back").onclick = () => apriGabbie(S.nutri);
 $("#btn-cop-vuota").onclick = () => { S.cop = []; drawCoppia(); };
@@ -4555,9 +4829,9 @@ $("#btn-reset").onclick = () => {
    le aprono si rifiutano comunque, cosi' non bastano gli strumenti per
    sviluppatori per entrarci. */
 function applicaEdizione(){
-  ["#btn-mondo", "#btn-zoo", "#menu-sep"].forEach(id => {
-    const b = $(id); if (b) b.hidden = demo();
-  });
+  /* Il separatore resta: sopra c'e' comunque la Collezione, che nella demo ha
+     senso quanto nel gioco intero. */
+  ["#btn-mondo", "#btn-zoo"].forEach(id => { const b = $(id); if (b) b.hidden = demo(); });
 }
 applicaEdizione();
 audioCarica();
