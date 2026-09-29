@@ -176,9 +176,21 @@ L'abbiamo misurata, 200 battaglie per scenario, al Rank S:
 L'allevamento aiuta, non regala la vittoria: il Rank S resta una partita da giocare bene.
 
 Ogni cibo dichiara in dispensa **cosa dà e quanto costa**, prima che tu lo usi. Alcuni
-cibi danno anche **resistenze** (spinta, confusione, fuoco…): la scheda le mostra e dice
-apertamente che **non contano ancora in battaglia**, perché le regole di stato non sono
-implementate. Promettere un effetto che non c'è sarebbe peggio che non averlo.
+cibi danno anche **resistenze**, e in battaglia contano:
+
+| Resistenza | Cosa fa |
+|---|---|
+| **Taglio**, **Esplosione** | riducono il danno delle mosse di quel tipo: il 3% a punto, fino a un massimo del 30% |
+| **Knockback** | una casella in meno di spinta ogni 4 punti, e una possibilità di restare aggrappato al bordo invece di uscire |
+| **Lancio** | la stessa presa sul bordo contro chi ti scaglia via |
+| **Confusione** | fa fallire l'ammaliamento della Faerie e il ribaltamento del Flipperbug |
+| **Veleno** | nessuna delle tredici famiglie giocabili avvelena: il valore si accumula, ma non ha ancora una mossa che lo infligga, e la dispensa lo dice |
+
+I cibi che tolgono resistenza valgono al contrario: chi si nutre solo di Edensia incassa
+di più dai lanci. Le corazze sono una **scelta**, non un potenziamento gratuito: al Rank S
+un esemplare che spende tre quarti del budget in statistiche e un quarto in corazza vince
+quanto uno cresciuto solo a forza (48% contro 46% su 400 partite), mentre chi spende metà
+budget in corazza scende al 35%. Il cibo si paga sempre con gli stessi punti vita.
 
 ## Salvataggi
 

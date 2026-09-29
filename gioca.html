@@ -1068,8 +1068,9 @@ const byId = {}; UNITS.forEach(u => byId[u.id] = u);
    Due cose la rendono una meccanica e non un distributore di bonus: alcuni
    cibi *tolgono*, e ogni esemplare ha un budget di vita che non si rigenera.
 
-   Le resistenze si accumulano ma in battaglia non contano ancora: arrivano
-   con la loro implementazione, e intanto la scheda lo dice invece di fingere.
+   Le resistenze accumulate qui contano in battaglia: dove e quanto sta scritto
+   accanto a `fattoreRes`. Il Veleno e' l'unica che resta ferma, perche' nel
+   roster giocabile non c'e' una mossa che avveleni: la scheda lo dice.
    ========================================================================= */
 /* Il budget di vita e la soglia di adulto sono **scalati**, non copiati.
    Nell'originale sono 160 e 20 punti, ma li' il cibo si compra e si gioca per
@@ -1107,13 +1108,17 @@ const CIBI = {
   "Ultraspicy Pepper":    { hp:0, str:0, def:0, r:{po:2},                                vita:1 },
   "Yago Milk":            { hp:1, str:0, def:0, r:{kb:1,cf:-1,ct:1,ex:1,th:1,po:1},      vita:2 }
 };
-/* Premi del torneo. Solo cibi che in battaglia fanno gia' qualcosa: distribuire
-   quelli che agiscono sulle sole resistenze sarebbe dare oggetti inerti.
+/* Premi del torneo. Solo cibi che in battaglia fanno qualcosa: distribuire
+   oggetti inerti sarebbe prendere in giro chi apre la dispensa. Finche' le
+   resistenze non contavano, i sei cibi che danno solo quelle erano fuori;
+   adesso che contano sono dentro, e resta fuori l'Ultraspicy Pepper, che da'
+   solo Veleno, e il Battle Feed, che non da' niente.
    Le quantita' sono misurate, non scelte a occhio (vedi la nota sull'equilibrio
    nel README). Il cibo arriva **conquistando un rank**, non a ogni round: cosi'
    ha un suo momento e non diventa pioggia. */
 const CIBI_PREMIO = ["Sanchez Fruit","Firestone","Ruby","Primeval Beef","Dark Onyx","Diamond",
-  "Pirate\u2019s Grog","Yago Milk","Lapis Lazuli","Mellow Banana","Nebula Opal","Edensia","Stella Crystal"];
+  "Pirate\u2019s Grog","Yago Milk","Lapis Lazuli","Mellow Banana","Nebula Opal","Edensia","Stella Crystal",
+  "Smoked Rainbow Newt","Electric Eel","Sticky Gum","Hard Candy","Juraikan Coffee Beans","Seventhmoon"];
 const PREMIO_RANK = 4;                            /* cibi per rank conquistato */
 
 /* =========================================================================
@@ -2435,7 +2440,17 @@ function drawDispensa(){
       : 'Ancora <b>' + (VITA_ADULTO - e.speso) + '</b> punti e diventa adulto.') +
     (RES.some(k => e.res[k]) ? '<br>Resistenze accumulate: ' +
       RES.filter(k => e.res[k]).map(k => RES_NOME[k] + " " + (e.res[k] > 0 ? "+" : "") + e.res[k]).join(", ") +
-      ' \u2014 <i>non contano ancora in battaglia</i>.' : '') + '</p>';
+      ' \u2014 <i>' + spiegaRes(e) + '</i>.' : '') + '</p>';
+}
+/* Che cosa fanno davvero, detto dove si sceglie il cibo: e' li' che la
+   decisione si prende. Il Veleno viene nominato solo se ce n'e', e allora si
+   dice che non ha ancora una mossa che lo infligga. */
+function spiegaRes(e){
+  const utili = RES.filter(k => k !== "po" && e.res[k]).length;
+  const vel = (e.res.po|0) !== 0;
+  return (utili ? "in battaglia riducono danno, spinte e ammaliamenti" : "") +
+    (utili && vel ? "; " : "") +
+    (vel ? "il Veleno resta fermo: nel roster non c'\u00e8 una mossa che avveleni" : "");
 }
 function nutriCon(nome){
   const e = S.zoo.find(x => x.u === S.nutri), c = CIBI[nome];
@@ -3337,6 +3352,7 @@ function mk(rif, side, isKing, mul){
     d: def, side: side, isKing: isKing, alive: true, allevato: !!e,
     maxHp: vita, hp: vita,
     str: Math.round(def.str * mul) + b.str, dfn: Math.round(def.def * mul) + b.def,
+    res: RES.reduce((o,k) => (o[k] = e ? (e.res[k]|0) : 0, o), {}),
     x: 0, y: 0, acted: false, moved: false, stun: 0, cd: 0, guard: 0, exposed: false
   };
 }
@@ -3610,6 +3626,57 @@ function bullet(a, t, color){
   });
   setTimeout(() => b.remove(), 360);
 }
+/* =========================================================================
+   RESISTENZE IN BATTAGLIA
+   Le sei resistenze arrivavano dal cibo e finivano in un numero che non faceva
+   niente. Adesso agiscono, ognuna dove ha senso:
+
+     Taglio ed Esplosione riducono il danno delle mosse di quel tipo: ogni
+       punto vale il 3%, con un tetto del 30%. E' una corazza, non l'immunita'.
+     Knockback accorcia le spinte (una casella in meno ogni 4 punti) e da' una
+       possibilita' di restare aggrappati al bordo invece di uscire dal campo.
+     Lancio fa lo stesso sul bordo contro chi ti scaglia via.
+     Confusione fa fallire l'ammaliamento della Faerie e il ribaltamento del
+       Flipperbug.
+     Veleno non ha ancora una mossa che lo infligga: nessuna delle tredici
+       famiglie giocabili avvelena. Il valore si accumula lo stesso e la scheda
+       lo dice apertamente, invece di inventare una meccanica che le fonti non
+       hanno.
+
+   I valori sono negativi quando il cibo li toglie, e allora valgono al
+   contrario: chi si nutre solo di Edensia incassa di piu' dai lanci.
+   Gli avversari sono esemplari del roster, non allevati: la loro resistenza e'
+   sempre zero, e per questo i tetti sono bassi. Con resistenza <= 0 non si
+   tira nemmeno il dado, cosi' una squadra non allevata gioca la stessa
+   partita di prima, seme per seme.
+   ========================================================================= */
+const MOSSA_TIPO = { jumping_stab:"ct", sickle_dance:"ct", cannon_blast:"ex", emperors_rage:"ex" };
+/* Il tipo vale anche per l'attacco normale: chi porta le lame taglia comunque. */
+const tipoDi = u => MOSSA_TIPO[FAMS[u.d.fam].sp] || "";
+const resDi = (t, k) => Math.max(-10, Math.min(10, (t.res && t.res[k]) | 0));
+function fattoreRes(t, tipo){
+  if (!tipo) return 1;
+  return 1 - Math.max(-0.3, Math.min(0.3, resDi(t, tipo) * 0.03));
+}
+function notaRes(t, tipo){
+  const p = Math.round((1 - fattoreRes(t, tipo)) * 100);
+  return p ? ' <span class="fam">(' + RES_NOME[tipo] + ' ' + (p > 0 ? "\u2212" : "+") +
+    Math.abs(p) + '%)</span>' : '';
+}
+const passiSpinta = (t, n) => Math.max(0, n - Math.trunc(resDi(t, "kb") / 4));
+function reggeIlBordo(t, k){
+  const r = resDi(t, k);
+  if (r <= 0 || caso() >= Math.min(0.6, r * 0.08)) return false;
+  log('<b>' + t.d.name + '</b> resiste e resta aggrappato al bordo.', "good");
+  return true;
+}
+function reggeConfusione(t){
+  const r = resDi(t, "cf");
+  if (r <= 0 || caso() >= Math.min(0.5, r * 0.06)) return false;
+  log('<b>' + t.d.name + '</b> scrolla via la confusione.', "good");
+  return true;
+}
+
 function raw(t, amount, why){
   if (t.guard > 0){
     t.guard--;
@@ -3626,10 +3693,12 @@ function strike(a, t, mult, label){
   /* la difesa riduce il colpo ma non lo annulla mai: resta almeno il 30% della forza,
      altrimenti un DEF alto renderebbe l'unit\u00e0 invulnerabile agli attaccanti deboli */
   const core = Math.max(a.str * 0.3, a.str * 2 - t.dfn);
+  const tipo = tipoDi(a);
   suona(mult > 1 ? "speciale" : "colpo");
   lunge(a, t);
-  const d = raw(t, core * mult * (0.9 + caso() * 0.2), label);
-  if (d) log('<b>' + a.d.name + '</b> ' + label + ' <b>' + t.d.name + '</b>: <span class="hit">' + d + ' danni</span>');
+  const d = raw(t, core * mult * (0.9 + caso() * 0.2) * fattoreRes(t, tipo), label);
+  if (d) log('<b>' + a.d.name + '</b> ' + label + ' <b>' + t.d.name + '</b>: <span class="hit">' + d +
+    ' danni</span>' + (tipo ? notaRes(t, tipo) : ''));
   settle(t, label);
   return d;
 }
@@ -3639,11 +3708,14 @@ function strike(a, t, mult, label){
 function basicAttack(a, t){
   const d = strike(a, t, 1, "attacca");
   if (!d || !t.alive || a.d.fam !== "Dark Emperor") return d;
-  t.stun = Math.max(t.stun, 2);
-  log("<b>" + t.d.name + "</b> \u00e8 atterrato dalla stretta oscura.", "hit");
+  if (!reggeConfusione(t)){
+    t.stun = Math.max(t.stun, 2);
+    log("<b>" + t.d.name + "</b> \u00e8 atterrato dalla stretta oscura.", "hit");
+  }
   const [dx,dy] = dirTo(a, t);
+  if (passiSpinta(t, 1) <= 0) return d;
   const nx = t.x + dx, ny = t.y + dy;
-  if (!inB(nx,ny)) ringOut(t);
+  if (!inB(nx,ny)){ if (!reggeIlBordo(t, "kb")) ringOut(t); }
   else if (at(nx,ny)) hurl(t, dx, dy, a);
   else { t.x = nx; t.y = ny; }
   return d;
@@ -3671,9 +3743,17 @@ function ko(t, why){
 }
 function ringOut(t){ t.hp = 0; ko(t, "ring"); }
 function shove(t, dx, dy, n, src){
-  for (let i = 0; i < n; i++){
+  const passi = passiSpinta(t, n);
+  if (passi <= 0){
+    log('<b>' + t.d.name + '</b> pianta le zampe e non arretra di un passo.', "good");
+    return "ok";
+  }
+  for (let i = 0; i < passi; i++){
     const nx = t.x + dx, ny = t.y + dy;
-    if (!inB(nx,ny)){ ringOut(t); return "out"; }
+    if (!inB(nx,ny)){
+      if (reggeIlBordo(t, "kb")) return "ok";
+      ringOut(t); return "out";
+    }
     const o = at(nx,ny);
     if (o){
       const chip = Math.round(6 + src.str * 0.35);
@@ -3695,7 +3775,10 @@ function hurl(t, dx, dy, src){
   let cx = t.x, cy = t.y, guard = 0;
   while (guard++ < NX + NY){
     cx += dx; cy += dy;
-    if (!inB(cx,cy)){ ringOut(t); return "out"; }
+    if (!inB(cx,cy)){
+      if (reggeIlBordo(t, "th")) return "ok";
+      ringOut(t); return "out";
+    }
     const o = at(cx,cy);
     if (!o){ t.x = cx; t.y = cy; return "ok"; }
     /* casella occupata: danno a entrambi, poi il lanciato prosegue oltre */
@@ -3725,10 +3808,12 @@ function doSpecial(u, target){
   if (sp === "jumping_stab") strike(u, target, 1.8, "trafigge");
   else if (sp === "crushing_horn"){
     strike(u, target, 1.1, "incorna");
-    if (target.alive){
+    if (target.alive && passiSpinta(target, 1) <= 0){
+      log('<b>' + target.d.name + '</b> incassa la cornata senza arretrare.', "good");
+    } else if (target.alive){
       const [dx,dy] = dirTo(u, target);
       const nx = target.x + dx, ny = target.y + dy;
-      if (!inB(nx,ny)) ringOut(target);
+      if (!inB(nx,ny)){ if (!reggeIlBordo(target, "kb")) ringOut(target); }
       else if (at(nx,ny)) hurl(target, dx, dy, u);   /* reazione a catena */
       else { target.x = nx; target.y = ny; }
     }
@@ -3736,7 +3821,7 @@ function doSpecial(u, target){
   else if (sp === "cannon_blast") strike(u, target, 1.0, "cannoneggia");
   else if (sp === "over_easy"){
     strike(u, target, 0.5, "ribalta");
-    if (target.alive){
+    if (target.alive && !reggeConfusione(target)){
       target.stun = 2;
       log("<b>" + target.d.name + "</b> \u00e8 ribaltato: immobile e vulnerabile per 2 turni.", "good");
     }
@@ -3778,10 +3863,16 @@ function doSpecial(u, target){
     });
   }
   else if (sp === "charm_beam"){
+    /* la meta' di stamina si paga comunque: e' il costo del tentativo */
     u.hp = Math.max(1, Math.round(u.hp / 2));
-    target.side = u.side; target.acted = true; target.isKing = false;
-    fx(target, "\u2665", "#e879f9"); wave(target, "#e879f9", 1.8);
-    log("<b>" + target.d.name + "</b> \u00e8 stato ammaliato e cambia schieramento!", "good");
+    if (reggeConfusione(target)){
+      fx(target, "\u2717", "#e879f9");
+      log("<b>" + target.d.name + "</b> non cede all'incantesimo: la stamina \u00e8 spesa per niente.", "hit");
+    } else {
+      target.side = u.side; target.acted = true; target.isKing = false;
+      fx(target, "\u2665", "#e879f9"); wave(target, "#e879f9", 1.8);
+      log("<b>" + target.d.name + "</b> \u00e8 stato ammaliato e cambia schieramento!", "good");
+    }
   }
   else if (sp === "wing_flap"){
     rayTargets(u, 2).forEach(f => {
@@ -3881,7 +3972,8 @@ const SP_MULT = { jumping_stab:1.8, crushing_horn:1.1, cannon_blast:1.0, over_ea
 function estDmg(a, t, mult){
   if (t.guard > 0) return 0;
   const core = Math.max(a.str * 0.3, a.str * 2 - t.dfn);
-  return Math.max(1, Math.round(core * mult * (t.exposed || t.stun > 0 ? 1.3 : 1)));
+  return Math.max(1, Math.round(core * mult * fattoreRes(t, tipoDi(a)) *
+    (t.exposed || t.stun > 0 ? 1.3 : 1)));
 }
 const reachOf = u => { const mv = u.isKing ? "step" : u.d.mv;
   return mv === "fly" ? 3 : (mv === "diag" ? 3 : (mv === "charge" ? 2 : 1)); };
@@ -4474,6 +4566,11 @@ function drawCard(){
     '<div class="row">' + art(u.d.fam, false, u.d.rank) +
       '<div><h3>' + (u.isKing ? "\u265b " : "") + u.d.name + '</h3><div class="fam">' + u.d.fam + ' \u00b7 rank ' + u.d.rank + '</div></div></div>' +
     '<div class="stats"><div>VITA<b>' + Math.max(0,u.hp) + '</b></div><div>FORZA<b>' + u.str + '</b></div><div>DIFESA<b>' + u.dfn + '</b></div></div>' +
+    (RES.some(k => (u.res[k]|0) !== 0)
+      ? '<div class="fam" style="margin:-2px 0 7px">Resistenze: ' +
+        RES.filter(k => u.res[k]).map(k => RES_NOME[k] + " " + (u.res[k] > 0 ? "+" : "") + u.res[k]).join(" \u00b7 ") +
+        '</div>'
+      : '') +
     '<div class="moves">' +
       '<div><span>Attacco</span><b>' + stimaAtk + '</b></div>' +
       '<div><span>' + f.spn + (u.cd ? ' \u00b7 ricarica ' + u.cd : '') + '</span><b>' + stimaSp + '</b></div>' +
