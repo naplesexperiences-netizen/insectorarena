@@ -46,6 +46,8 @@ header.top h1 span{color:var(--accent)}
   font-family:inherit;font-size:.8rem;padding:3px 6px;margin-left:6px;cursor:pointer
 }
 .spacer{flex:1}
+.solotel{display:none}                             /* compare solo sul telefono */
+.sotto{font-size:.68rem;color:var(--muted)}        /* riga secondaria sotto un nome */
 button{
   font-family:inherit;font-size:.88rem;cursor:pointer;border-radius:9px;
   border:1px solid var(--line);background:var(--panel2);color:var(--text);
@@ -56,6 +58,10 @@ button:disabled{opacity:.35;cursor:not-allowed}
 button.primary{background:var(--accent);color:#231a04;border-color:#e0a83b;font-weight:bold}
 button.primary:hover:not(:disabled){background:#ffd06e}
 button.danger{border-color:#7d3a3a;color:#ffb3b3}
+/* `hidden` e' un attributo, e una qualsiasi regola con `display` lo batte: era
+   gia' successo a cinque elementi, corretti uno per uno, e al banner del
+   riepilogo no — restava una striscia vuota sotto la testata. Una regola sola. */
+[hidden]{display:none!important}
 .screen{display:none}
 .screen.on{display:block}
 
@@ -518,13 +524,11 @@ button.spento{opacity:.55;text-decoration:line-through}
   background:var(--panel2);border:1px solid var(--line);border-radius:10px;
   box-shadow:0 14px 34px rgba(0,0,0,.5)
 }
-.menubox[hidden]{display:none}
 .menubox button{width:100%;text-align:left;font-size:.82rem;padding:8px 11px}
 .menubox button[role="menuitemcheckbox"]{display:flex;align-items:center;gap:10px}
 .menubox .st{margin-left:auto;font-size:.68rem;color:var(--muted)}
 .menubox button.spento .st{color:var(--foe)}
 .menubox .sep{height:1px;background:var(--line);margin:3px 1px}
-.menubox .sep[hidden]{display:none}
 
 /* --- guida del primo minuto --- */
 .guida{
@@ -533,7 +537,6 @@ button.spento{opacity:.55;text-decoration:line-through}
   border:1px solid var(--accent2);border-left:4px solid var(--accent2);
   border-radius:var(--r);padding:11px 14px;margin-bottom:16px;font-size:.84rem
 }
-.guida[hidden]{display:none}
 .guida .passo{
   background:var(--panel2);border:1px solid var(--line);border-radius:999px;
   padding:3px 10px;font-size:.7rem;color:var(--muted);white-space:nowrap
@@ -547,7 +550,6 @@ button.spento{opacity:.55;text-decoration:line-through}
   margin-top:14px;padding:11px 13px;border:1px dashed var(--line);border-radius:10px;
   background:var(--panel2);font-size:.8rem;color:var(--muted);text-align:left
 }
-.invito[hidden]{display:none}
 .invito b{color:var(--text)}
 .invito .acts{margin-top:9px}
 .numeri{
@@ -561,7 +563,6 @@ button.spento{opacity:.55;text-decoration:line-through}
   position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
   padding:18px;background:rgba(7,11,18,.8);backdrop-filter:blur(2px);overflow:auto
 }
-.modal[hidden]{display:none}
 .modalbox{
   width:100%;max-width:520px;max-height:92vh;overflow:auto;
   background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px
@@ -581,7 +582,6 @@ button.spento{opacity:.55;text-decoration:line-through}
 .esito{font-size:.8rem;margin-top:10px;min-height:1.2em}
 .esito.ok{color:var(--ok)}
 .esito.ko{color:var(--foe)}
-.pass[hidden]{display:none}
 .passbox{
   max-width:420px;width:100%;text-align:center;
   background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:28px 24px
@@ -609,8 +609,59 @@ footer.note b{color:var(--text)}
 footer.note a{color:var(--accent2)}
 @media(max-width:900px){
   .two,.arena{grid-template-columns:1fr}
-  .roster{max-height:40vh}
+  /* Su un telefono largo entravano tre carte per riga e il nome andava a capo:
+     meglio due carte leggibili che tre strette. */
+  .roster{max-height:40vh;grid-template-columns:repeat(auto-fill,minmax(158px,1fr))}
   .log{height:140px}
+
+  /* Testata: su un telefono i sei comandi andavano a capo tre volte e si
+     mangiavano un quarto della prima schermata. Restano titolo, rank, round e
+     Menu; Salvataggio e Azzera torneo scendono dentro al menu. */
+  header.top{gap:8px;padding:10px 12px;margin-bottom:12px}
+  header.top h1{font-size:1.04rem}
+  #btn-save,#btn-reset{display:none}
+  .menubox .solotel{display:block}
+  .menubox .sep.solotel{display:block;width:auto}
+
+  /* Bersagli da dito. Erano alti 32-36px: sotto i 44 si sbaglia mira, e qui si
+     sbagliava su ogni pulsante tranne quelli della barra delle azioni. */
+  button:not(.cell){min-height:44px}
+  .badge{padding:7px 12px;font-size:.78rem}
+  .acts button,.scelte button,.guida button,.kbtn{padding:10px 12px}
+
+  /* La barra del turno resta a vista mentre si scorre la scacchiera: \u00abFine
+     turno\u00bb non deve essere una cosa da andare a cercare in cima alla pagina. */
+  .turnbar{
+    position:sticky;top:0;z-index:30;
+    margin:-14px -14px 10px;padding:8px 12px;gap:8px;
+    background:var(--panel);border-bottom:1px solid var(--line)
+  }
+  /* Prima riga: di chi e' il turno e il pulsante per chiuderlo, che e' l'unica
+     cosa da fare. Il nome dell'avversario passa sotto, piu' piccolo: serve a
+     sapere contro chi giochi, non a ogni singola mossa. */
+  .turnbar .spacer{display:none}
+  .turnbar .pill{order:1}
+  .turnbar button{order:2;margin-left:auto}
+  .turnbar #b-opp{order:3;flex-basis:100%;font-size:.72rem;padding:4px 10px}
+
+  /* Il roster si legge: 11px di statistiche su un telefono non sono una scelta
+     di stile, sono un ostacolo. */
+  .mon .nm{font-size:.86rem}
+  .mon .st{font-size:.76rem}
+  .card p.hint{font-size:.84rem}
+  /* ...e i cinque slot vuoti non si prendono mezza schermata per dire \u00abvuoto\u00bb. */
+  .slot{min-height:44px;padding:6px 8px;font-size:.8rem}
+  /* Il banner della modalita' andava a capo due volte per dire una riga. */
+  .banner{padding:9px 12px;gap:8px;font-size:.82rem}
+  /* «Entra in arena» stava in fondo a cinque schede: quasi due schermate di
+     scorrimento per il pulsante che porta avanti. Adesso resta in basso. */
+  #s-brief .acts{
+    position:sticky;bottom:0;z-index:20;
+    margin:14px -16px -16px;padding:12px 16px;
+    background:var(--panel);border-top:1px solid var(--line)
+  }
+  .banner .spacer{flex:0}
+  .fam,.sotto{font-size:.78rem}
 
   /* Sul telefono la scheda dell'unita' non sta sotto alla scacchiera: si
      ancora in basso, sopra a tutto, cosi' si tocca una pedina e le azioni
@@ -634,8 +685,8 @@ footer.note a{color:var(--accent2)}
   /* La scacchiera si restringe quel tanto che basta a stare tutta sopra alla
      barra: meglio un campo piu' piccolo che un campo da inseguire scorrendo. */
   .conScheda .board{max-width:min(460px, calc((100vh - var(--barra) - 124px) * 5 / 7))}
-  /* spazio sotto, altrimenti la barra copre il diario */
-  .conScheda .arena{padding-bottom:calc(var(--barra) + 20px)}
+  /* spazio sotto, altrimenti la barra copre il diario e la guida */
+  body.conBarra{padding-bottom:calc(var(--barra) + 20px)}
 }
 </style>
 <link rel="canonical" href="https://naplesexperiences-netizen.github.io/insectorarena/gioca.html">
@@ -667,6 +718,12 @@ footer.note a{color:var(--accent2)}
       <div class="sep" id="menu-sep"></div>
       <button id="btn-audio" role="menuitemcheckbox" aria-checked="true"><span class="grow">Suono</span><span class="st" id="st-audio">acceso</span></button>
       <button id="btn-musica" role="menuitemcheckbox" aria-checked="true"><span class="grow">Musica</span><span class="st" id="st-musica">accesa</span></button>
+      <!-- Sul telefono la testata non regge sei comandi: questi due scendono qui
+           dentro, e «Azzera torneo» smette di stare accanto al pollice mentre
+           si gioca. Su schermo largo restano dove sono e queste spariscono. -->
+      <div class="sep solotel"></div>
+      <button id="btn-msave" role="menuitem" class="solotel">Salvataggio</button>
+      <button id="btn-mreset" role="menuitem" class="solotel danger">Azzera torneo</button>
     </div>
   </div>
   <button id="btn-save">Salvataggio</button>
@@ -1846,7 +1903,8 @@ function datiSalvataggio(){
     t: S.careerHeld ? S.career.team : S.team,
     k: S.careerHeld ? S.career.king : S.kingId,
     c: S.champion ? 1 : 0,
-    a: S.lvl.e || 0, ap: S.lvl.p || 0, v: S.vs,
+    a: S.lvl.e || 0, ap: S.lvl.p || 0,
+    v: S.careerHeld && S.career.vs ? S.career.vs : S.vs,
     z: S.zoo, p: S.dispensa,                      /* gabbie e dispensa (schema 2) */
     m: S.mondo, g: S.gratis|0, gi: S.giocate|0,   /* mondo, esemplari regalati, partite giocate (schema 3) */
     f: S.sfida, vs: S.visti, tr: S.trofei         /* sfida, collezione e traguardi (schema 5) */
@@ -2980,10 +3038,24 @@ function dannoSpeciale(u){
 /* Sceglie quale Insector mostrare nella scheda. Ridisegnando il roster il pulsante
    cliccato viene ricreato, quindi gli si restituisce il focus: senza, chi naviga da
    tastiera perderebbe il punto in cui si trovava. */
+/* Sul telefono la scheda dell'Insector sta **sotto** la lista: toccare una
+   carta e non vedere niente cambiare e' il difetto che si nota per primo. La si
+   porta a vista, ma solo se non c'e' gia': scorrere quando non serve da'
+   altrettanto fastidio che non scorrere quando serve. */
+function mostraScheda(){
+  const d = $("#detail");
+  if (!d || !telefono()) return;
+  setTimeout(() => {
+    const r = d.getBoundingClientRect();
+    if (r.height && r.top >= 0 && r.top < innerHeight * 0.6) return;
+    d.scrollIntoView({ block:"start", behavior:"smooth" });
+  }, 0);
+}
 function pickLook(id){
   const eraTastiera = document.activeElement && document.activeElement.closest("#roster");
   S.look = id;
   detail(id);
+  if (!eraTastiera) mostraScheda();               /* da tastiera il focus basta */
   drawRoster();
   if (eraTastiera){
     const b = document.querySelector('#roster [data-id="' + id + '"]');
@@ -3093,8 +3165,14 @@ function toggle(id){
 function drawSlots(){
   guidaAggiorna();
   const el = $("#slots"); el.innerHTML = "";
+  /* Sul telefono cinque righe \u00abSlot libero\u00bb si prendevano mezza schermata per
+     ripetere quello che il contatore accanto al titolo gia' dice. Si mostrano
+     le pedine scelte e una riga sola per quelle che mancano. Su schermo largo
+     i cinque posti restano: li' lo spazio c'e', e fanno da bersaglio. */
+  const stretto = telefono();
   for (let i = 0; i < 5; i++){
     const id = S.team[i], u = id && defOf(id);
+    if (!u && stretto) continue;
     const d = document.createElement("div");
     d.className = "slot" + (u ? " full" : "");
     if (!u){ d.textContent = "Slot " + (i+1) + " libero"; }
@@ -3102,12 +3180,21 @@ function drawSlots(){
       const isK = S.kingId === id;
       d.innerHTML = art(u.fam, false, u.rank) +
         '<span class="grow"><b>' + (isK ? '<span class="crown">\u265b </span>' : '') + u.name + '</b><br>' +
-        '<span style="font-size:.68rem;color:var(--muted)">' + u.fam + '</span></span>';
+        '<span class="sotto">' + u.fam + '</span></span>';
       const k = document.createElement("button");
       k.className = "kbtn"; k.textContent = "Togli";
       k.onclick = () => toggle(id);
       d.appendChild(k);
     }
+    el.appendChild(d);
+  }
+  const mancano = 5 - S.team.length;
+  if (stretto && mancano > 0){
+    const d = document.createElement("div");
+    d.className = "slot";
+    d.textContent = mancano === 5
+      ? "Nessuna pedina scelta: toccane una qui sopra."
+      : (mancano === 1 ? "Ne manca una." : "Ne mancano " + mancano + ".");
     el.appendChild(d);
   }
   $("#team-count").textContent = S.team.length + "/5";
@@ -3296,6 +3383,7 @@ function commitSetup(){ S.duo[S.setup] = { team: S.team.slice(), king: S.kingId 
 function backToCareer(){
   if (!S.careerHeld) return;
   S.team = S.career.team.slice(); S.kingId = S.career.king;
+  if (S.career.vs) S.vs = S.career.vs;
   S.careerHeld = false; S.setup = "p"; S.look = S.team[0] || null;
 }
 /* Intestazione con il nome di chi sta scegliendo: senza, a meta' partita non si
@@ -3512,7 +3600,7 @@ function drawDeploy(){
     b.className = "dep" + (u === next ? " cur" : "") + (placed(u) ? " done" : "");
     b.innerHTML = art(u.d.fam, false, u.d.rank) +
       '<span class="grow"><b>' + (u.isKing ? "\u265B " : "") + u.d.name + '</b><br>' +
-      '<span style="font-size:.68rem;color:var(--muted)">' +
+      '<span class="sotto">' +
       (placed(u) ? "in campo" : "in panchina") + ' \u00b7 ' + moveLabel(u.isKing ? "step" : u.d.mv) +
       '</span></span>';
     b.onclick = () => { if (placed(u)){ u.x = -1; u.y = -1; } S.pick = u; draw(); };
@@ -4282,7 +4370,13 @@ function avviaSfida(){
   const g = giornoOggi();
   /* La squadra del torneo si mette da parte, come quando gioca il secondo
      giocatore: la sfida non deve toccarla. */
-  if (!S.careerHeld){ S.career = { team: S.team.slice(), king: S.kingId }; S.careerHeld = true; }
+  if (!S.careerHeld){ S.career = { team: S.team.slice(), king: S.kingId, vs: S.vs }; S.careerHeld = true; }
+  /* La sfida e' sempre **tu contro il computer**: e' una battaglia uguale per
+     tutti, e in due persone o fra computer non vorrebbe dire niente. Se il
+     torneo era in un'altra modalita' quella scelta si mette da parte con la
+     squadra e torna al suo posto dopo. Senza questa riga la sfida la giocava
+     il computer al posto tuo, e il pulsante \u00abFine turno\u00bb spariva. */
+  S.vs = "hvp";
   S.sfidaGiorno = g;
   CASO = rngDa(semeNum("SFIDA-" + g));
   S.team = squadraSfida(CASO);
@@ -4560,6 +4654,9 @@ function ancora(attiva){
   const on = !!attiva && telefono();
   el.classList.toggle("ancorata", on);
   sez.classList.toggle("conScheda", on);
+  /* Lo spazio va lasciato sotto **tutta la pagina**, non solo sotto l'arena: la
+     guida del primo minuto sta fuori dalle sezioni, e la barra gliela copriva. */
+  document.body.classList.toggle("conBarra", on);
 }
 /* Porta la scacchiera dentro allo spazio libero sopra la barra — ma solo se
    serve davvero. Scorrere la pagina a ogni tocco, anche quando si vede gia'
@@ -4674,14 +4771,18 @@ function show(id){
   guidaAggiorna();
 }
 function updBadges(){
-  const duo = S.matchMode === "hvh" || inSfida(), pc = S.matchMode === "pvp";
+  const sfida = inSfida();
+  const duo = S.matchMode === "hvh" || sfida, pc = S.matchMode === "pvp";
   $("#b-rank").innerHTML = "Rank <b>" + RANKS[S.rankIdx].id + "</b>";
   $("#b-round").innerHTML = "Round <b>" + (S.round+1) + "</b>/5";
   /* Rank, round e azzeramento riguardano il torneo: mentre giocano due persone
      non vogliono dire niente e spariscono. */
-  ["#b-rank", "#b-round", "#btn-reset"].forEach(id => { const e = $(id); if (e) e.hidden = duo; });
-  $("#btn-newteams").hidden = !(duo || pc);
-  $("#btn-next").textContent = duo ? "Rivincita" : (pc ? "Un'altra partita" : "Continua");
+  ["#b-rank", "#b-round", "#btn-reset", "#btn-mreset"].forEach(id => { const e = $(id); if (e) e.hidden = duo; });
+  /* La sfida si gioca una volta al giorno: proporre \u00abRivincita\u00bb o \u00abCambia
+     squadra\u00bb sarebbe promettere una cosa che il gioco poi rifiuta. */
+  $("#btn-newteams").hidden = sfida || !(duo || pc);
+  $("#btn-next").textContent = sfida ? "Torna al roster"
+    : (duo ? "Rivincita" : (pc ? "Un'altra partita" : "Continua"));
 }
 /* Si esce dalla partita: i badge del torneo tornano a valere. */
 function leaveMatch(){ S.matchMode = "hvp"; updBadges(); }
@@ -4697,7 +4798,7 @@ $("#btn-toarena").onclick = () => {
   if (duoMode()){
     commitSetup();
     if (S.setup === "p"){
-      S.career = { team: S.team.slice(), king: S.kingId };  /* la squadra del torneo resta questa */
+      S.career = { team: S.team.slice(), king: S.kingId, vs: S.vs };  /* la squadra del torneo resta questa */
       S.careerHeld = true;                                  /* protetta finche' non si torna al roster */
       passTo("e", "Scegli la squadra",
         "Adesso tocca a te: cinque pedine e il Re, senza far guardare l\u2019altro.",
@@ -4726,6 +4827,9 @@ $("#btn-quit").onclick = () => {
 $("#btn-rand").onclick = randomDeploy;
 $("#btn-fight").onclick = beginFight;
 $("#btn-next").onclick = () => {
+  if (inSfida()){                                /* dalla sfida si torna al torneo */
+    leaveMatch(); drawRoster(); drawSlots(); detail(S.look); show("s-team"); return;
+  }
   if (duoMode()){ startDuo(); return; }          /* rivincita con le stesse squadre */
   if (pcMode()){ startPvp(); return; }           /* un'altra partita di prova */
   leaveMatch(); drawRoster(); drawSlots(); detail(S.look); show("s-team");
@@ -4897,6 +5001,21 @@ $("#btn-eco-dl").onclick = () => {
   ecoMsg("File scaricato. Mandacelo quando ti fa comodo.", "ok");
 };
 $("#btn-save").onclick = apriSalvataggio;
+/* Le voci del menu sul telefono non duplicano il comportamento: premono il
+   pulsante vero, che sullo schermo stretto e' solo nascosto dal CSS. */
+/* Girando il telefono si attraversa la soglia dei 900px: quel che e' disegnato
+   in forma stretta va rifatto, altrimenti resta la forma di prima. */
+if (window.matchMedia){
+  const soglia = window.matchMedia("(max-width:900px)");
+  const rifai = () => {
+    drawSlots();
+    if ($("#s-battle").classList.contains("on")) draw();
+  };
+  if (soglia.addEventListener) soglia.addEventListener("change", rifai);
+  else if (soglia.addListener) soglia.addListener(rifai);
+}
+$("#btn-msave").onclick = () => { menuApri(false); $("#btn-save").click(); };
+$("#btn-mreset").onclick = () => { menuApri(false); $("#btn-reset").click(); };
 $("#btn-savecls").onclick = chiudiSalvataggio;
 $("#save-box").onclick = ev => { if (ev.target === $("#save-box")) chiudiSalvataggio(); };
 document.addEventListener("keydown", ev => {

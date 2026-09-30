@@ -283,6 +283,24 @@ inseguire scorrendo, e la pagina si sposta da sola solo quando serve davvero.
 Quando non c'è niente di selezionato la barra sparisce, e su schermo largo non cambia
 niente: la scheda resta a fianco del campo com'è sempre stata.
 
+Un secondo passaggio, misurato sulla stessa schermata, ha tolto quello che restava di
+scomodo:
+
+- la **testata** occupava tre righe e 250 px, con «Azzera torneo» — che cancella il
+  torneo — a mezzo centimetro dal pollice mentre giochi. Adesso sta in due righe da
+  104 px, e Salvataggio e Azzera torneo stanno **dentro il menu**;
+- la **barra del turno** resta a vista mentre scorri la scacchiera: «Fine turno» non è più
+  una cosa da andare a cercare in cima alla pagina;
+- **nessun pulsante sotto i 44 px** di altezza: erano fra i 32 e i 36, e su un telefono
+  quella è la differenza fra toccare e sbagliare;
+- i cinque «Slot libero» della squadra si prendevano mezza schermata per ripetere quello
+  che il contatore dice già: adesso vedi le pedine scelte e una riga che dice quante ne
+  mancano;
+- toccata una carta del roster, la **scheda viene portata a vista** invece di restare
+  sotto la lista;
+- «Entra in arena» stava in fondo a cinque schede e quasi due schermate di scorrimento:
+  adesso resta in basso mentre leggi.
+
 ## Il menu
 
 In testata restano tre pulsanti: **Menu**, **Salvataggio** e **Azzera torneo**. Dentro al
