@@ -19,7 +19,7 @@
   ],
   "screenshots": [
     { "src": "./img/battaglia.png", "sizes": "812x722", "type": "image/png", "form_factor": "narrow",
-      "label": "Una Sickle Dance colpisce tre avversari attorno alla mantide" },
+      "label": "Una Danza delle falci colpisce tre avversari attorno alla Falcide" },
     { "src": "./img/roster.png", "sizes": "1148x879", "type": "image/png", "form_factor": "wide",
       "label": "Scelta della squadra dal roster degli Insector" }
   ]

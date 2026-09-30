@@ -687,7 +687,7 @@ footer.note a{color:var(--accent2)}
       </div>
       <div>
         <h3 class="sez">Dispensa</h3>
-        <p class="hint" id="disp-hint">Il cibo si vince conquistando i rank: quattro per rank, più un Royal Fruit dal Rank B.</p>
+        <p class="hint" id="disp-hint">Il cibo si vince conquistando i rank: quattro per rank, più un Frutto regale dal Rank B.</p>
         <div class="dispensa" id="dispensa"></div>
         <div id="anteprima"></div>
       </div>
@@ -955,67 +955,67 @@ footer.note a{color:var(--accent2)}
    DATI — roster, famiglie e tabella del torneo
    ========================================================================= */
 const UNITS = [
-  {"id":"big_staggy","name":"Big Staggy","fam":"Staggy","rank":2,"hp":120,"str":18,"def":9,"mv":"step","desc":"Lanciatore. Non fa danno con la presa: lo fa il muro contro cui scaglia il bersaglio."},
-  {"id":"bomb_roller","name":"Bomb Roller","fam":"Dung Roller","rank":3,"hp":144,"str":22,"def":10,"mv":"step","desc":"Difensore. Si chiude dietro la palla e ferma due colpi: ottimo candidato come Re."},
-  {"id":"butterflap","name":"Butterflap","fam":"Flutterbug","rank":4,"hp":140,"str":26,"def":12,"mv":"fly","desc":"Incursore. Vola per tre caselle e spazza via chi le sta attorno: pericolosa sui bordi."},
-  {"id":"carver_beetle","name":"Carver Beetle","fam":"Knife Beetle","rank":5,"hp":208,"str":33,"def":17,"mv":"step","desc":"Attaccante di prima linea. Colpo secco su un bersaglio solo, niente fronzoli."},
-  {"id":"dark_emperor","name":"Dark Emperor","fam":"Dark Emperor","rank":1,"hp":300,"str":30,"def":15,"mv":"step","desc":"Fuoriclasse. Atterra col colpo normale e fulmina a distanza senza ricariche."},
-  {"id":"drillerpillar","name":"Drillerpillar","fam":"Cutterpillar","rank":4,"hp":140,"str":27,"def":5,"mv":"step","desc":"Ariete. Carica dritto e travolge, ma dopo l'impatto resta esposta."},
-  {"id":"dustpan","name":"Dustpan","fam":"Flipperbug","rank":5,"hp":208,"str":33,"def":15,"mv":"step","desc":"Disturbatore. Mette fuori gioco un avversario per due turni e lo lascia scoperto."},
-  {"id":"faerie","name":"Faerie","fam":"Faerie","rank":1,"hp":90,"str":14,"def":5,"mv":"diag","desc":"Sabotatore. Ruba un avversario alla squadra nemica, pagandola con met\u00e0 della vita."},
-  {"id":"fishface_beetle","name":"Fishface Beetle","fam":"Bazoo Beetle","rank":3,"hp":116,"str":21,"def":8,"mv":"step","desc":"Artiglieria. Colpisce da lontano ma va tenuta al riparo: la difesa \u00e8 bassa."},
-  {"id":"flipperbug","name":"Flipperbug","fam":"Flipperbug","rank":1,"hp":100,"str":15,"def":6,"mv":"step","desc":"Disturbatore. Mette fuori gioco un avversario per due turni e lo lascia scoperto."},
-  {"id":"gum_roller","name":"Gum Roller","fam":"Dung Roller","rank":2,"hp":120,"str":18,"def":8,"mv":"step","desc":"Difensore. Si chiude dietro la palla e ferma due colpi: ottimo candidato come Re."},
-  {"id":"handsome_faerie","name":"Handsome Faerie","fam":"Faerie","rank":2,"hp":108,"str":17,"def":6,"mv":"diag","desc":"Sabotatore. Ruba un avversario alla squadra nemica, pagandola con met\u00e0 della vita."},
-  {"id":"hatchet_beetle","name":"Hatchet Beetle","fam":"Knife Beetle","rank":4,"hp":173,"str":27,"def":14,"mv":"step","desc":"Attaccante di prima linea. Colpo secco su un bersaglio solo, niente fronzoli."},
-  {"id":"hercules_beetle","name":"Hercules Beetle","fam":"Hercules Beetle","rank":1,"hp":150,"str":15,"def":8,"mv":"step","desc":"Muro con la spinta. Tanti punti vita e un incorno che sposta chi hai davanti."},
-  {"id":"itsahorse","name":"Itsahorse","fam":"Itsahorse","rank":1,"hp":150,"str":15,"def":7,"mv":"charge","desc":"Mobilit\u00e0. Due caselle in linea retta in ogni direzione, e calcia davanti e dietro."},
-  {"id":"kaboom_beetle","name":"Kaboom Beetle","fam":"Bazoo Beetle","rank":5,"hp":168,"str":32,"def":12,"mv":"step","desc":"Artiglieria. Colpisce da lontano ma va tenuta al riparo: la difesa \u00e8 bassa."},
-  {"id":"knife_beetle","name":"Knife Beetle","fam":"Knife Beetle","rank":1,"hp":100,"str":15,"def":8,"mv":"step","desc":"Attaccante di prima linea. Colpo secco su un bersaglio solo, niente fronzoli."},
-  {"id":"mantis","name":"Mantis","fam":"Mantis","rank":1,"hp":80,"str":15,"def":3,"mv":"step","desc":"Danno ad area. Da sola in mezzo a tre nemici vale pi\u00f9 di qualsiasi altra unit\u00e0."},
-  {"id":"miss_mysterious","name":"Miss Mysterious","fam":"Faerie","rank":3,"hp":130,"str":21,"def":8,"mv":"diag","desc":"Sabotatore. Ruba un avversario alla squadra nemica, pagandola con met\u00e0 della vita."},
-  {"id":"narcissus_beetle","name":"Narcissus Beetle","fam":"Hercules Beetle","rank":4,"hp":260,"str":27,"def":14,"mv":"step","desc":"Muro con la spinta. Tanti punti vita e un incorno che sposta chi hai davanti."},
-  {"id":"orion_beetle","name":"Orion Beetle","fam":"Hercules Beetle","rank":3,"hp":216,"str":22,"def":32,"mv":"step","desc":"Muro con la spinta. Tanti punti vita e un incorno che sposta chi hai davanti."},
-  {"id":"planet_beetle","name":"Planet Beetle","fam":"Bazoo Beetle","rank":4,"hp":140,"str":26,"def":10,"mv":"step","desc":"Artiglieria. Colpisce da lontano ma va tenuta al riparo: la difesa \u00e8 bassa."},
-  {"id":"saber_beetle","name":"Saber Beetle","fam":"Knife Beetle","rank":3,"hp":144,"str":22,"def":11,"mv":"step","desc":"Attaccante di prima linea. Colpo secco su un bersaglio solo, niente fronzoli."},
-  {"id":"shoveler","name":"Shoveler","fam":"Flipperbug","rank":4,"hp":173,"str":27,"def":12,"mv":"step","desc":"Disturbatore. Mette fuori gioco un avversario per due turni e lo lascia scoperto."},
-  {"id":"slaying_mantis","name":"Slaying Mantis","fam":"Mantis","rank":2,"hp":96,"str":18,"def":4,"mv":"step","desc":"Danno ad area. Da sola in mezzo a tre nemici vale pi\u00f9 di qualsiasi altra unit\u00e0."},
-  {"id":"spotted_lady","name":"Spotted Lady","fam":"Lady Beetle","rank":3,"hp":116,"str":22,"def":10,"mv":"step","desc":"Sostegno. Non attacca bene, ma tiene in piedi chi ha accanto."},
-  {"id":"staggy","name":"Staggy","fam":"Staggy","rank":1,"hp":100,"str":15,"def":8,"mv":"step","desc":"Lanciatore. Non fa danno con la presa: lo fa il muro contro cui scaglia il bersaglio."},
-  {"id":"stinger_bill","name":"Stinger Bill","fam":"Cutterpillar","rank":6,"hp":202,"str":40,"def":8,"mv":"step","desc":"Ariete. Carica dritto e travolge, ma dopo l'impatto resta esposta."},
-  {"id":"stun_staggy","name":"Stun Staggy","fam":"Staggy","rank":3,"hp":144,"str":22,"def":11,"mv":"step","desc":"Lanciatore. Non fa danno con la presa: lo fa il muro contro cui scaglia il bersaglio."},
-  {"id":"super_mantis","name":"Super Mantis","fam":"Mantis","rank":3,"hp":116,"str":22,"def":5,"mv":"step","desc":"Danno ad area. Da sola in mezzo a tre nemici vale pi\u00f9 di qualsiasi altra unit\u00e0."},
-  {"id":"susanoo_beetle","name":"Susanoo Beetle","fam":"Hercules Beetle","rank":5,"hp":312,"str":33,"def":17,"mv":"step","desc":"Muro con la spinta. Tanti punti vita e un incorno che sposta chi hai davanti."},
-  {"id":"tornado_mantis","name":"Tornado Mantis","fam":"Mantis","rank":4,"hp":140,"str":27,"def":6,"mv":"step","desc":"Danno ad area. Da sola in mezzo a tre nemici vale pi\u00f9 di qualsiasi altra unit\u00e0."},
-  {"id":"turner","name":"Turner","fam":"Flipperbug","rank":3,"hp":144,"str":22,"def":10,"mv":"step","desc":"Disturbatore. Mette fuori gioco un avversario per due turni e lo lascia scoperto."},
-  {"id":"western_beetle","name":"Western Beetle","fam":"Bazoo Beetle","rank":6,"hp":202,"str":39,"def":15,"mv":"step","desc":"Artiglieria. Colpisce da lontano ma va tenuta al riparo: la difesa \u00e8 bassa."}
+  {"id":"big_staggy","name":"Morsa","fam":"Tenaglidi","rank":2,"hp":120,"str":18,"def":9,"mv":"step","desc":"Lanciatore. Non fa danno con la presa: lo fa il muro contro cui scaglia il bersaglio."},
+  {"id":"bomb_roller","name":"Macigno","fam":"Sferidi","rank":3,"hp":144,"str":22,"def":10,"mv":"step","desc":"Difensore. Si chiude dietro la palla e ferma due colpi: ottimo candidato come Re."},
+  {"id":"butterflap","name":"Bufera","fam":"Ventalidi","rank":4,"hp":140,"str":26,"def":12,"mv":"fly","desc":"Incursore. Vola per tre caselle e spazza via chi le sta attorno: pericolosa sui bordi."},
+  {"id":"carver_beetle","name":"Trinciaferro","fam":"Lamidi","rank":5,"hp":208,"str":33,"def":17,"mv":"step","desc":"Attaccante di prima linea. Colpo secco su un bersaglio solo, niente fronzoli."},
+  {"id":"dark_emperor","name":"Folgore","fam":"Tonantidi","rank":1,"hp":300,"str":30,"def":15,"mv":"step","desc":"Fuoriclasse. Atterra col colpo normale e fulmina a distanza senza ricariche."},
+  {"id":"drillerpillar","name":"Trivella","fam":"Trivellidi","rank":4,"hp":140,"str":27,"def":5,"mv":"step","desc":"Ariete. Carica dritto e travolge, ma dopo l'impatto resta esposta."},
+  {"id":"dustpan","name":"Rovescio","fam":"Voltidi","rank":5,"hp":208,"str":33,"def":15,"mv":"step","desc":"Disturbatore. Mette fuori gioco un avversario per due turni e lo lascia scoperto."},
+  {"id":"faerie","name":"Lusinga","fam":"Silfidi","rank":1,"hp":90,"str":14,"def":5,"mv":"diag","desc":"Sabotatore. Ruba un avversario alla squadra nemica, pagandola con met\u00e0 della vita."},
+  {"id":"fishface_beetle","name":"Mortaio","fam":"Bombardidi","rank":3,"hp":116,"str":21,"def":8,"mv":"step","desc":"Artiglieria. Colpisce da lontano ma va tenuta al riparo: la difesa \u00e8 bassa."},
+  {"id":"flipperbug","name":"Ribalta","fam":"Voltidi","rank":1,"hp":100,"str":15,"def":6,"mv":"step","desc":"Disturbatore. Mette fuori gioco un avversario per due turni e lo lascia scoperto."},
+  {"id":"gum_roller","name":"Ruzzola","fam":"Sferidi","rank":2,"hp":120,"str":18,"def":8,"mv":"step","desc":"Difensore. Si chiude dietro la palla e ferma due colpi: ottimo candidato come Re."},
+  {"id":"handsome_faerie","name":"Malia","fam":"Silfidi","rank":2,"hp":108,"str":17,"def":6,"mv":"diag","desc":"Sabotatore. Ruba un avversario alla squadra nemica, pagandola con met\u00e0 della vita."},
+  {"id":"hatchet_beetle","name":"Bipenne","fam":"Lamidi","rank":4,"hp":173,"str":27,"def":14,"mv":"step","desc":"Attaccante di prima linea. Colpo secco su un bersaglio solo, niente fronzoli."},
+  {"id":"hercules_beetle","name":"Bastione","fam":"Bastidi","rank":1,"hp":150,"str":15,"def":8,"mv":"step","desc":"Muro con la spinta. Tanti punti vita e un incorno che sposta chi hai davanti."},
+  {"id":"itsahorse","name":"Galoppo","fam":"Corsidi","rank":1,"hp":150,"str":15,"def":7,"mv":"charge","desc":"Mobilit\u00e0. Due caselle in linea retta in ogni direzione, e calcia davanti e dietro."},
+  {"id":"kaboom_beetle","name":"Bombarda","fam":"Bombardidi","rank":5,"hp":168,"str":32,"def":12,"mv":"step","desc":"Artiglieria. Colpisce da lontano ma va tenuta al riparo: la difesa \u00e8 bassa."},
+  {"id":"knife_beetle","name":"Sfregio","fam":"Lamidi","rank":1,"hp":100,"str":15,"def":8,"mv":"step","desc":"Attaccante di prima linea. Colpo secco su un bersaglio solo, niente fronzoli."},
+  {"id":"mantis","name":"Falcetta","fam":"Falcidi","rank":1,"hp":80,"str":15,"def":3,"mv":"step","desc":"Danno ad area. Da sola in mezzo a tre nemici vale pi\u00f9 di qualsiasi altra unit\u00e0."},
+  {"id":"miss_mysterious","name":"Incanto","fam":"Silfidi","rank":3,"hp":130,"str":21,"def":8,"mv":"diag","desc":"Sabotatore. Ruba un avversario alla squadra nemica, pagandola con met\u00e0 della vita."},
+  {"id":"narcissus_beetle","name":"Rivellino","fam":"Bastidi","rank":4,"hp":260,"str":27,"def":14,"mv":"step","desc":"Muro con la spinta. Tanti punti vita e un incorno che sposta chi hai davanti."},
+  {"id":"orion_beetle","name":"Barbacane","fam":"Bastidi","rank":3,"hp":216,"str":22,"def":32,"mv":"step","desc":"Muro con la spinta. Tanti punti vita e un incorno che sposta chi hai davanti."},
+  {"id":"planet_beetle","name":"Colubrina","fam":"Bombardidi","rank":4,"hp":140,"str":26,"def":10,"mv":"step","desc":"Artiglieria. Colpisce da lontano ma va tenuta al riparo: la difesa \u00e8 bassa."},
+  {"id":"saber_beetle","name":"Rasoio","fam":"Lamidi","rank":3,"hp":144,"str":22,"def":11,"mv":"step","desc":"Attaccante di prima linea. Colpo secco su un bersaglio solo, niente fronzoli."},
+  {"id":"shoveler","name":"Capovolta","fam":"Voltidi","rank":4,"hp":173,"str":27,"def":12,"mv":"step","desc":"Disturbatore. Mette fuori gioco un avversario per due turni e lo lascia scoperto."},
+  {"id":"slaying_mantis","name":"Falcione","fam":"Falcidi","rank":2,"hp":96,"str":18,"def":4,"mv":"step","desc":"Danno ad area. Da sola in mezzo a tre nemici vale pi\u00f9 di qualsiasi altra unit\u00e0."},
+  {"id":"spotted_lady","name":"Balsamina","fam":"Coccinidi","rank":3,"hp":116,"str":22,"def":10,"mv":"step","desc":"Sostegno. Non attacca bene, ma tiene in piedi chi ha accanto."},
+  {"id":"staggy","name":"Tenaglia","fam":"Tenaglidi","rank":1,"hp":100,"str":15,"def":8,"mv":"step","desc":"Lanciatore. Non fa danno con la presa: lo fa il muro contro cui scaglia il bersaglio."},
+  {"id":"stinger_bill","name":"Punteruolo","fam":"Trivellidi","rank":6,"hp":202,"str":40,"def":8,"mv":"step","desc":"Ariete. Carica dritto e travolge, ma dopo l'impatto resta esposta."},
+  {"id":"stun_staggy","name":"Ganascia","fam":"Tenaglidi","rank":3,"hp":144,"str":22,"def":11,"mv":"step","desc":"Lanciatore. Non fa danno con la presa: lo fa il muro contro cui scaglia il bersaglio."},
+  {"id":"super_mantis","name":"Roncola","fam":"Falcidi","rank":3,"hp":116,"str":22,"def":5,"mv":"step","desc":"Danno ad area. Da sola in mezzo a tre nemici vale pi\u00f9 di qualsiasi altra unit\u00e0."},
+  {"id":"susanoo_beetle","name":"Mastio","fam":"Bastidi","rank":5,"hp":312,"str":33,"def":17,"mv":"step","desc":"Muro con la spinta. Tanti punti vita e un incorno che sposta chi hai davanti."},
+  {"id":"tornado_mantis","name":"Turbine","fam":"Falcidi","rank":4,"hp":140,"str":27,"def":6,"mv":"step","desc":"Danno ad area. Da sola in mezzo a tre nemici vale pi\u00f9 di qualsiasi altra unit\u00e0."},
+  {"id":"turner","name":"Girandola","fam":"Voltidi","rank":3,"hp":144,"str":22,"def":10,"mv":"step","desc":"Disturbatore. Mette fuori gioco un avversario per due turni e lo lascia scoperto."},
+  {"id":"western_beetle","name":"Basilisco","fam":"Bombardidi","rank":6,"hp":202,"str":39,"def":15,"mv":"step","desc":"Artiglieria. Colpisce da lontano ma va tenuta al riparo: la difesa \u00e8 bassa."}
 ];
 
 /* Una mossa speciale per famiglia: nome, colore e regola d'area. */
 const FAMS = {
-  "Knife Beetle":   {col:"#7dd3fc", sp:"jumping_stab",  spn:"Jumping Stab",     spd:"Salta in alto e cala il corno affilato: danno pesante su un bersaglio nelle 4 caselle ortogonali."},
-  "Hercules Beetle":{col:"#fbbf24", sp:"crushing_horn", spn:"Crushing Horn",    spd:"Sbalza il nemico indietro di 1 casella. Se dietro c'\u00e8 qualcuno, rimbalza a catena finch\u00e9 non trova spazio o esce dal campo."},
-  "Bazoo Beetle":   {col:"#a78bfa", sp:"cannon_blast",  spn:"Cannon Blast",     spd:"Cannonata in linea retta ortogonale fino a 2 caselle. Qualsiasi Insector in mezzo, amico o nemico, blocca il tiro."},
-  "Flipperbug":     {col:"#34d399", sp:"over_easy",     spn:"Over Easy",        spd:"Ribalta l'avversario ortogonale: per 2 turni resta immobile e incassa il 30% di danni in pi\u00f9."},
-  "Staggy":         {col:"#fb923c", sp:"scissor_throw", spn:"Scissor Throw",    spd:"Afferra il nemico e lo scaglia alle proprie spalle. La presa non fa danno: rimbalza su chi trova, ferendo entrambi, finch\u00e9 non atterra o esce dal campo."},
-  "Mantis":         {col:"#4ade80", sp:"sickle_dance",  spn:"Sickle Dance",     spd:"Danza letale che colpisce tutti gli avversari nelle 8 direzioni adiacenti."},
-  "Cutterpillar":   {col:"#f472b6", sp:"body_blow",     spn:"Body Blow",        spd:"Carica dritto in avanti fino a 2 caselle e travolge il primo nemico. Dopo l'impatto resta scoperto: subisce +30% di danno."},
-  "Flutterbug":     {col:"#22d3ee", sp:"wing_flap",     spn:"Wing Flap",        spd:"Un colpo d'ali spazza via di 2 caselle i nemici nelle 4 direzioni ortogonali, fino a 2 di distanza. Vicino al bordo significa ring-out."},
-  "Lady Beetle":    {col:"#f87171", sp:"healing_jig",   spn:"Healing Jig",      spd:"Danza curativa: rid\u00e0 stamina agli alleati nelle 4 caselle ortogonali e li libera dall'immobilizzo. Non cura se stessa."},
-  "Dung Roller":    {col:"#c4b5a0", sp:"fill_hole",     spn:"Fill Hole",        spd:"Si copre con la palla di sterco: blocca completamente i 2 attacchi successivi."},
-  "Itsahorse":      {col:"#fcd34d", sp:"itsakick",      spn:"Itsakick",         spd:"Calcia contemporaneamente chi ha davanti e chi ha dietro, spingendoli via di 1 casella."},
-  "Faerie":         {col:"#e879f9", sp:"charm_beam",    spn:"Charm Beam",       spd:"Ammalia un avversario ortogonale e lo fa passare dalla tua parte. Costo: met\u00e0 della tua stamina."},
-  "Dark Emperor":   {col:"#818cf8", sp:"emperors_rage", spn:"The Emperor's Rage",spd:"Fulmine su un singolo bersaglio entro 2 caselle, in qualsiasi direzione. Cariche infinite: nessuna ricarica."}
+  "Lamidi":   {col:"#7dd3fc", sp:"jumping_stab",  spn:"Stoccata alta",     spd:"Salta in alto e cala il corno affilato: danno pesante su un bersaglio nelle 4 caselle ortogonali."},
+  "Bastidi":{col:"#fbbf24", sp:"crushing_horn", spn:"Cornata d\u2019urto",    spd:"Sbalza il nemico indietro di 1 casella. Se dietro c'\u00e8 qualcuno, rimbalza a catena finch\u00e9 non trova spazio o esce dal campo."},
+  "Bombardidi":   {col:"#a78bfa", sp:"cannon_blast",  spn:"Cannonata",     spd:"Cannonata in linea retta ortogonale fino a 2 caselle. Qualsiasi Insector in mezzo, amico o nemico, blocca il tiro."},
+  "Voltidi":     {col:"#34d399", sp:"over_easy",     spn:"Ribaltone",        spd:"Ribalta l'avversario ortogonale: per 2 turni resta immobile e incassa il 30% di danni in pi\u00f9."},
+  "Tenaglidi":         {col:"#fb923c", sp:"scissor_throw", spn:"Proiezione",    spd:"Afferra il nemico e lo scaglia alle proprie spalle. La presa non fa danno: rimbalza su chi trova, ferendo entrambi, finch\u00e9 non atterra o esce dal campo."},
+  "Falcidi":         {col:"#4ade80", sp:"sickle_dance",  spn:"Danza delle falci",     spd:"Danza letale che colpisce tutti gli avversari nelle 8 direzioni adiacenti."},
+  "Trivellidi":   {col:"#f472b6", sp:"body_blow",     spn:"Carica a trivella",        spd:"Carica dritto in avanti fino a 2 caselle e travolge il primo nemico. Dopo l'impatto resta scoperto: subisce +30% di danno."},
+  "Ventalidi":     {col:"#22d3ee", sp:"wing_flap",     spn:"Colpo d\u2019ali",        spd:"Un colpo d'ali spazza via di 2 caselle i nemici nelle 4 direzioni ortogonali, fino a 2 di distanza. Vicino al bordo significa ring-out."},
+  "Coccinidi":    {col:"#f87171", sp:"healing_jig",   spn:"Danza balsamica",      spd:"Danza curativa: rid\u00e0 stamina agli alleati nelle 4 caselle ortogonali e li libera dall'immobilizzo. Non cura se stessa."},
+  "Sferidi":    {col:"#c4b5a0", sp:"fill_hole",     spn:"Sfera scudo",        spd:"Si copre con la palla di sterco: blocca completamente i 2 attacchi successivi."},
+  "Corsidi":      {col:"#fcd34d", sp:"itsakick",      spn:"Doppio calcio",         spd:"Calcia contemporaneamente chi ha davanti e chi ha dietro, spingendoli via di 1 casella."},
+  "Silfidi":         {col:"#e879f9", sp:"charm_beam",    spn:"Raggio di malia",       spd:"Ammalia un avversario ortogonale e lo fa passare dalla tua parte. Costo: met\u00e0 della tua stamina."},
+  "Tonantidi":   {col:"#818cf8", sp:"emperors_rage", spn:"Ira del Tonante",spd:"Fulmine su un singolo bersaglio entro 2 caselle, in qualsiasi direzione. Cariche infinite: nessuna ricarica."}
 };
 
 /* Torneo: sei rank, cinque round ciascuno, con quota d'iscrizione e premio. */
 const RANKS = [
-  {id:"E", fee:400,  pool:[1,2], mul:0.80, names:["Zak","Randall","Matilda","Keller","Robert"],        prize:"Battle Feed \u00d75"},
-  {id:"D", fee:800,  pool:[1,3], mul:0.92, names:["Matty","Philly","Medis","Cordison","Fabre"],        prize:"Feed Formula \u00d75"},
-  {id:"C", fee:1200, pool:[2,4], mul:1.00, names:["Retslyn","Sam","Denver","Matthew","Bolgo"],         prize:"Murakumo Type-S"},
-  {id:"B", fee:2000, pool:[3,5], mul:1.07, names:["Emp","Henry","Osmond","Ertessa","Bari"],            prize:"Devil Forks"},
-  {id:"A", fee:3200, pool:[4,6], mul:1.08, names:["Kalt","Gary","Jaques","Starr","Monj"],              prize:"Grand Calibur"},
-  {id:"S", fee:6000, pool:[5,6], mul:1.10, names:["Camilla","Balta","Nolli","Lucy Dyne","Jin Red"],    prize:"Demon Medium"}
+  {id:"E", fee:400,  pool:[1,2], mul:0.80, names:["Nino","Rosa","Peppe","Lilla","Carmine"],        prize:"Mangime \u00d75"},
+  {id:"D", fee:800,  pool:[1,3], mul:0.92, names:["Sas\u00e0","Immacolata","Mimmo","Concetta","Gaetano"],        prize:"Mangime rinforzato \u00d75"},
+  {id:"C", fee:1200, pool:[2,4], mul:1.00, names:["Vincenzo","Assunta","Rocco","Nunzia","Salvo"],         prize:"Sciabola Tipo S"},
+  {id:"B", fee:2000, pool:[3,5], mul:1.07, names:["Ferdinando","Zaira","Ottavio","Marisa","Fulvio"],            prize:"Forconi del diavolo"},
+  {id:"A", fee:3200, pool:[4,6], mul:1.08, names:["Nando il Secco","Ada","Corrado","Ersilia","Tancredi"],              prize:"Gran Calibro"},
+  {id:"S", fee:6000, pool:[5,6], mul:1.10, names:["Donna Amalia","Bartolo","Isaura","Fosca","Don Gerardo"],    prize:"Sigillo del Demone"}
 ];
 
 const NX = 5, NY = 7;                /* campo largo 5 caselle e profondo 7, come l'originale */
@@ -1085,47 +1085,79 @@ const RES = ["kb","cf","ct","ex","th","po"];
 const RES_NOME = { kb:"Knockback", cf:"Confusione", ct:"Taglio", ex:"Esplosione", th:"Lancio", po:"Veleno" };
 
 const CIBI = {
-  "Battle Feed":          { hp:0, str:0, def:0, r:{},                                    vita:1 },
-  "Dark Onyx":            { hp:0, str:0, def:2, r:{},                                    vita:1 },
-  "Diamond":              { hp:0, str:0, def:2, r:{},                                    vita:1 },
-  "Edensia":              { hp:2, str:1, def:0, r:{kb:1,cf:1,ct:1,ex:1,th:-1,po:-1},     vita:2 },
-  "Electric Eel":         { hp:0, str:0, def:0, r:{ex:2},                                vita:1 },
-  "Firestone":            { hp:0, str:2, def:0, r:{},                                    vita:1 },
-  "Hard Candy":           { hp:0, str:0, def:0, r:{th:2},                                vita:1 },
-  "Juraikan Coffee Beans":{ hp:0, str:0, def:0, r:{cf:2},                                vita:1 },
-  "Lapis Lazuli":         { hp:5, str:0, def:0, r:{},                                    vita:1 },
-  "Mellow Banana":        { hp:5, str:0, def:0, r:{},                                    vita:1 },
-  "Nebula Opal":          { hp:5, str:0, def:0, r:{},                                    vita:1 },
-  "Primeval Beef":        { hp:0, str:2, def:0, r:{},                                    vita:1 },
-  "Pirate\u2019s Grog":       { hp:0, str:0, def:2, r:{},                                    vita:1 },
-  "Royal Fruit":          { hp:5, str:2, def:2, r:{kb:2,cf:2,ct:2,ex:2,th:2,po:2},       vita:1 },
-  "Ruby":                 { hp:0, str:2, def:0, r:{},                                    vita:1 },
-  "Sanchez Fruit":        { hp:3, str:1, def:1, r:{},                                    vita:3 },
-  "Seventhmoon":          { hp:1, str:0, def:0, r:{kb:-1,cf:1,ct:1,ex:1,th:1,po:1},      vita:3 },
-  "Smoked Rainbow Newt":  { hp:0, str:0, def:0, r:{ct:2},                                vita:1 },
-  "Stella Crystal":       { hp:2, str:0, def:1, r:{kb:1,cf:1,ct:-1,ex:-1,th:1,po:1},     vita:2 },
-  "Sticky Gum":           { hp:0, str:0, def:0, r:{kb:2},                                vita:1 },
-  "Ultraspicy Pepper":    { hp:0, str:0, def:0, r:{po:2},                                vita:1 },
-  "Yago Milk":            { hp:1, str:0, def:0, r:{kb:1,cf:-1,ct:1,ex:1,th:1,po:1},      vita:2 }
+  "Mangime":          { hp:0, str:0, def:0, r:{},                                    vita:1 },
+  "Onice scura":            { hp:0, str:0, def:2, r:{},                                    vita:1 },
+  "Diamante":              { hp:0, str:0, def:2, r:{},                                    vita:1 },
+  "Ambrosia":              { hp:2, str:1, def:0, r:{kb:1,cf:1,ct:1,ex:1,th:-1,po:-1},     vita:2 },
+  "Anguilla elettrica":         { hp:0, str:0, def:0, r:{ex:2},                                vita:1 },
+  "Pietrafuoco":            { hp:0, str:2, def:0, r:{},                                    vita:1 },
+  "Caramella dura":           { hp:0, str:0, def:0, r:{th:2},                                vita:1 },
+  "Chicchi di caff\u00e8":{ hp:0, str:0, def:0, r:{cf:2},                                vita:1 },
+  "Lapislazzuli":         { hp:5, str:0, def:0, r:{},                                    vita:1 },
+  "Banana matura":        { hp:5, str:0, def:0, r:{},                                    vita:1 },
+  "Opale di nebulosa":          { hp:5, str:0, def:0, r:{},                                    vita:1 },
+  "Bistecca primordiale":        { hp:0, str:2, def:0, r:{},                                    vita:1 },
+  "Grog del corsaro":       { hp:0, str:0, def:2, r:{},                                    vita:1 },
+  "Frutto regale":          { hp:5, str:2, def:2, r:{kb:2,cf:2,ct:2,ex:2,th:2,po:2},       vita:1 },
+  "Rubino":                 { hp:0, str:2, def:0, r:{},                                    vita:1 },
+  "Frutto del Vesuvio":        { hp:3, str:1, def:1, r:{},                                    vita:3 },
+  "Settima luna":          { hp:1, str:0, def:0, r:{kb:-1,cf:1,ct:1,ex:1,th:1,po:1},      vita:3 },
+  "Tritone affumicato":  { hp:0, str:0, def:0, r:{ct:2},                                vita:1 },
+  "Cristallo di stella":       { hp:2, str:0, def:1, r:{kb:1,cf:1,ct:-1,ex:-1,th:1,po:1},     vita:2 },
+  "Gomma appiccicosa":           { hp:0, str:0, def:0, r:{kb:2},                                vita:1 },
+  "Peperoncino infernale":    { hp:0, str:0, def:0, r:{po:2},                                vita:1 },
+  "Latte di rugiada":            { hp:1, str:0, def:0, r:{kb:1,cf:-1,ct:1,ex:1,th:1,po:1},      vita:2 }
 };
 /* Premi del torneo. Solo cibi che in battaglia fanno qualcosa: distribuire
    oggetti inerti sarebbe prendere in giro chi apre la dispensa. Finche' le
    resistenze non contavano, i sei cibi che danno solo quelle erano fuori;
-   adesso che contano sono dentro, e resta fuori l'Ultraspicy Pepper, che da'
-   solo Veleno, e il Battle Feed, che non da' niente.
+   adesso che contano sono dentro, e resta fuori il Peperoncino infernale, che da'
+   solo Veleno, e il Mangime, che non da' niente.
    Le quantita' sono misurate, non scelte a occhio (vedi la nota sull'equilibrio
    nel README). Il cibo arriva **conquistando un rank**, non a ogni round: cosi'
    ha un suo momento e non diventa pioggia. */
-const CIBI_PREMIO = ["Sanchez Fruit","Firestone","Ruby","Primeval Beef","Dark Onyx","Diamond",
-  "Pirate\u2019s Grog","Yago Milk","Lapis Lazuli","Mellow Banana","Nebula Opal","Edensia","Stella Crystal",
-  "Smoked Rainbow Newt","Electric Eel","Sticky Gum","Hard Candy","Juraikan Coffee Beans","Seventhmoon"];
+/* Per i salvataggi scritti prima della rinomina. La dispensa e le trappole gia'
+   piazzate sono indicizzate per *nome* del cibo, quindi senza conversione chi
+   aveva giocato si ritroverebbe la dispensa vuota.
+   I nomi vecchi non stanno qui per esteso: della vecchia nomenclatura non deve
+   restare niente nel gioco, nemmeno in una tabella di servizio. Al loro posto
+   c'e' l'impronta FNV-1a del nome (`semeNum`), che basta a riconoscerlo. Le 22
+   impronte sono distinte fra loro e da quelle dei nomi nuovi: lo verifica
+   nomi.js. Si applica una volta sola, nella migrazione allo schema 6. */
+const CIBI_VECCHI = {
+  436604749: "Rubino",
+  791448947: "Bistecca primordiale",
+  932870838: "Pietrafuoco",
+  963087024: "Opale di nebulosa",
+  981774200: "Latte di rugiada",
+  997285829: "Chicchi di caff\u00e8",
+  1074001090: "Ambrosia",
+  1709187195: "Frutto del Vesuvio",
+  2176847815: "Diamante",
+  2239542723: "Grog del corsaro",
+  2380338686: "Banana matura",
+  2937085739: "Peperoncino infernale",
+  3172996778: "Tritone affumicato",
+  3204012797: "Caramella dura",
+  3290807342: "Cristallo di stella",
+  3632908675: "Lapislazzuli",
+  3654689052: "Anguilla elettrica",
+  3779781621: "Gomma appiccicosa",
+  3961993295: "Settima luna",
+  3975549666: "Frutto regale",
+  4200877651: "Onice scura",
+  4234896917: "Mangime"
+};
+const CIBI_PREMIO = ["Frutto del Vesuvio","Pietrafuoco","Rubino","Bistecca primordiale","Onice scura","Diamante",
+  "Grog del corsaro","Latte di rugiada","Lapislazzuli","Banana matura","Opale di nebulosa","Ambrosia","Cristallo di stella",
+  "Tritone affumicato","Anguilla elettrica","Gomma appiccicosa","Caramella dura","Chicchi di caff\u00e8","Settima luna"];
 const PREMIO_RANK = 4;                            /* cibi per rank conquistato */
 
 /* =========================================================================
    RIPRODUZIONE
    Le fonti danno 23 coppie speciali; 18 sono giocabili qui, perche' le altre
-   cinque chiamano in causa unita' che il nostro roster non ha (Cold Cuts,
-   Itsareindeer, Flappillon, Rollerover, Blade Beetle). Sono riportate come
+   cinque chiamano in causa cinque unita' che il nostro roster non ha, e che
+   quindi non hanno un nome nostro da portare. Sono riportate come
    stanno: e' il contenuto da scoprire, la ragione per rigiocare.
 
    Le coppie documentate sono orientate \u2014 maschio di X e femmina di Y \u2014 ma qui
@@ -1146,7 +1178,7 @@ const COPPIE = [
 const EREDITA = 0.9;                              /* il figlio prende il 90% del meglio */
 
 /* Il gradino successivo nella linea della famiglia. Le scale hanno buchi
-   (Flipperbug va 1, 3, 4, 5), quindi "rango + 1" vuol dire "il prossimo che
+   (i Voltidi vanno 1, 3, 4, 5), quindi "rango + 1" vuol dire "il prossimo che
    esiste", non letteralmente uno in piu'. */
 function successore(id){
   const u = byId[id];
@@ -1184,46 +1216,46 @@ const tettoNascita = () => Math.min(6, maxRank() + 1);
    ========================================================================= */
 /* Quale esca attira quale famiglia: documentato, riga per riga. */
 const ESCA_FAM = {
-  "Sanchez Fruit":        ["Hercules Beetle","Knife Beetle","Mantis","Faerie"],
-  "Edensia":              ["Bazoo Beetle","Dung Roller"],
-  "Juraikan Coffee Beans":["Mantis"],
-  "Ruby":                 ["Flipperbug","Mantis"],
-  "Lapis Lazuli":         ["Dung Roller"],
-  "Diamond":              ["Staggy"],
-  "Firestone":            ["Staggy","Lady Beetle","Dung Roller"],
-  "Ultraspicy Pepper":    ["Dung Roller"],
-  "Electric Eel":         ["Staggy"],
-  "Smoked Rainbow Newt":  ["Itsahorse"],
-  "Yago Milk":            ["Flipperbug","Dung Roller"],
-  "Royal Fruit":          ["Dark Emperor"],
-  "Sticky Gum":           ["Faerie","Lady Beetle","Dung Roller"]
+  "Frutto del Vesuvio":        ["Bastidi","Lamidi","Falcidi","Silfidi"],
+  "Ambrosia":              ["Bombardidi","Sferidi"],
+  "Chicchi di caff\u00e8":["Falcidi"],
+  "Rubino":                 ["Voltidi","Falcidi"],
+  "Lapislazzuli":         ["Sferidi"],
+  "Diamante":              ["Tenaglidi"],
+  "Pietrafuoco":            ["Tenaglidi","Coccinidi","Sferidi"],
+  "Peperoncino infernale":    ["Sferidi"],
+  "Anguilla elettrica":         ["Tenaglidi"],
+  "Tritone affumicato":  ["Corsidi"],
+  "Latte di rugiada":            ["Voltidi","Sferidi"],
+  "Frutto regale":          ["Tonantidi"],
+  "Gomma appiccicosa":           ["Silfidi","Coccinidi","Sferidi"]
 };
 /* I cinque habitat. Le esche sono documentate, i nomi sono nostri.
-   Cutterpillar e Flutterbug non hanno ne' esca ne' localit\u00e0 nelle fonti: la
-   Flutterbug e' l'unica famiglia che vola e la Faerie l'unica altra che non
-   cammina, quindi stanno insieme; la Cutterpillar, che carica dritta, nel
+   Trivellidi e Ventalidi non hanno ne' esca ne' localit\u00e0 nelle fonti: i
+   Ventalidi sono l'unica famiglia che vola e i Silfidi gli unici altri che non
+   camminano, quindi stanno insieme; i Trivellidi, che caricano dritti, nel
    Pantano. Sono due scelte nostre, ed e' una riga di tabella cambiarle. */
 const HABITAT = [
-  { id:"frutteto", nome:"Frutteto", spr:"Faerie",
+  { id:"frutteto", nome:"Frutteto", spr:"Silfidi",
     desc:"Alberi bassi e frutta a terra. Ci si trova chi mangia dolce.",
-    esche:["Sanchez Fruit","Edensia","Juraikan Coffee Beans"],
-    fam:["Hercules Beetle","Knife Beetle","Mantis","Faerie","Bazoo Beetle","Flutterbug"] },
-  { id:"cava", nome:"Cava", spr:"Dung Roller",
+    esche:["Frutto del Vesuvio","Ambrosia","Chicchi di caff\u00e8"],
+    fam:["Bastidi","Lamidi","Falcidi","Silfidi","Bombardidi","Ventalidi"] },
+  { id:"cava", nome:"Cava", spr:"Sferidi",
     desc:"Pietra spaccata e polvere. Le pietre preziose attirano chi scava.",
-    esche:["Ruby","Lapis Lazuli","Diamond"],
-    fam:["Flipperbug","Mantis","Dung Roller","Staggy"] },
-  { id:"fornace", nome:"Fornace", spr:"Staggy",
+    esche:["Rubino","Lapislazzuli","Diamante"],
+    fam:["Voltidi","Falcidi","Sferidi","Tenaglidi"] },
+  { id:"fornace", nome:"Fornace", spr:"Tenaglidi",
     desc:"Aria che brucia. Ci resiste solo chi e' fatto per starci.",
-    esche:["Firestone","Ultraspicy Pepper"],
-    fam:["Staggy","Lady Beetle","Dung Roller"] },
-  { id:"pantano", nome:"Pantano", spr:"Itsahorse",
+    esche:["Pietrafuoco","Peperoncino infernale"],
+    fam:["Tenaglidi","Coccinidi","Sferidi"] },
+  { id:"pantano", nome:"Pantano", spr:"Corsidi",
     desc:"Acqua ferma e fango. Chi ci vive si muove meglio di quanto sembri.",
-    esche:["Electric Eel","Smoked Rainbow Newt","Yago Milk"],
-    fam:["Staggy","Itsahorse","Flipperbug","Dung Roller","Cutterpillar"] },
-  { id:"radura", nome:"Radura reale", spr:"Dark Emperor",
+    esche:["Anguilla elettrica","Tritone affumicato","Latte di rugiada"],
+    fam:["Tenaglidi","Corsidi","Voltidi","Sferidi","Trivellidi"] },
+  { id:"radura", nome:"Radura reale", spr:"Tonantidi",
     desc:"Silenzio e poche tracce. Qui non capita niente per caso.",
-    esche:["Royal Fruit","Sticky Gum"],
-    fam:["Dark Emperor","Faerie","Lady Beetle"] }
+    esche:["Frutto regale","Gomma appiccicosa"],
+    fam:["Tonantidi","Silfidi","Coccinidi"] }
 ];
 /* Le tre trappole delle fonti. Piu' capiente, meno sicura: e' la scelta. */
 const TRAPPOLE = [
@@ -1449,9 +1481,9 @@ function art(fam, flip, rank){
     '<circle cx="' + (cx+sp+r*0.35) + '" cy="' + (cy-r*0.35) + '" r="' + (r*0.34) + '" fill="#fff" opacity=".85"/>';
 
   const shapes = {
-    /* Knife Beetle: corazza stretta e una lama al posto del corno. La lama si
+    /* Lamidi: corazza stretta e una lama al posto del corno. La lama si
        allunga e mette barbe salendo di rank. */
-    "Knife Beetle": () => {
+    "Lamidi": () => {
       const punta = 20 - t*4;
       return zampe(32, 44, 13, 8, 2.4) +
         '<ellipse cx="32" cy="44" rx="14" ry="15"' + G + S2 + '/>' +
@@ -1467,7 +1499,7 @@ function art(fam, flip, rank){
     },
     /* Hercules: massa e corno. Pinza superiore e inferiore che si allungano col
        rank, guscio bombato con la fessura delle elitre e piastre sulle spalle. */
-    "Hercules Beetle": () => {
+    "Bastidi": () => {
       const hy = 27 - (9 + t*3.4);                /* quota della punta del corno */
       const largo = 6 + t;                       /* base del corno */
       return zampe(32, 46, 15, 9, 2.8) +
@@ -1493,7 +1525,7 @@ function art(fam, flip, rank){
     },
     /* Bazoo: il cannone e' la sagoma. Canna con volata e anello di rinforzo,
        corpo tozzo che la regge; col rank la canna si allunga e prende gli sfiati. */
-    "Bazoo Beetle": () => {
+    "Bombardidi": () => {
       const ly = 12 - t*2, lar = 11 + t*2;
       return zampe(32, 46, 14, 8, 2.6) +
         '<rect x="' + (32 - lar/2) + '" y="' + ly + '" width="' + lar + '" height="' + (32 - ly) +
@@ -1512,9 +1544,9 @@ function art(fam, flip, rank){
         luce(26, 43, 4, 2.8, .18) +
         '<path d="M32 36 v24" stroke="' + K + '" stroke-width="1.6" opacity=".45"/>';
     },
-    /* Flipperbug: il ribaltatore. Una pala larga davanti al guscio, fatta per
+    /* Voltidi: il ribaltatore. Una pala larga davanti al guscio, fatta per
        infilarsi sotto l'avversario; col rank si allarga e si rinforza. */
-    "Flipperbug": () => {
+    "Voltidi": () => {
       const pa = 15 + t*3;
       return zampe(32, 44, 15, 8, 2.5) +
         '<path d="M' + (32-pa) + ' 26 q' + pa + ' -' + (9+t*2) + ' ' + (pa*2) + ' 0 q-' + (pa*0.55) + ' 7 -' +
@@ -1530,9 +1562,9 @@ function art(fam, flip, rank){
         occhi(32, 33, 7, 2.2) +
         '<path d="M24 48 q8 7 16 0" stroke="' + K + '" stroke-width="2.2" fill="none" opacity=".45"/>';
     },
-    /* Staggy: cervo volante. Le mandibole sono l'arma: si allungano e si
+    /* Tenaglidi: cervo volante. Le mandibole sono l'arma: si allungano e si
        dentellano col rank, il corpo resta tozzo e basso. */
-    "Staggy": () => {
+    "Tenaglidi": () => {
       /* Una sola tenaglia disegnata, specchiata e ingrandita col rank: le due
          mandibole restano identiche, che e' quello che le fa leggere come tali. */
       const k = (0.86 + t*0.16).toFixed(2);
@@ -1555,7 +1587,7 @@ function art(fam, flip, rank){
     },
     /* Mantide: torace stretto e verticale, braccia raptatorie ripiegate davanti,
        addome affusolato. Le lame crescono e si dentellano col rank. */
-    "Mantis": () => {
+    "Falcidi": () => {
       const lama = 9 + t*2;
       const braccio = (dir) => {
         const x = 32 + dir*7;
@@ -1580,9 +1612,9 @@ function art(fam, flip, rank){
         antenne(32, 12, 4, 3) +
         (t >= 3 ? '<path d="M25 20 l-5 -3 M39 20 l5 -3"' + S1 + ' fill="none" stroke-linecap="round"/>' : '');
     },
-    /* Cutterpillar: bruco a segmenti, ognuno con la sua coppia di zampette e le
+    /* Trivellidi: bruco a segmenti, ognuno con la sua coppia di zampette e le
        lame davanti. Col rank i segmenti mettono spine. */
-    "Cutterpillar": () => {
+    "Trivellidi": () => {
       const seg = [[50,8.5],[39.5,10],[29,10.5]];
       return seg.map(([cy,r]) =>
         leg(32-r+1, cy+2, -5, 5, 2.2) + leg(32+r-1, cy+2, 5, 5, 2.2)).join("") +
@@ -1600,9 +1632,9 @@ function art(fam, flip, rank){
         occhi(32, 18, 4, 2.2) +
         '<path d="M26 24 q6 4 12 0" stroke="' + K + '" stroke-width="1.8" fill="none" opacity=".5"/>';
     },
-    /* Flutterbug: quattro ali, superiori piu' larghe. Col rank compaiono gli
+    /* Ventalidi: quattro ali, superiori piu' larghe. Col rank compaiono gli
        ocelli, le macchie a occhio che spaventano i predatori. */
-    "Flutterbug": () => {
+    "Ventalidi": () => {
       const w = 15 + t*3;
       const ala = (dir, su) =>
         '<path class="wing" d="M32 ' + (su ? 28 : 38) + ' q' + (dir*w) + ' ' + (su ? -14 : 0) + ' ' +
@@ -1620,9 +1652,9 @@ function art(fam, flip, rank){
         occhi(32, 20, 2.4, 1.8) +
         antenne(32, 15, 4, 4);
     },
-    /* Lady Beetle: cupola liscia e macchie. Il numero delle macchie sale col
+    /* Coccinidi: cupola liscia e macchie. Il numero delle macchie sale col
        rank, come il conto degli anni sul guscio. */
-    "Lady Beetle": () => {
+    "Coccinidi": () => {
       const macchie = [[-9,-6,4],[9,-6,4],[-8,6,3.4],[8,6,3.4]]
         .concat(t >= 2 ? [[0,12,2.8],[0,-12,2.6]] : [])
         .concat(t >= 3 ? [[-13,1,2.4],[13,1,2.4]] : []);
@@ -1637,9 +1669,9 @@ function art(fam, flip, rank){
         occhi(32, 19, 5, 1.9) +
         antenne(32, 15, 4, 3);
     },
-    /* Dung Roller: tozzo, testa bassa, spinge la palla. La palla e\u2019 ruvida e
+    /* Sferidi: tozzo, testa bassa, spinge la palla. La palla e\u2019 ruvida e
        cresce col rank; il corpo e\u2019 piatto e largo, con le zampe posteriori lunghe. */
-    "Dung Roller": () => {
+    "Sferidi": () => {
       const r = 11 + t*1.8;
       const cy = 37 - r;                         /* la palla appoggia sul dorso */
       const pois = [[-5,-5,2.6],[4,-2,3.2],[-2,5,2.2],[6,4,1.8],[-7,1,1.6]];
@@ -1661,9 +1693,9 @@ function art(fam, flip, rank){
         occhi(32, 53, 4, 1.8) +
         (t >= 3 ? '<path d="M26 51 l-4 -3 M38 51 l4 -3"' + S1 + ' fill="none" stroke-linecap="round"/>' : '');
     },
-    /* Itsahorse: la sagoma equina resta, ma con criniera, orecchio e zoccoli.
+    /* Corsidi: la sagoma equina resta, ma con criniera, orecchio e zoccoli.
        Col rank la criniera si allunga e arriva il ciuffo sulla fronte. */
-    "Itsahorse": () => {
+    "Corsidi": () => {
       const cri = 3 + t;
       return '<path d="M20 52 q-2 6 0 8 M28 54 q-1 5 1 7 M38 52 q2 6 0 8"' +
           ' stroke="' + K + '" stroke-width="2.8" fill="none" stroke-linecap="round"/>' +
@@ -1685,9 +1717,9 @@ function art(fam, flip, rank){
         '<path d="M41 21 q4 2 3 6" stroke="' + K + '" stroke-width="1.6" fill="none" opacity=".55"/>' +
         (t >= 3 ? '<path d="M37 9 q3 -4 6 -3" stroke="' + hi + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>' : '');
     },
-    /* Faerie: due paia d\u2019ali velate, corpo sottile, alone. Le ali portano la
+    /* Silfidi: due paia d\u2019ali velate, corpo sottile, alone. Le ali portano la
        classe "wing": la CSS le fa battere, ferma se l\u2019utente chiede meno moto. */
-    "Faerie": () => {
+    "Silfidi": () => {
       const w = 13 + t*3;
       const ala = (dir, su) =>
         '<path class="wing" d="M32 ' + (su ? 30 : 36) + ' q' + (dir*w) + ' ' + (su ? -16 : -2) +
@@ -1713,9 +1745,9 @@ function art(fam, flip, rank){
         (t >= 3 ? '<circle cx="20" cy="' + upY(20) + '" r="1.7" fill="' + hi + '" opacity=".9"/>' +
           '<circle cx="45" cy="' + upY(26) + '" r="1.4" fill="' + hi + '" opacity=".75"/>' : '');
     },
-    /* Dark Emperor: il premio finale. Corona di punte, mantello di elitre,
+    /* Tonantidi: il premio finale. Corona di punte, mantello di elitre,
        occhi che brillano. Sta sempre al tier massimo, ma resta parametrico. */
-    "Dark Emperor": () =>
+    "Tonantidi": () =>
       zampe(32, 46, 17, 10, 3) +
       /* mantello, piu' largo del corpo perche' si veda spuntare ai lati */
       '<path d="M32 27 q-24 5 -21 30 q10 -10 21 -10 q11 0 21 10 q3 -25 -21 -30z" fill="' + lo + '"' + S2 + '/>' +
@@ -1801,7 +1833,7 @@ const kingOf = side => S.units.find(u => u.alive && u.side === side && u.isKing)
    leggere i salvataggi vecchi quando la forma dei dati cambia, e rifiutare quelli
    scritti da una versione futura del gioco invece di interpretarli a caso.
    ========================================================================= */
-const SCHEMA = 5;                                 /* alzare quando cambia la forma dei dati */
+const SCHEMA = 6;                                 /* alzare quando cambia la forma dei dati */
 const CHIAVE = "insectron";
 const MARCA = "INSECTRON-";                       /* prefisso dei codici esportati */
 
@@ -1840,8 +1872,13 @@ function migra(v){
      larve non nasce tutta maschio.
      v4 -> v5: arrivano la sfida del giorno, la collezione e i traguardi. Chi
      giocava prima parte con la collezione vuota: si riempie alla prima
-     battaglia, e non c'e' niente da ricostruire. Le migrazioni future si
-     aggiungono qui, una per gradino. */
+     battaglia, e non c'e' niente da ricostruire.
+     v5 -> v6: i 118 nomi cambiano. Gli id delle unita' non si toccano, quindi
+     squadra, gabbie e collezione passano come stanno; la dispensa e le
+     trappole piazzate sono pero' indicizzate per nome del cibo, e quei nomi si
+     convertono qui con CIBI_VECCHI. Le migrazioni future si aggiungono qui,
+     una per gradino. */
+  const cibo = n => CIBI[n] ? n : (CIBI_VECCHI[semeNum(n)] || null);
   const zoo = Array.isArray(v.z) ? v.z.filter(e => e && byId[e.id]).map((e, i) => ({
     u: String(e.u || ""), id: e.id,
     b: { hp:(e.b&&e.b.hp)|0, str:(e.b&&e.b.str)|0, def:(e.b&&e.b.def)|0 },
@@ -1852,7 +1889,10 @@ function migra(v){
   })) : [];
   const disp = {};
   if (v.p && typeof v.p === "object")
-    Object.keys(v.p).forEach(k => { if (CIBI[k] && (v.p[k]|0) > 0) disp[k] = v.p[k]|0; });
+    Object.keys(v.p).forEach(k => {
+      const n = cibo(k);
+      if (n && (v.p[k]|0) > 0) disp[n] = (disp[n] || 0) + (v.p[k]|0);
+    });
   const sf = v.f && typeof v.f === "object" && /^\d{4}-\d{2}-\d{2}$/.test(String(v.f.g))
     ? { g: String(v.f.g), esito: v.f.esito === "v" ? "v" : "s",
         turni: Math.max(0, v.f.turni|0), vive: Math.max(0, Math.min(5, v.f.vive|0)) }
@@ -1878,9 +1918,10 @@ function mondoSano(m){
   const tr = {};
   TRAPPOLE.forEach(t => tr[t.id] = Math.max(0, Math.min(99, (m.trappole && m.trappole[t.id])|0)));
   const poste = (Array.isArray(m.poste) ? m.poste : [])
-    .filter(p => p && HABITAT.some(h => h.id === p.h) && TRAPPOLE.some(t => t.id === (p.t|0)) && CIBI[p.esca])
-    .slice(0, MAX_POSTE)
-    .map(p => ({ n: p.n|0, h: p.h, t: p.t|0, esca: p.esca, quando: Math.max(0, p.quando|0) }));
+    .map(p => (p && { n: p.n|0, h: p.h, t: p.t|0, quando: Math.max(0, p.quando|0),
+                      esca: CIBI[p.esca] ? p.esca : (CIBI_VECCHI[semeNum(p.esca)] || p.esca) }))
+    .filter(p => p && HABITAT.some(h => h.id === p.h) && TRAPPOLE.some(t => t.id === p.t) && CIBI[p.esca])
+    .slice(0, MAX_POSTE);
   return { seme, trappole: tr, poste,
            seq: Math.max(0, m.seq|0), presi: Math.max(0, m.presi|0) };
 }
@@ -2416,7 +2457,7 @@ function drawDispensa(){
   const nomi = Object.keys(S.dispensa).filter(n => S.dispensa[n] > 0).sort();
   if (!nomi.length){
     box.innerHTML = '<p class="nessuno">Dispensa vuota. Il cibo arriva conquistando un rank ' +
-      'del torneo: quattro cibi, pi\u00f9 un Royal Fruit dal Rank B in su.</p>';
+      'del torneo: quattro cibi, pi\u00f9 un Frutto regale dal Rank B in su.</p>';
   }
   nomi.forEach(n => {
     const c = CIBI[n];
@@ -2867,7 +2908,7 @@ function cambiaMondo(t){
    ========================================================================= */
 /* Si comincia con le sole forme base (rank 1). Ogni rank del torneo conquistato
    rende disponibile la generazione successiva, come se l'avessi allevata.
-   Il Dark Emperor resta fuori finché non chiudi il Rank S: è il premio finale. */
+   Folgore resta fuori finché non chiudi il Rank S: è il premio finale. */
 function maxRank(){
   /* Al debutto solo le forme base. Dopo, il roster si allinea al tetto della fascia
      da cui pescano gli avversari del rank corrente: altrimenti si combatte sempre
@@ -2890,7 +2931,7 @@ function drawRoster(){
   const open = UNITS.filter(unlocked).length;
   $("#roster-hint").innerHTML = "Disponibili <b>" + open + "</b> Insector su " + UNITS.length +
     ". Scegline <b>5</b>. " + (S.champion
-      ? "Hai sbloccato tutto, Dark Emperor compreso."
+      ? "Hai sbloccato tutto, Folgore compreso."
       : "Vinci un rank del torneo per sbloccare la generazione successiva.");
   /* Gli esemplari allevati stanno in cima: sono tuoi, e valgono piu' del catalogo. */
   S.zoo.forEach(e => {
@@ -3511,7 +3552,7 @@ function moves(u){
 const ORTHO = [[0,-1],[0,1],[-1,0],[1,0]];
 const man = (a,b,c,d) => Math.abs(a-c) + Math.abs(b-d);
 /* L'attacco normale raggiunge tutte e 8 le caselle attorno; le mosse speciali, salvo
-   Sickle Dance, solo le 4 ortogonali. */
+   la Danza delle falci, solo le 4 ortogonali. */
 function foesAdj(u){
   return S.units.filter(f => f.alive && f.side !== u.side && cheb(u.x,u.y,f.x,f.y) === 1);
 }
@@ -3636,15 +3677,15 @@ function bullet(a, t, color){
      Knockback accorcia le spinte (una casella in meno ogni 4 punti) e da' una
        possibilita' di restare aggrappati al bordo invece di uscire dal campo.
      Lancio fa lo stesso sul bordo contro chi ti scaglia via.
-     Confusione fa fallire l'ammaliamento della Faerie e il ribaltamento del
-       Flipperbug.
+     Confusione fa fallire l'ammaliamento dei Silfidi e il ribaltamento dei
+       Voltidi.
      Veleno non ha ancora una mossa che lo infligga: nessuna delle tredici
        famiglie giocabili avvelena. Il valore si accumula lo stesso e la scheda
        lo dice apertamente, invece di inventare una meccanica che le fonti non
        hanno.
 
    I valori sono negativi quando il cibo li toglie, e allora valgono al
-   contrario: chi si nutre solo di Edensia incassa di piu' dai lanci.
+   contrario: chi si nutre solo di Ambrosia incassa di piu' dai lanci.
    Gli avversari sono esemplari del roster, non allevati: la loro resistenza e'
    sempre zero, e per questo i tetti sono bassi. Con resistenza <= 0 non si
    tira nemmeno il dado, cosi' una squadra non allevata gioca la stessa
@@ -3702,12 +3743,12 @@ function strike(a, t, mult, label){
   settle(t, label);
   return d;
 }
-/* Attacco normale. Il Dark Emperor ne ha uno speciale: oltre al danno ribalta
+/* Attacco normale. Folgore ne ha uno speciale: oltre al danno ribalta
    l'avversario e lo spinge indietro di una casella, con rimbalzo a catena e
    possibile uscita dal campo. */
 function basicAttack(a, t){
   const d = strike(a, t, 1, "attacca");
-  if (!d || !t.alive || a.d.fam !== "Dark Emperor") return d;
+  if (!d || !t.alive || a.d.fam !== "Tonantidi") return d;
   if (!reggeConfusione(t)){
     t.stun = Math.max(t.stun, 2);
     log("<b>" + t.d.name + "</b> \u00e8 atterrato dalla stretta oscura.", "hit");
@@ -4019,7 +4060,7 @@ function scorePlan(u, spot, opt, prof){
   }
 
   /* La prudenza va pesata sulla propria stazza: 40 danni sono un graffio per un
-     Susanoo da 312 HP e quasi la morte per una Mantis da 80. In valore assoluto
+     Mastio da 312 HP e quasi la morte per una Falcetta da 80. In valore assoluto
      un'unita' forte sprecava il proprio vantaggio restando alla larga. */
   const th = threatAt(u, spot.x, spot.y);
   const quota = th / Math.max(1, u.maxHp);
@@ -4153,14 +4194,14 @@ function finish(win){
       $("#r-title").innerHTML = '<span class="win">Rank ' + R.id + ' conquistato!</span>';
       let premi = "";
       if (!demo()){
-        const bottino = premiaConCibo(PREMIO_RANK) + (S.rankIdx >= 3 ? ", Royal Fruit" : "");
-        if (S.rankIdx >= 3) S.dispensa["Royal Fruit"] = (S.dispensa["Royal Fruit"] || 0) + 1;
+        const bottino = premiaConCibo(PREMIO_RANK) + (S.rankIdx >= 3 ? ", Frutto regale" : "");
+        if (S.rankIdx >= 3) S.dispensa["Frutto regale"] = (S.dispensa["Frutto regale"] || 0) + 1;
         premi = ", per le gabbie: <b>" + bottino + "</b>, e per il mondo: <b>" +
                 premiaConTrappola() + "</b>";
       }
       $("#r-text").innerHTML = "Cinque round vinti di fila. Premio: <b>" + R.prize +
         "</b>" + premi + "." +
-        (last ? "<br><br>Hai chiuso il Rank S: il torneo Insectron \u00e8 tuo. Il <b>Dark Emperor</b> \u00e8 ora reclutabile."
+        (last ? "<br><br>Hai chiuso il Rank S: il torneo Insectron \u00e8 tuo. <b>Folgore</b> \u00e8 ora reclutabile."
               : "<br><br>Prossimo traguardo: <b>Rank " + RANKS[S.rankIdx+1].id +
                 "</b> (iscrizione " + RANKS[S.rankIdx+1].fee + "z).");
       if (last){ S.champion = true; trofeo("campione"); } else S.rankIdx++;
@@ -4491,7 +4532,7 @@ function drawTokens(){
       l.appendChild(e);
       e.dataset.side = u.side; e.dataset.top = topSide();
     }
-    /* Il disegno va rifatto se l'unita' cambia schieramento (Charm Beam) oppure
+    /* Il disegno va rifatto se l'unita' cambia schieramento (Raggio di malia) oppure
        se la scacchiera si e' girata: in quel caso e' l'altro lato a stare in alto. */
     if (e.dataset.side !== u.side || e.dataset.top !== topSide()){
       e.dataset.side = u.side; e.dataset.top = topSide();
@@ -4693,7 +4734,7 @@ $("#btn-clear").onclick = () => { S.team = []; S.kingId = null; drawRoster(); dr
 $("#btn-auto").onclick = () => {
   const pool = UNITS.filter(unlocked);
   S.team = []; S.kingId = null;
-  const wanted = ["Dung Roller","Lady Beetle","Mantis","Hercules Beetle","Bazoo Beetle","Staggy","Knife Beetle"];
+  const wanted = ["Sferidi","Coccinidi","Falcidi","Bastidi","Bombardidi","Tenaglidi","Lamidi"];
   wanted.forEach(fam => {
     if (S.team.length >= 5) return;
     const c = pool.filter(u => u.fam === fam).sort((a,b) => b.rank - a.rank)[0];

@@ -87,7 +87,7 @@ prendere**. È lo stesso numero che decide l'esito, non una stima ottimistica.
 
 **I cinque luoghi** — Frutteto, Cava, Fornace, Pantano, Radura reale — hanno abitanti
 diversi, e l'esca giusta cambia molto le probabilità: la frutta attira chi mangia dolce,
-i minerali chi scava, il Royal Fruit qualcosa che non capita spesso.
+i minerali chi scava, il Frutto regale qualcosa che non capita spesso.
 
 Quel che si cattura arriva come **larva selvatica**, con le statistiche della sua famiglia
 più un piccolo bonus di nascita, e da lì si cresce nelle gabbie come tutti gli altri.
@@ -104,8 +104,8 @@ il figlio nasce **larva**, del gradino successivo nella linea di famiglia, ed er
 accumulo: per salire di un gradino se ne perdono due.
 
 **Diciotto coppie speciali** vengono dalle fonti e danno risultati fuori linea — due
-Hercules Beetle non fanno un Hercules Beetle, fanno uno **Stun Staggy**; Mantis e Big
-Staggy fanno un Hatchet Beetle. Sono il contenuto da scoprire, e il gioco te lo segnala
+Bastione non fanno un Bastione, fanno una **Ganascia**; Falcetta e Morsa fanno un
+Bipenne. Sono il contenuto da scoprire, e il gioco te lo segnala
 quando capita. Il sesso degli esemplari **si alterna** invece di essere tirato a caso:
 una gabbia piena di soli maschi non sarebbe una difficoltà interessante.
 
@@ -158,7 +158,7 @@ con le statistiche base della sua famiglia e non può ancora combattere. I primi
 in regalo; dal quarto in poi gli esemplari si **catturano** nel Mondo (sezione sopra).
 
 Cresce mangiando. Il cibo si vince **conquistando i rank** — quattro pezzi per rank, più
-un Royal Fruit dal Rank B in su — e finisce nella dispensa. Ogni pasto alza vita, forza e
+un Frutto regale dal Rank B in su — e finisce nella dispensa. Ogni pasto alza vita, forza e
 difesa, e consuma parte dei **punti di vita** dell'esemplare: sono quaranta in tutto e non
 si recuperano. Spesi i primi sei, la larva diventa **adulta** e può entrare in squadra;
 spesi tutti e quaranta, quell'esemplare è finito com'è.
@@ -183,7 +183,7 @@ cibi danno anche **resistenze**, e in battaglia contano:
 | **Taglio**, **Esplosione** | riducono il danno delle mosse di quel tipo: il 3% a punto, fino a un massimo del 30% |
 | **Knockback** | una casella in meno di spinta ogni 4 punti, e una possibilità di restare aggrappato al bordo invece di uscire |
 | **Lancio** | la stessa presa sul bordo contro chi ti scaglia via |
-| **Confusione** | fa fallire l'ammaliamento della Faerie e il ribaltamento del Flipperbug |
+| **Confusione** | fa fallire l'ammaliamento dei Silfidi e il ribaltamento dei Voltidi |
 | **Veleno** | nessuna delle tredici famiglie giocabili avvelena: il valore si accumula, ma non ha ancora una mossa che lo infligga, e la dispensa lo dice |
 
 I cibi che tolgono resistenza valgono al contrario: chi si nutre solo di Edensia incassa
@@ -324,7 +324,12 @@ le icone dichiarate esistenti.
 ## Licenze e diritti
 
 La grafica è **interamente originale e generata da codice**: nessuno sprite, artwork o
-screenshot altrui è stato usato.
+screenshot altrui è stato usato. Dal 30 settembre 2026 sono nostri anche i **nomi**: le
+118 stringhe di nomenclatura — 34 unità, 13 famiglie, 13 mosse speciali, 22 cibi, 30
+avversari del torneo e 6 premi — sono state riscritte da zero, e nel gioco non resta
+nessun nome dell'originale. Quello che resta preso dal minigioco sono **le regole, le
+statistiche e la struttura del torneo**, e il nome «Insectron» che questa demo porta
+ancora nel titolo.
 
 *Rogue Galaxy* è © Sony Interactive Entertainment / Level-5. Questo è un esercizio
 tecnico **non affiliato, non autorizzato e non commerciale**, ispirato alle regole del
