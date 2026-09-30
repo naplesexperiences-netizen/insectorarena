@@ -47,6 +47,16 @@ header.top h1 span{color:var(--accent)}
 }
 .spacer{flex:1}
 .solotel{display:none}                             /* compare solo sul telefono */
+/* L'interruttore dell'invio: e' un comando, non una didascalia, e va guardato
+   come tale. Il link all'informativa non deve virare al viola da visitato: qui
+   il colore dice "collegamento", non "ci sei gia' stato". */
+.modalbox a{color:var(--accent2)}
+.riga-invio{
+  display:flex;align-items:center;gap:10px;margin:10px 0 14px;padding:11px 13px;
+  background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+  font-size:.85rem;color:var(--text);cursor:pointer
+}
+.riga-invio input{width:18px;height:18px;flex:0 0 18px;accent-color:var(--accent);cursor:pointer}
 .sotto{font-size:.68rem;color:var(--muted)}        /* riga secondaria sotto un nome */
 button{
   font-family:inherit;font-size:.88rem;cursor:pointer;border-radius:9px;
@@ -721,6 +731,7 @@ footer.note a{color:var(--accent2)}
       <!-- Sul telefono la testata non regge sei comandi: questi due scendono qui
            dentro, e «Azzera torneo» smette di stare accanto al pollice mentre
            si gioca. Su schermo largo restano dove sono e queste spariscono. -->
+      <button id="btn-stat" role="menuitemcheckbox" aria-checked="true" hidden><span class="grow">Statistiche anonime</span><span class="st" id="st-stat">acceso</span></button>
       <div class="sep solotel"></div>
       <button id="btn-msave" role="menuitem" class="solotel">Salvataggio</button>
       <button id="btn-mreset" role="menuitem" class="solotel danger">Azzera torneo</button>
@@ -946,9 +957,11 @@ footer.note a{color:var(--accent2)}
 <div class="modal" id="eco-box" hidden>
   <div class="modalbox" role="dialog" aria-modal="true" aria-labelledby="eco-title">
     <h2 id="eco-title">Dicci com'è andata</h2>
-    <p class="hint">Il gioco non ci manda niente da solo: questi numeri stanno nel tuo
-      browser e partono <b>solo se li mandi tu</b>. Qui sotto c'è esattamente quello che
-      verrebbe fuori — niente nome, niente indirizzo, niente che dica chi sei.</p>
+    <p class="hint" id="eco-privacy">Il gioco non ci manda niente da solo: questi numeri
+      stanno nel tuo browser e partono <b>solo se li mandi tu</b>.</p>
+    <label class="riga-invio" id="eco-invio-riga" hidden>
+      <input type="checkbox" id="eco-invio"> Manda i numeri automaticamente quando chiudo la pagina
+    </label>
     <div class="numeri" id="eco-numeri">—</div>
 
     <label class="opt" for="eco-nota">Cosa ne pensi? (facoltativo)
@@ -1105,17 +1118,33 @@ const demo = () => EDIZIONE === "demo";
    ECO \u2014 cinque tappe e qualche conteggio, per sapere dove la gente smette.
    Regole che questo codice rispetta, e che vanno lette insieme:
      - niente cookie, niente identificatori, niente profilazione;
-     - i numeri restano in questo browser e non partono da soli;
-     - chi vuole mandarli li vede prima, per intero, in chiaro.
-   Con TELEMETRIA_URL vuota il gioco non fa una sola richiesta di rete: e'
-   la condizione di adesso, e i controlli automatici la verificano.
+     - non si raccoglie niente che dica *chi* sei: nessun nome, nessun
+       indirizzo, nessun testo scritto da te se non lo scrivi tu apposta;
+     - quello che parte e' **esattamente** quello che il pannello ti mostra:
+       non esiste un campo nascosto, e il controllo automatico lo verifica
+       confrontando le due cose carattere per carattere.
+
+   L'invio automatico esiste, ma e' legato a un interruttore solo:
+   TELEMETRIA_URL. Con quella stringa vuota il gioco non fa **una sola**
+   richiesta di rete, e i controlli lo verificano. Con un indirizzo dentro,
+   parte un rapporto per visita, quando la pagina viene chiusa o messa da
+   parte, e nel pannello compare l'interruttore per spegnerlo.
+   Accendere non e' solo incollare l'indirizzo: la procedura completa \u2014 e la
+   verifica sulla privacy da fare prima \u2014 sta in `telemetria/README.md`.
    ========================================================================= */
 const ECO_CHIAVE = "insectron-eco";
-const TELEMETRIA_URL = "";                        /* con un indirizzo, l'invio parte su richiesta */
+const INVIO_CHIAVE = "insectron-eco-invio";       /* la scelta di chi spegne l'invio */
+let TELEMETRIA_URL = "";                          /* con un indirizzo, la raccolta si accende */
+/* `let` e non `const` per la stessa ragione di EDIZIONE: i controlli automatici
+   devono poter accendere la raccolta e verificare che cosa parte davvero. In
+   esercizio questa riga si cambia una volta e non la tocca piu' nessuno. */
 const EMAIL_FEEDBACK = "";                        /* con un indirizzo, compare "Manda per email" */
 const TAPPE = ["apre", "squadra", "prima", "rankD", "ritorno"];
 const oggiStr = () => new Date().toISOString().slice(0, 10);
 let ECO = { v:1, ed:"completa", primo:"", ultimo:"", giorni:0, t:{}, n:{} };
+let ECO_INVIO = true;                             /* si puo' spegnere, e la scelta resta */
+let ecoMandato = false;                           /* un rapporto per visita, non uno per schermata */
+const telemetriaAttiva = () => !!TELEMETRIA_URL && ECO_INVIO;
 const byId = {}; UNITS.forEach(u => byId[u.id] = u);
 
 /* =========================================================================
@@ -2435,6 +2464,23 @@ function ecoCarica(){
   if (ECO.giorni >= 2) tappa("ritorno");
   tappa("apre");
   ecoSalva();
+}
+/* La scelta di non mandare niente e' una preferenza come il suono: sta nel
+   browser di chi l'ha presa e nessuno la sa fuori di li'. */
+function invioCarica(){
+  try { ECO_INVIO = localStorage.getItem(INVIO_CHIAVE) !== "no"; }
+  catch(e){ ECO_INVIO = true; }
+}
+function invioImposta(on){
+  ECO_INVIO = !!on;
+  try { localStorage.setItem(INVIO_CHIAVE, ECO_INVIO ? "si" : "no"); } catch(e){}
+  const b = $("#btn-stat");
+  if (b){
+    b.setAttribute("aria-checked", ECO_INVIO ? "true" : "false");
+    $("#st-stat").textContent = ECO_INVIO ? "acceso" : "spento";
+  }
+  const p = $("#eco-privacy");
+  if (p && !$("#eco-box").hidden) p.innerHTML = ecoPrivacy();
 }
 /* Una tappa si segna una volta sola: interessa *se* e *quando*, non quante volte. */
 function tappa(nome){
@@ -4884,6 +4930,9 @@ function ecoRighe(){
 }
 function apriEco(){
   fuocoPrima = document.activeElement;
+  $("#eco-privacy").innerHTML = ecoPrivacy();
+  $("#eco-invio-riga").hidden = !TELEMETRIA_URL;
+  $("#eco-invio").checked = ECO_INVIO;
   $("#eco-numeri").innerHTML = ecoRighe();
   ecoMsg("", "");
   $("#btn-eco-mail").hidden = !EMAIL_FEEDBACK;
@@ -4900,12 +4949,39 @@ function ecoMsg(testo, cls){
   el.textContent = testo;
   el.className = "esito" + (cls ? " " + cls : "");
 }
-/* Se un giorno ci sara' un indirizzo dove raccoglierli, parte da qui \u2014 e resta
-   un gesto dell'utente, non un invio automatico. */
+/* L'unica funzione che tocca la rete in tutto il gioco. Senza indirizzo non
+   fa niente: e' quella riga a decidere, non una spunta sparsa nel codice. */
 function ecoInvia(testo){
   if (!TELEMETRIA_URL) return false;
   try { return navigator.sendBeacon(TELEMETRIA_URL, testo); }
   catch(e){ return false; }
+}
+/* Il rapporto automatico parte **una volta per visita**, quando la pagina viene
+   chiusa o messa da parte: e' l'unico momento in cui il quadro e' completo, e
+   `sendBeacon` sopravvive alla chiusura della scheda mentre una fetch no.
+   Non porta il testo libero: quello resta un gesto, si scrive e si manda a mano. */
+function ecoAuto(){
+  if (ecoMandato || !telemetriaAttiva()) return;
+  ecoMandato = true;
+  const r = ecoRapporto();
+  r.auto = 1;
+  ecoInvia("INSECTRON-ECO " + JSON.stringify(r));
+}
+/* Il testo del pannello segue la configurazione, non il contrario: cosi' non
+   puo' promettere una cosa mentre il codice ne fa un'altra. */
+function ecoPrivacy(){
+  if (!TELEMETRIA_URL)
+    return "Il gioco non ci manda niente da solo: questi numeri stanno nel tuo browser e " +
+      "partono <b>solo se li mandi tu</b>. Qui sotto c'\u00e8 esattamente quello che verrebbe " +
+      "fuori \u2014 niente nome, niente indirizzo, niente che dica chi sei.";
+  return (ECO_INVIO
+    ? "Quando chiudi la pagina, questi numeri \u2014 <b>e solo questi</b> \u2014 partono una volta, " +
+      "senza cookie e senza niente che dica chi sei. Puoi <b>spegnere l'invio</b> qui sotto, " +
+      "e resta spento."
+    : "L'invio automatico \u00e8 <b>spento</b>: da questo browser non parte niente. Puoi sempre " +
+      "mandare i numeri a mano con il pulsante qui sotto.") +
+    " Qui c'\u00e8 esattamente quello che verrebbe fuori, e il commento libero parte solo se lo " +
+    "scrivi tu. <a href=\"./privacy.html\" target=\"_blank\" rel=\"noopener\">Come trattiamo i dati</a>.";
 }
 function chiudiSalvataggio(){
   $("#save-box").hidden = true;
@@ -5014,6 +5090,12 @@ if (window.matchMedia){
   if (soglia.addEventListener) soglia.addEventListener("change", rifai);
   else if (soglia.addListener) soglia.addListener(rifai);
 }
+$("#eco-invio").onchange = ev => invioImposta(ev.target.checked);
+$("#btn-stat").onclick = () => invioImposta(!ECO_INVIO);
+/* Il rapporto parte quando la pagina se ne va. `visibilitychange` copre il caso
+   normale sul telefono (si cambia app); `pagehide` quello della scheda chiusa. */
+addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") ecoAuto(); });
+addEventListener("pagehide", ecoAuto);
 $("#btn-msave").onclick = () => { menuApri(false); $("#btn-save").click(); };
 $("#btn-mreset").onclick = () => { menuApri(false); $("#btn-reset").click(); };
 $("#btn-savecls").onclick = chiudiSalvataggio;
@@ -5093,6 +5175,9 @@ function applicaEdizione(){
 applicaEdizione();
 audioCarica();
 musicaCarica();
+invioCarica();
+$("#btn-stat").hidden = !TELEMETRIA_URL;
+invioImposta(ECO_INVIO);                          /* allinea la voce di menu allo stato */
 ecoCarica();
 load();
 /* Un mondo c'e' sempre: se il salvataggio non ne porta uno (partita nuova, o

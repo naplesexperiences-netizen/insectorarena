@@ -263,10 +263,31 @@ Due costanti in testa a `gioca.html` decidono il resto, e sono vuote di proposit
 | Costante | Se la riempi |
 |---|---|
 | `EMAIL_FEEDBACK` | compare il pulsante «Manda per email», che apre il client di posta già compilato |
-| `TELEMETRIA_URL` | il rapporto viene spedito anche a quell'indirizzo — **sempre e solo quando è l'utente a premere**, mai da solo |
+| `TELEMETRIA_URL` | si accende la **raccolta automatica**: parte un rapporto per visita, quando chiudi la pagina |
 
 Finché restano vuote il gioco è muto verso l'esterno, e la pagina non ha bisogno di nessun
-banner del consenso.
+banner del consenso. **Oggi sono vuote.**
+
+### Quando la raccolta automatica sarà accesa
+
+Il meccanismo è in casa, spento. Acceso, funziona così:
+
+- parte **un rapporto per visita**, una volta sola, quando chiudi la pagina o cambi app.
+  Sono gli stessi numeri che il pannello ti mostra in chiaro — un controllo automatico li
+  confronta campo per campo, così la schermata non può promettere una cosa e il codice
+  farne un'altra;
+- il **commento libero non parte mai da solo**: quello resta un gesto, si scrive e si manda;
+- si spegne dal **Menu → Statistiche anonime**, e resta spento;
+- niente cookie, niente identificatori, **nessun indirizzo IP conservato**: l'endpoint non
+  lo legge, non lo scrive e non lo mette nei log.
+
+Il testo del pannello non è scritto a mano: lo genera il codice a partire dalla costante.
+Finché è vuota dice che non parte niente, perché non parte niente; quando ha un indirizzo
+dice che parte, perché parte. È l'unico modo che conosciamo per non ritrovarci una frase
+vera in una versione e falsa in quella dopo.
+
+Tutti i dettagli — che cosa esattamente, perché, per quanto, come si spegne — stanno in
+[Come trattiamo i dati](./privacy.html).
 
 ## Sul telefono
 

@@ -11,11 +11,12 @@
    Quando si pubblica una modifica va alzato VERSIONE: e' quello che fa buttare
    via la cache vecchia. Senza, chi ha gia' aperto il sito resta alla copia
    precedente finche' non svuota i dati del browser. */
-const VERSIONE = "insectron-v14";
+const VERSIONE = "insectron-v15";
 const GUSCIO = [
   "./",
   "./index.html",
   "./gioca.html",
+  "./privacy.html",
   "./manifest.webmanifest",
   "./icon.svg",
   "./icon-192.png",
