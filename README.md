@@ -289,6 +289,36 @@ vera in una versione e falsa in quella dopo.
 Tutti i dettagli — che cosa esattamente, perché, per quanto, come si spegne — stanno in
 [Come trattiamo i dati](./privacy.html).
 
+## Tutto in una schermata
+
+Le due schermate prima della partita si leggevano scorrendo: 417 px di scorrimento su un
+monitor da 1280×900 per vedere la scheda di un Insector, 1069 su un telefono da 360×740
+per arrivare in fondo al riepilogo. Adesso sono **zero** su tutti gli schermi alti almeno
+640 px. Non perché ci sia meno roba: perché scorre quello che deve scorrere.
+
+- **La pagina sta ferma, scorrono gli elenchi.** Il roster e la lista della squadra hanno
+  il proprio scorrimento; la testata, i pulsanti e il passo avanti restano dove sono.
+- **Il roster mostra solo gli Insector che hai.** Prima c'erano anche i 27 ancora chiusi,
+  ventisette righe grigie col lucchetto. Adesso una riga dice quanti ne restano e come si
+  aprono.
+- **La scheda è un pop-up.** Tocchi una pedina e si apre sopra, con le caratteristiche e
+  i pulsanti per metterla in squadra o toglierla: si decide dove si legge, e appena hai
+  deciso si richiude da sola. Si chiude anche con Esc, con la ×, o toccando fuori.
+- **Il riepilogo è fatto di numeri.** Cinque descrizioni per esteso non stanno in una
+  schermata, e lì si confrontano cinque pedine: restano vita, forza, difesa, danno
+  d'attacco, danno della speciale e movimento. La descrizione completa sta dietro al
+  tondo **i** in alto a destra di ogni scheda.
+
+Sul telefono c'è un pezzo in più: la squadra scelta era una colonna di cinque righe alta
+288 px su uno schermo da 740, cioè metà schermata per cinque nomi. Adesso è una striscia
+orizzontale alta 65 px che si scorre col pollice, con la crocetta al posto del pulsante
+«Togli». I pixel risparmiati sono andati al roster, che da una pedina visibile ne mostra
+tre e mezza.
+
+Sotto i 640 px di altezza — il telefono di traverso, gli schermi vecchi da 568 — la
+schermata non ci starebbe comunque: lì la pagina torna a scorrere invece di nascondere
+qualcosa.
+
 ## Sul telefono
 
 La scacchiera sta in alto e la scheda dell'unità stava sotto: per ogni singola mossa
@@ -317,8 +347,8 @@ scomodo:
 - i cinque «Slot libero» della squadra si prendevano mezza schermata per ripetere quello
   che il contatore dice già: adesso vedi le pedine scelte e una riga che dice quante ne
   mancano;
-- toccata una carta del roster, la **scheda viene portata a vista** invece di restare
-  sotto la lista;
+- toccata una carta del roster, la **scheda si apre in un pop-up** invece di restare
+  sotto la lista (vedi «Tutto in una schermata»);
 - «Entra in arena» stava in fondo a cinque schede e quasi due schermate di scorrimento:
   adesso resta in basso mentre leggi.
 

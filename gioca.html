@@ -46,6 +46,46 @@ header.top h1 span{color:var(--accent)}
   font-family:inherit;font-size:.8rem;padding:3px 6px;margin-left:6px;cursor:pointer
 }
 .spacer{flex:1}
+/* --- una schermata sola -------------------------------------------------
+   Le due schermate di preparazione stanno dentro la finestra: a scorrere e'
+   semmai la lista del roster dentro al suo riquadro, non la pagina. Prima la
+   scheda dell'unita' stava sotto il roster, e per leggerla si scorreva via
+   tutto il resto. */
+.wrap{min-height:100dvh;display:flex;flex-direction:column}
+/* Per restringersi, un figlio flessibile ha bisogno che il contenitore abbia
+   un'altezza **definita**: con `min-height` la pagina cresce e basta. L'altezza
+   fissa vale solo sulle due schermate che devono starci intere, e la mette
+   `show()` quando le apre. */
+body.fisso .wrap{height:100dvh}
+/* La promessa «tutto in una schermata» vale dove una schermata c'e': sotto i
+   640 px di altezza (telefono di traverso, schermi vecchi da 568) la testata,
+   la striscia della squadra e i suoi pulsanti non ci stanno nemmeno vuoti, e
+   fingere il contrario vorrebbe dire nascondere qualcosa. Li' la pagina
+   scorre come prima, che e' peggio ma e' onesto. */
+@media(max-height:639px){ body.fisso .wrap{height:auto} }
+#s-team.on,#s-brief.on{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+#s-team .two{flex:1 1 auto;min-height:0;align-items:stretch}
+#s-team .two > .card{display:flex;flex-direction:column;min-height:0}
+/* La griglia riempie l'altezza disponibile, ma le righe restano alte quanto
+   una carta: senza `align-content:start` sette pedine si stiravano fino a
+   riempire mezzo schermo ciascuna. */
+#s-team .roster{flex:1 1 auto;min-height:0;max-height:none;align-content:start}
+#s-team .slots{flex:0 0 auto}
+#s-brief > .card{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+#s-brief .brief{flex:1 1 auto;min-height:0;overflow:auto;align-content:start}
+
+/* --- pulsante tondo: chiude, oppure apre la scheda intera --------------- */
+.tondo{
+  width:30px;height:30px;min-height:30px;padding:0;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:.92rem;line-height:1;background:var(--panel);border:1px solid var(--line);
+  color:var(--muted);flex:0 0 30px
+}
+.tondo:hover:not(:disabled){background:#2e3b52;border-color:var(--accent2);color:var(--text)}
+.chiudi{position:absolute;top:12px;right:12px;font-size:1.3rem;z-index:2}
+.modalbox.scheda{position:relative;max-width:480px;padding:18px}
+.modalbox.scheda .sheet{background:none;border:0;padding:0}
+.sheet h2{font-size:1.1rem;line-height:1.2}
 .solotel{display:none}                             /* compare solo sul telefono */
 /* L'interruttore dell'invio: e' un comando, non una didascalia, e va guardato
    come tale. Il link all'informativa non deve virare al viola da visitato: qui
@@ -113,7 +153,9 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 .sheet .vuota{color:var(--muted);font-size:.84rem;line-height:1.6}
 
 /* ---- riepilogo squadra prima della partita ---- */
-.brief{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+/* Cinque schede: su schermo largo stanno in fila, e la squadra si legge in
+   un colpo d'occhio invece che a due righe. */
+.brief{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:12px;align-content:start}
 .bcard{background:var(--panel2);border:1px solid var(--line);border-radius:var(--r);padding:14px;
   display:flex;flex-direction:column;gap:10px;cursor:pointer;text-align:left;
   font:inherit;color:inherit;appearance:none;width:100%;
@@ -130,6 +172,23 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 .bcard .num b{display:block;font-size:.92rem;color:var(--accent)}
 .bcard .sp{font-size:.74rem;color:var(--muted);line-height:1.45;flex:1}
 .bcard .sp b{color:var(--accent2)}
+/* La scheda del riepilogo porta solo numeri: la prosa sta nel pop-up, che si
+   apre col tondo in alto a destra. Cinque schede devono stare in una
+   schermata, e cinque paragrafi non ci stanno. */
+.bcard{position:relative}
+.bcard .info{position:absolute;top:10px;right:10px}
+.bcard .dati{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.72rem;color:var(--muted);flex:1}
+/* La riga dei numeri si prende lo spazio che avanza: cosi' «Nomina Re» sta in
+   fondo a tutte e cinque le schede, sulla stessa linea, anche quando una
+   speciale va a capo e un'altra no. */
+.bcard .scegli{margin-top:auto}
+.bcard .dati b{color:var(--text);font-variant-numeric:tabular-nums}
+.bcard h4{padding-right:34px}
+.bcard .scegli{
+  text-align:center;padding:9px;border-radius:8px;font-size:.78rem;width:100%;
+  background:var(--panel);color:var(--muted);border:1px solid var(--line);min-height:40px
+}
+.bcard.re .scegli{background:var(--accent);color:#231a04;font-weight:bold;border-color:#e0a83b}
 .slots{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
 .slot{
   display:flex;gap:9px;align-items:center;background:var(--panel2);border:1px dashed var(--line);
@@ -336,6 +395,8 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 .spec{background:var(--panel2);border-radius:8px;padding:9px;font-size:.72rem;line-height:1.45;color:var(--muted)}
 .spec b{color:var(--accent2);display:block;margin-bottom:2px;font-size:.78rem}
 .acts{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+/* «Continua» e' il passo avanti: su schermo largo si prende la sua riga. */
+#team-acts #btn-start{flex:1 0 100%}
 .acts button{flex:1;min-width:88px;padding:8px 6px;font-size:.78rem}
 .log{
   background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:11px;
@@ -636,6 +697,9 @@ footer.note a{color:var(--accent2)}
   /* Bersagli da dito. Erano alti 32-36px: sotto i 44 si sbaglia mira, e qui si
      sbagliava su ogni pulsante tranne quelli della barra delle azioni. */
   button:not(.cell){min-height:44px}
+  /* ...e i tondi restano tondi: 44 di altezza su 30 di larghezza li faceva
+     ovali. Il bersaglio da 44 px resta, cambia la larghezza. */
+  .tondo{width:44px;height:44px;min-height:44px;flex:0 0 44px}
   .badge{padding:7px 12px;font-size:.78rem}
   .acts button,.scelte button,.guida button,.kbtn{padding:10px 12px}
 
@@ -661,8 +725,65 @@ footer.note a{color:var(--accent2)}
   .card p.hint{font-size:.84rem}
   /* ...e i cinque slot vuoti non si prendono mezza schermata per dire \u00abvuoto\u00bb. */
   .slot{min-height:44px;padding:6px 8px;font-size:.8rem}
-  /* Il banner della modalita' andava a capo due volte per dire una riga. */
+  /* In colonna la griglia a due riquadri non sa restringersi: diventa una
+     colonna flessibile, dove a cedere spazio e' il roster, che scorre. */
+  #s-team .two{display:flex;flex-direction:column;gap:12px}
+  #s-team .two > .card:first-child{flex:1 1 auto;min-height:96px}
+  /* A squadra piena anche l'elenco delle pedine puo' non starci: scorre pure
+     lui, mentre i pulsanti restano dove sono. Su uno schermo piccolo lo spazio
+     si divide, non si sfonda. */
+  /* Niente `min-height:0` qui: il riquadro non deve stringersi sotto i suoi
+     pulsanti, altrimenti li spinge fuori dalla pagina. */
+  #s-team .two > .card:last-child{flex:0 0 auto;min-height:auto;display:flex;flex-direction:column}
+  /* Cinque righe in colonna si prendevano 288 px per dire cinque nomi. In
+     orizzontale ne bastano 86, e cinque pedine sono una striscia che si
+     scorre col pollice invece di una lista che sfonda la schermata. */
+  #s-team .slots{
+    flex:0 0 auto;flex-direction:row;overflow-x:auto;overflow-y:hidden;
+    gap:8px;margin-bottom:10px;padding-bottom:3px;scroll-snap-type:x proximity
+  }
+  #s-team .slot{
+    flex:0 0 auto;width:86px;min-height:0;flex-direction:column;gap:3px;
+    padding:6px 4px;text-align:center;scroll-snap-align:start
+  }
+  #s-team .slot .art{width:28px;height:28px;flex:0 0 28px}
+  /* Il nome sta su una riga sola: a 86 px una seconda riga raddoppierebbe
+     l'altezza della striscia per dire quello che si legge gia'. */
+  #s-team .slot .grow{
+    flex:0 0 auto;width:100%;font-size:.68rem;line-height:1.2;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+  }
+  #s-team .slot .sotto{display:none}        /* la famiglia si legge nella scheda */
+  #s-team .slot .grow br{display:none}
+  /* La crocetta sta nell'angolo invece di aggiungere 47 px a ogni pedina:
+     quei 47 px, moltiplicati per la striscia, sono una riga di roster in piu'. */
+  #s-team .slot{position:relative}
+  #s-team .slot .kbtn{
+    position:absolute;top:0;right:0;width:44px;height:44px;min-height:44px;
+    padding:0;border:0;background:none;color:var(--muted);border-radius:0 10px 0 10px
+  }
+  #s-team .slot .kbtn:hover,#s-team .slot .kbtn:focus-visible{color:var(--text);background:var(--panel)}
+  #s-team .slot .kt{display:none}
+  #s-team .slot .kbtn::after{content:"\00d7";font-size:1.15rem;line-height:1}
+  /* La targhetta di quelle che mancano non e' una pedina: si allarga. */
+  #s-team .slot.vuoto{width:auto;flex:1 1 130px;min-width:130px;justify-content:center;font-size:.72rem}
+  #s-team #squadra-hint{display:none}
+  /* Tre pulsanti in riga: a 360 px «Squadra rapida» non ci sta, «rapida» si'. */
+  #team-acts #btn-start{flex:1 1 auto}
+  #team-acts .solodesk{display:none}
+  #team-acts .solotel{display:inline}
+  #team-acts button{min-width:0}
+  #s-team .card{padding:12px}
+  #s-brief > .card{padding:12px}
+  /* Su uno schermo corto gli ultimi 37 pixel li prendevano due cornici che non
+     dicono niente: la guida e la riga dei crediti. Restano tutte e due, ma
+     strette, e la schermata torna a chiudersi dentro il viewport. */
+  .guida{padding:9px 11px;margin-bottom:11px;gap:9px}
+  footer.note{margin-top:11px;padding:9px 12px;line-height:1.5}
+  /* Il banner della modalita' andava a capo due volte per dire una riga: la
+     targhetta «Human vs PC» dice gia' tutto, la frase lunga sparisce. */
   .banner{padding:9px 12px;gap:8px;font-size:.82rem}
+  .banner .larga{display:none}
   /* «Entra in arena» stava in fondo a cinque schede: quasi due schermate di
      scorrimento per il pulsante che porta avanti. Adesso resta in basso. */
   #s-brief .acts{
@@ -876,14 +997,13 @@ footer.note a{color:var(--accent2)}
       <div class="roster" id="roster"></div>
     </div>
     <div class="card">
-      <div id="detail"></div>
-      <h2 style="margin-top:18px">La tua squadra <span id="team-count" class="badge">0/5</span></h2>
+      <h2>La tua squadra <span id="team-count" class="badge">0/5</span></h2>
+      <p class="hint" id="squadra-hint">Tocca un Insector del roster per vedere cosa sa fare e
+        aggiungerlo.</p>
       <div class="slots" id="slots"></div>
-      <div class="acts">
-        <button id="btn-auto">Squadra rapida</button>
+      <div class="acts" id="team-acts">
+        <button id="btn-auto"><span class="solodesk">Squadra rapida</span><span class="solotel">Rapida</span></button>
         <button id="btn-clear">Svuota</button>
-      </div>
-      <div class="acts">
         <button id="btn-start" class="primary" disabled>Continua</button>
       </div>
     </div>
@@ -895,9 +1015,8 @@ footer.note a{color:var(--accent2)}
   <p class="banner" id="brief-who" hidden></p>
   <div class="card">
     <h2 id="brief-title">La tua squadra</h2>
-    <p class="hint">Controlla le cinque pedine e scegli il <b>Re</b>. Se cade, la partita
-      finisce: conviene il più resistente. Il Re si muove di <b>una sola casella</b> per
-      turno, anche se la sua famiglia ne permetterebbe di più.</p>
+    <p class="hint">Scegli il <b>Re</b>: se cade, la partita finisce, quindi conviene il più
+      resistente. Si muove di <b>una sola casella</b> per turno, qualunque sia la sua famiglia.</p>
     <div class="brief" id="brief"></div>
     <div class="acts" style="margin-top:18px">
       <button id="btn-back">Cambia squadra</button>
@@ -951,6 +1070,17 @@ footer.note a{color:var(--accent2)}
 <footer class="note">
   Demo prodotta da <b>Experiences Srl</b>.
 </footer>
+
+<!-- ============ SCHEDA DI UN INSECTOR ============
+     Prima stava in colonna accanto al roster, e per leggerla bisognava
+     scorrere. Adesso e' un pop-up: si apre toccando la carta, porta con se' i
+     pulsanti per metterlo in squadra, e si chiude appena hai deciso. -->
+<div class="modal" id="uni-box" hidden>
+  <div class="modalbox scheda" role="dialog" aria-modal="true" aria-labelledby="uni-nome">
+    <button class="tondo chiudi" id="btn-uni-x" aria-label="Chiudi la scheda">&times;</button>
+    <div id="uni-corpo"></div>
+  </div>
+</div>
 
 <!-- ============ SALVATAGGIO: COPIA DI SICUREZZA E RIPRISTINO ============ -->
 <!-- ============ FEEDBACK: quello che mandi lo vedi prima ============ -->
@@ -3033,10 +3163,15 @@ function lockNote(u){
 function drawRoster(){
   const r = $("#roster"); r.innerHTML = "";
   const open = UNITS.filter(unlocked).length;
-  $("#roster-hint").innerHTML = "Disponibili <b>" + open + "</b> Insector su " + UNITS.length +
-    ". Scegline <b>5</b>. " + (S.champion
-      ? "Hai sbloccato tutto, Folgore compreso."
-      : "Vinci un rank del torneo per sbloccare la generazione successiva.");
+  /* Si mostrano **solo** gli Insector che puoi davvero schierare: una lista
+     piena di lucchetti e' soprattutto una lista di cose che non puoi fare.
+     Quanti ne restano da sbloccare lo dice questa riga, che basta. */
+  const chiusi = UNITS.length - open;
+  $("#roster-hint").innerHTML = "Disponibili <b>" + open + "</b>, scegline <b>5</b>: " +
+    "toccane uno per la scheda. " +
+    (chiusi
+      ? "Altri <b>" + chiusi + "</b> coi rank del torneo."
+      : "Li hai sbloccati tutti, Folgore compreso.");
   /* Gli esemplari allevati stanno in cima: sono tuoi, e valgono piu' del catalogo. */
   S.zoo.forEach(e => {
     const u = byId[e.id], st = statsOf("@" + e.u), rif = "@" + e.u;
@@ -3052,16 +3187,13 @@ function drawRoster(){
     b.onclick = () => pickLook(rif);
     r.appendChild(b);
   });
-  UNITS.slice().sort((a,b) => a.rank - b.rank || a.name.localeCompare(b.name)).forEach(u => {
-    const ok = unlocked(u);
+  UNITS.filter(unlocked).sort((a,b) => a.rank - b.rank || a.name.localeCompare(b.name)).forEach(u => {
     const b = document.createElement("button");
-    b.className = "mon" + (S.team.includes(u.id) ? " sel" : "") + (ok ? "" : " locked")
-      + (S.look === u.id ? " look" : "");
+    b.className = "mon" + (S.team.includes(u.id) ? " sel" : "") + (S.look === u.id ? " look" : "");
     b.innerHTML = art(u.fam, false, u.rank) +
-      '<span class="grow"><span class="nm">' + (ok ? "" : "\u{1F512} ") + u.name + '</span>' +
-      '<span class="st">' + (ok
-        ? "R" + u.rank + " \u00b7 " + u.hp + "hp \u00b7 " + u.str + "str \u00b7 " + u.def + "def"
-        : "rank " + u.rank + " \u00b7 bloccato") + '</span></span>';
+      '<span class="grow"><span class="nm">' + u.name + '</span>' +
+      '<span class="st">R' + u.rank + " \u00b7 " + u.hp + "hp \u00b7 " + u.str + "str \u00b7 " +
+        u.def + 'def</span></span>';
     b.dataset.id = u.id;
     b.onclick = () => pickLook(u.id);
     r.appendChild(b);
@@ -3084,42 +3216,50 @@ function dannoSpeciale(u){
 /* Sceglie quale Insector mostrare nella scheda. Ridisegnando il roster il pulsante
    cliccato viene ricreato, quindi gli si restituisce il focus: senza, chi naviga da
    tastiera perderebbe il punto in cui si trovava. */
-/* Sul telefono la scheda dell'Insector sta **sotto** la lista: toccare una
-   carta e non vedere niente cambiare e' il difetto che si nota per primo. La si
-   porta a vista, ma solo se non c'e' gia': scorrere quando non serve da'
-   altrettanto fastidio che non scorrere quando serve. */
-function mostraScheda(){
-  const d = $("#detail");
-  if (!d || !telefono()) return;
-  setTimeout(() => {
-    const r = d.getBoundingClientRect();
-    if (r.height && r.top >= 0 && r.top < innerHeight * 0.6) return;
-    d.scrollIntoView({ block:"start", behavior:"smooth" });
-  }, 0);
-}
-function pickLook(id){
-  const eraTastiera = document.activeElement && document.activeElement.closest("#roster");
-  S.look = id;
-  detail(id);
-  if (!eraTastiera) mostraScheda();               /* da tastiera il focus basta */
-  drawRoster();
-  if (eraTastiera){
-    const b = document.querySelector('#roster [data-id="' + id + '"]');
-    if (b) b.focus();
-  }
-}
+/* Il fuoco entra nel pop-up; chiudendolo torna da solo sulla carta da cui sei
+   partito, perche' `apriUnita` se l'e' segnata. */
+function pickLook(id){ apriUnita(id); }
 /* La scheda accetta un riferimento: una definizione del roster ("mantis") o un
    esemplare allevato ("@s3"). */
+/* La scheda non vive piu' in colonna: si apre quando la chiedi e si chiude
+   quando hai deciso. `detail()` resta il nome che tutto il resto del codice
+   chiama per dire \u00ab\u00e8 cambiato qualcosa\u00bb: aggiorna il pop-up se e' aperto, e
+   altrimenti si limita a ricordare su chi eri. */
 function detail(rif){
-  const el = $("#detail");
+  S.look = typeof rif === "string" ? rif : (rif && rif.id) || null;
+  if ($("#uni-box").hidden) return;
+  if (!S.look){ chiudiUnita(); return; }
+  scrivUnita(S.look);
+}
+let fuocoCarta = null;                            /* la carta da cui si e' aperta la scheda */
+function apriUnita(rif){
+  if (!rif) return;
+  fuocoPrima = document.activeElement;
+  fuocoCarta = rif;
+  S.look = rif;
+  scrivUnita(rif);
+  $("#uni-box").hidden = false;
+  const primo = $("#btn-metto") || $("#btn-tolgo") || $("#btn-uni-x");
+  if (primo) primo.focus();
+  drawRoster();
+}
+function chiudiUnita(){
+  if ($("#uni-box").hidden) return;                 /* gia' chiusa: niente da fare, e il fuoco resta dov'e' */
+  $("#uni-box").hidden = true;
+  /* Mettere in squadra ridisegna il roster, quindi il pulsante di partenza non
+     esiste piu': si ritrova la carta per id, e solo se manca si ripiega su
+     dov'eri. Senza, il fuoco finiva sul corpo della pagina. */
+  const carta = fuocoCarta && document.querySelector('#roster [data-id="' + fuocoCarta + '"]');
+  const dove = carta || fuocoPrima;
+  fuocoCarta = null;
+  if (dove && dove.focus && document.contains(dove)) dove.focus();
+}
+function scrivUnita(rif){
+  const el = $("#uni-corpo");
   const u = typeof rif === "string" ? defOf(rif) : rif;
   const e = typeof rif === "string" ? esemplare(rif) : null;
   const ref = typeof rif === "string" ? rif : (u && u.id);
-  if (!u){
-    el.innerHTML = '<div class="sheet"><div class="vuota"><b>Scegli il tuo primo Insector.</b><br>' +
-      'Tocca una scheda del roster: qui trovi cosa sa fare, poi confermi per metterlo in squadra.</div></div>';
-    return;
-  }
+  if (!u){ chiudiUnita(); return; }
   const f = FAMS[u.fam], ok = unlocked(u), dentro = S.team.includes(ref);
   const piena = S.team.length >= 5;
   const st = e ? statsOf(ref) : { hp:u.hp, str:u.str, def:u.def };
@@ -3132,9 +3272,9 @@ function detail(rif){
   el.innerHTML =
     '<div class="sheet">' +
       '<div class="row">' + art(u.fam, false, u.rank) +
-        '<div><h3>' + u.name +
+        '<div><h2 id="uni-nome">' + u.name +
         (e ? ' <span class="' + (e.sel ? 'tag-sel">catturato' : 'tag-all">allevato') + '</span>' : '') +
-        '</h3><div class="fam">' + u.fam + ' \u00b7 rank ' + u.rank +
+        '</h2><div class="fam">' + u.fam + ' \u00b7 rank ' + u.rank +
         (e ? ' \u00b7 ' + (adulto(e) ? 'adulto' : 'larva') + ', vita ' + vitaResidua(e) + '/' + VITA_MAX : '') +
         '</div></div></div>' +
       (ok || e ? '' : '<div class="locked">\u{1F512} ' + lockNote(u) + '</div>') +
@@ -3162,6 +3302,7 @@ function detail(rif){
               ? '<button id="btn-alleva"' + (puoiAllevare ? '' : ' disabled') + '>' +
                 (S.zoo.length >= MAX_GABBIE ? 'Gabbie piene' : 'Alleva un esemplare') + '</button>'
               : '<button id="btn-vaimondo">Catturane uno nel Mondo</button>')) +
+        '<button id="btn-uni-chiudi">Chiudi</button>' +
       '</div>' +
       (demo()
         ? '<p class="notarella">Questa \u00e8 la <b>demo</b>: c\u2019\u00e8 tutto il torneo, ' +
@@ -3175,21 +3316,30 @@ function detail(rif){
             'con una trappola e un\u2019esca.') + '</p>') +
     '</div>';
   const add = $("#btn-metto"), rem = $("#btn-tolgo");
-  if (add) add.onclick = () => toggle(ref);
-  if (rem) rem.onclick = () => toggle(ref);
+  /* Deciso quello, il pop-up ha finito il suo lavoro: si chiude da solo e
+     torni al roster, dove vedi la squadra che si riempie. */
+  if (add) add.onclick = () => { toggle(ref); chiudiUnita(); };
+  if (rem) rem.onclick = () => { toggle(ref); chiudiUnita(); };
+  $("#btn-uni-chiudi").onclick = chiudiUnita;
   const all = $("#btn-alleva");
   if (all) all.onclick = () => {
     if (S.zoo.length >= MAX_GABBIE) return;
     const nuovo = nuovoEsemplare(u.id);
     S.zoo.push(nuovo); S.gratis = (S.gratis|0) + 1; save();
     S.look = "@" + nuovo.u;
-    drawRoster(); drawSlots(); detail(S.look);
+    chiudiUnita();
+    drawRoster(); drawSlots();
     apriGabbie(nuovo.u);
   };
   const vai = $("#btn-vaigabbie");
-  if (vai) vai.onclick = () => apriGabbie(e.u);
+  if (vai) vai.onclick = () => { chiudiUnita(); apriGabbie(e.u); };
   const mon = $("#btn-vaimondo");
-  if (mon) mon.onclick = () => apriMondo();
+  if (mon) mon.onclick = () => { chiudiUnita(); apriMondo(); };
+}
+/* La forma lunga spiega, questa confronta: nella scheda compatta servono
+   numeri da mettere in fila, non una frase da leggere. */
+function moveBreve(mv){
+  return { step:"1 casella", fly:"volo 3", diag:"diagonale 3", charge:"1, o 2 dritto" }[mv];
 }
 function moveLabel(mv){
   return { step:"1 casella in tutte le direzioni (3\u00d73)",
@@ -3205,8 +3355,6 @@ function toggle(id){
   else if (S.team.length < 5){ S.team.push(id); }
   S.look = id;
   detail(id); drawRoster(); drawSlots(); save();
-  const b = document.querySelector("#btn-metto") || document.querySelector("#btn-tolgo");
-  if (b) b.focus();
 }
 function drawSlots(){
   guidaAggiorna();
@@ -3228,7 +3376,11 @@ function drawSlots(){
         '<span class="grow"><b>' + (isK ? '<span class="crown">\u265b </span>' : '') + u.name + '</b><br>' +
         '<span class="sotto">' + u.fam + '</span></span>';
       const k = document.createElement("button");
-      k.className = "kbtn"; k.textContent = "Togli";
+      /* Sul telefono la parola «Togli» sparisce e resta la crocetta
+         nell'angolo: il nome parlato lo porta aria-label, cosi' chi usa uno
+         screen reader sente «Togli Falcetta» e non «per», «chiudi» o niente. */
+      k.className = "kbtn"; k.innerHTML = '<span class="kt">Togli</span>';
+      k.setAttribute("aria-label", "Togli " + u.name + " dalla squadra");
       k.onclick = () => toggle(id);
       d.appendChild(k);
     }
@@ -3237,7 +3389,7 @@ function drawSlots(){
   const mancano = 5 - S.team.length;
   if (stretto && mancano > 0){
     const d = document.createElement("div");
-    d.className = "slot";
+    d.className = "slot vuoto";
     d.textContent = mancano === 5
       ? "Nessuna pedina scelta: toccane una qui sopra."
       : (mancano === 1 ? "Ne manca una." : "Ne mancano " + mancano + ".");
@@ -3255,10 +3407,14 @@ function drawBrief(){
   const el = $("#brief"); el.innerHTML = "";
   S.team.forEach(id => {
     const u = defOf(id), st = statsOf(id), e = esemplare(id), f = FAMS[u.fam], isK = S.kingId === id;
-    const b = document.createElement("button");
+    /* La scheda porta **solo numeri**: cinque descrizioni per esteso non
+       stanno in una schermata, e qui si confronta, non si legge. La prosa sta
+       nel pop-up, dietro al tondo in alto a destra. */
+    const b = document.createElement("div");
     b.className = "bcard" + (isK ? " re" : "");
-    b.setAttribute("aria-pressed", isK ? "true" : "false");
     b.innerHTML =
+      '<button class="tondo info" data-info="' + id + '" aria-label="Scheda di ' + esc(u.name) +
+        '">i</button>' +
       '<span class="top">' + art(u.fam, false, u.rank) +
         '<span><h4>' + (isK ? "\u265B " : "") + u.name +
         (e ? ' <span class="tag-all">allevato</span>' : '') + '</h4>' +
@@ -3266,13 +3422,18 @@ function drawBrief(){
       '<span class="num"><span><div>VITA<b>' + st.hp + '</b></div></span>' +
         '<span><div>FORZA<b>' + st.str + '</b></div></span>' +
         '<span><div>DIFESA<b>' + st.def + '</b></div></span></span>' +
-      '<span class="sp"><b>' + f.spn + '</b> \u2014 ' + f.spd + '<br>' +
-        'Attacco <b>' + Math.round(st.str * 2) + '</b> \u00b7 speciale <b>' + dannoSpeciale(u) + '</b><br>' +
-        'Movimento: ' + moveLabel(isK ? "step" : u.mv) + '</span>' +
-      '<span class="kbtn" style="text-align:center;padding:8px;border-radius:8px;' +
-        (isK ? 'background:var(--accent);color:#231a04;font-weight:bold' : 'background:var(--panel);color:var(--muted)') +
-        '">' + (isK ? "\u265B  \u00c8 il tuo Re" : "Nomina Re") + '</span>';
-    b.onclick = () => { S.kingId = id; drawBrief(); save(); };
+      '<span class="dati">' +
+        '<span>Attacco <b>' + Math.round(st.str * 2) + '</b></span>' +
+        '<span>' + f.spn + ' <b>' + dannoSpeciale(u) + '</b></span>' +
+        '<span>Movimento <b>' + moveBreve(isK ? "step" : u.mv) + '</b></span>' +
+      '</span>' +
+      '<button class="scegli" aria-pressed="' + (isK ? "true" : "false") + '">' +
+        (isK ? "\u265B  \u00c8 il tuo Re" : "Nomina Re") + '</button>';
+    const nomina = () => { S.kingId = id; drawBrief(); save(); };
+    b.querySelector(".scegli").onclick = nomina;
+    /* Si nomina toccando la scheda dovunque, tranne che sul tondo. */
+    b.onclick = ev => { if (!ev.target.closest(".info, .scegli")) nomina(); };
+    b.querySelector(".info").onclick = () => apriUnita(id);
     el.appendChild(b);
   });
   $("#btn-toarena").disabled = !S.kingId;
@@ -3444,7 +3605,7 @@ function drawWho(){
   if (team){
     team.hidden = false;
     team.className = "banner" + (duo ? " e" : "");
-    team.innerHTML = chi + '<span>' + (duo
+    team.innerHTML = chi + '<span' + (duo ? '' : ' class="larga"') + '>' + (duo
       ? '<b>' + esc(nameOf(side)) + '</b> sceglie la squadra. L\u2019altro giocatore non deve guardare.'
       : m.breve) + '</span>' +
       (duo ? '' : '<span class="spacer"></span><button class="kbtn" id="btn-chmode">Cambia</button>');
@@ -4812,6 +4973,13 @@ function show(id){
   /* Finche' la schermata e' nascosta misura zero, e il calcolo dello spazio non
      puo' funzionare: si riprova appena e' a video. */
   else setTimeout(avvicinaCampo, 0);
+  /* Cambiando schermata la scheda si chiude: un pop-up rimasto aperto sopra
+     un'altra pagina e' un modo sicuro di bloccare i clic di chi gioca. */
+  chiudiUnita();
+  /* Roster e riepilogo stanno in una schermata: niente da scorrere, e per
+     riuscirci la pagina prende un'altezza fissa. Le altre schermate no: il
+     campo, le gabbie e il mondo sono piu' alti di una finestra e va bene cosi'. */
+  document.body.classList.toggle("fisso", id === "s-team" || id === "s-brief");
   window.scrollTo(0,0);
   musicaScena(id === "s-battle" ? "campo" : "roster");
   guidaAggiorna();
@@ -5099,10 +5267,13 @@ addEventListener("pagehide", ecoAuto);
 $("#btn-msave").onclick = () => { menuApri(false); $("#btn-save").click(); };
 $("#btn-mreset").onclick = () => { menuApri(false); $("#btn-reset").click(); };
 $("#btn-savecls").onclick = chiudiSalvataggio;
+$("#btn-uni-x").onclick = chiudiUnita;
+$("#uni-box").onclick = ev => { if (ev.target === $("#uni-box")) chiudiUnita(); };
 $("#save-box").onclick = ev => { if (ev.target === $("#save-box")) chiudiSalvataggio(); };
 document.addEventListener("keydown", ev => {
   if (ev.key !== "Escape") return;
   if (!$("#eco-box").hidden) chiudiEco();
+  else if (!$("#uni-box").hidden) chiudiUnita();
   else if (!$("#save-box").hidden) chiudiSalvataggio();
   else if (menuAperto()){ menuApri(false); $("#btn-menu").focus(); }
 });
