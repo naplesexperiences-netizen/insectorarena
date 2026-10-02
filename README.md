@@ -315,9 +315,13 @@ orizzontale alta 65 px che si scorre col pollice, con la crocetta al posto del p
 «Togli». I pixel risparmiati sono andati al roster, che da una pedina visibile ne mostra
 tre e mezza.
 
+Vale anche per la **schermata d'apertura**, quella che chiede chi gioca: «Scegli la
+squadra» non si va più a cercare sotto alla sfida del giorno. Quando l'elenco delle
+modalità continua sotto, l'ultima riga sfuma, così si vede che non è finito lì.
+
 Sotto i 640 px di altezza — il telefono di traverso, gli schermi vecchi da 568 — la
 schermata non ci starebbe comunque: lì la pagina torna a scorrere invece di nascondere
-qualcosa.
+qualcosa, ma nella scelta della partita i pulsanti restano appoggiati al bordo basso.
 
 ## Sul telefono
 

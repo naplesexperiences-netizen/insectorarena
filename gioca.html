@@ -57,12 +57,43 @@ header.top h1 span{color:var(--accent)}
    fissa vale solo sulle due schermate che devono starci intere, e la mette
    `show()` quando le apre. */
 body.fisso .wrap{height:100dvh}
+/* Anche la scelta della partita sta in una schermata: a scorrere, se serve, e'
+   l'elenco delle modalita', mentre «Scegli la squadra» resta sempre a vista.
+   Prima bisognava scendere fin sotto alla sfida del giorno per trovarlo. */
+#s-mode.on{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+/* `0 1 auto` e non `1 1 auto`: il riquadro si stringe quando lo schermo e'
+   corto, ma su uno schermo alto resta della sua altezza invece di stirarsi e
+   lasciare mezza finestra di vuoto fra la sfida del giorno e il pulsante. */
+#s-mode > .card{flex:0 1 auto;min-height:0;display:flex;flex-direction:column}
+#mode-scroll{flex:0 1 auto;min-height:0;overflow:auto;padding-right:4px;position:relative}
+/* Quando sotto c'e' ancora roba, l'ultima riga sfuma: il taglio netto faceva
+   credere che l'elenco finisse li', e la sfida del giorno non la vedeva
+   nessuno. La sfumatura sparisce appena si arriva in fondo. */
+#s-mode .card{position:relative}
+#s-mode .card::after{
+  content:"";position:absolute;left:1px;right:1px;height:38px;pointer-events:none;
+  opacity:0;transition:opacity .18s;
+  background:linear-gradient(to bottom,rgba(27,35,50,0),var(--panel))
+}
+#s-mode .card.giu::after{opacity:1;top:calc(var(--giu) - 38px)}
+#s-mode .acts{flex:0 0 auto}
 /* La promessa «tutto in una schermata» vale dove una schermata c'e': sotto i
    640 px di altezza (telefono di traverso, schermi vecchi da 568) la testata,
    la striscia della squadra e i suoi pulsanti non ci stanno nemmeno vuoti, e
    fingere il contrario vorrebbe dire nascondere qualcosa. Li' la pagina
    scorre come prima, che e' peggio ma e' onesto. */
-@media(max-height:639px){ body.fisso .wrap{height:auto} }
+@media(max-height:639px){
+  body.fisso .wrap{height:auto}
+  /* Li' la pagina scorre, ma il passo avanti non si va comunque a cercare in
+     fondo: la riga dei pulsanti resta appoggiata al bordo basso. Vale per la
+     scelta della partita, il cui riquadro e' piu' alto della finestra; nella
+     squadra il riquadro e' corto e `sticky` non avrebbe spazio in cui stare. */
+  #s-mode .acts{
+    position:sticky;bottom:0;z-index:20;
+    margin:14px -12px -12px;padding:10px 12px;
+    background:var(--panel);border-top:1px solid var(--line)
+  }
+}
 #s-team.on,#s-brief.on{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
 #s-team .two{flex:1 1 auto;min-height:0;align-items:stretch}
 #s-team .two > .card{display:flex;flex-direction:column;min-height:0}
@@ -691,6 +722,16 @@ footer.note a{color:var(--accent2)}
   header.top{gap:8px;padding:10px 12px;margin-bottom:12px}
   header.top h1{font-size:1.04rem}
   #btn-save,#btn-reset{display:none}
+  /* La testata va a capo, e a seconda della larghezza il pulsante Menu finisce
+     a sinistra o a destra: il lato giusto lo decide `menuInQuadro()`, qui si
+     toglie solo la larghezza minima, che da sola bastava a sfondare. */
+  .menubox{max-width:calc(100vw - 24px)}
+  /* Tre modalita', la difficolta' e la sfida del giorno: su un telefono ci
+     stanno, ma solo se ognuna costa qualche pixel in meno. */
+  .modes{gap:9px;margin-bottom:12px}
+  .modecard{padding:11px 12px;gap:6px}
+  .modecard .who{font-size:.9rem}
+  .modecard .d{font-size:.74rem;line-height:1.4}
   .menubox .solotel{display:block}
   .menubox .sep.solotel{display:block;width:auto}
 
@@ -977,9 +1018,11 @@ footer.note a{color:var(--accent2)}
     <h2>Chi gioca questa partita?</h2>
     <p class="hint">Prima di comporre la squadra: decidi chi muove le pedine in basso e chi
       ha in mano l’altra metà del campo. Si cambia quando vuoi, dal roster.</p>
-    <div class="modes" id="modes" role="group" aria-label="Modalità di gioco"></div>
-    <div id="modeopts"></div>
-    <div id="sfidabox"></div>
+    <div class="scorre" id="mode-scroll">
+      <div class="modes" id="modes" role="group" aria-label="Modalità di gioco"></div>
+      <div id="modeopts"></div>
+      <div id="sfidabox"></div>
+    </div>
     <div class="acts" style="margin-top:16px">
       <button id="btn-modeback" hidden>Torna alla squadra</button>
       <button id="btn-modego" class="primary">Entra in arena</button>
@@ -3492,7 +3535,19 @@ const LIVELLI = [[0,"Automatica (segue il rank)"],[1,"Principiante"],[2,"Normale
    e in quel caso compare anche la via di ritorno. */
 function openModes(dalRoster){
   $("#btn-modeback").hidden = !dalRoster;
-  drawModes(); show("s-mode");
+  drawModes(); show("s-mode"); sfumaModi();
+}
+/* La sfumatura sta sopra la riga dei pulsanti, non in fondo al riquadro: e'
+   li' che il contenuto viene tagliato. */
+function sfumaModi(){
+  const sc = $("#mode-scroll"), card = $("#s-mode").querySelector(".card");
+  if (!sc || !card) return;
+  const giu = sc.scrollHeight - sc.scrollTop - sc.clientHeight > 2;
+  card.classList.toggle("giu", giu);
+  if (giu){
+    const c = card.getBoundingClientRect(), s = sc.getBoundingClientRect();
+    card.style.setProperty("--giu", Math.round(s.bottom - c.top) + "px");
+  }
 }
 function drawModes(){
   const box = $("#modes"); box.innerHTML = "";
@@ -4966,6 +5021,13 @@ function click(x, y){
 /* =========================================================================
    NAVIGAZIONE
    ========================================================================= */
+/* Le tre schermate che precedono la partita stanno in una finestra sola, e per
+   riuscirci la pagina prende un'altezza fissa. Le altre no: il campo, le gabbie
+   e il mondo sono piu' alti di una finestra e va bene cosi'. */
+function fissa(id){
+  document.body.classList.toggle("fisso",
+    id === "s-mode" || id === "s-team" || id === "s-brief");
+}
 function show(id){
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("on"));
   $("#" + id).classList.add("on");
@@ -4979,7 +5041,7 @@ function show(id){
   /* Roster e riepilogo stanno in una schermata: niente da scorrere, e per
      riuscirci la pagina prende un'altezza fissa. Le altre schermate no: il
      campo, le gabbie e il mondo sono piu' alti di una finestra e va bene cosi'. */
-  document.body.classList.toggle("fisso", id === "s-team" || id === "s-brief");
+  fissa(id);
   window.scrollTo(0,0);
   musicaScena(id === "s-battle" ? "campo" : "roster");
   guidaAggiorna();
@@ -5196,13 +5258,31 @@ $("#btn-zoo-back").onclick = () => {
 /* Il menu: si apre, si chiude con Esc o cliccando fuori, e restituisce il
    fuoco al pulsante che lo ha aperto. Scegliere una destinazione lo chiude;
    accendere o spegnere un suono no, cosi' si possono toccare tutti e due. */
+/* La testata va a capo secondo la larghezza, e il pulsante Menu finisce ora a
+   destra ora a sinistra: ancorato sempre allo stesso lato, il pannello usciva
+   dallo schermo. Qui si parte dalla posizione naturale (allineato a destra del
+   pulsante) e si riporta dentro la finestra se sborda, da una parte o
+   dall'altra. Misurato, non indovinato: dipende da quanto e' largo il
+   pannello, che dipende dalle voci che ci sono. */
+const MARGINE_MENU = 12;
+function menuInQuadro(){
+  const box = $("#menu-box"), cont = box.parentElement;
+  box.style.left = "auto"; box.style.right = "0";
+  const c = cont.getBoundingClientRect(), largo = box.getBoundingClientRect().width;
+  const massimo = Math.max(MARGINE_MENU, window.innerWidth - MARGINE_MENU - largo);
+  const x = Math.min(Math.max(MARGINE_MENU, c.right - largo), massimo);
+  box.style.left = Math.round(x - c.left) + "px";
+  box.style.right = "auto";
+}
 function menuApri(apri){
   const box = $("#menu-box"), b = $("#btn-menu");
   if (!box || !b) return;
   box.hidden = !apri;
   b.setAttribute("aria-expanded", apri ? "true" : "false");
-  if (apri) (box.querySelector("button:not([hidden])") || b).focus();
+  if (apri){ menuInQuadro(); (box.querySelector("button:not([hidden])") || b).focus(); }
 }
+addEventListener("resize", () => { if (menuAperto()) menuInQuadro(); sfumaModi(); });
+$("#mode-scroll").addEventListener("scroll", sfumaModi);
 const menuAperto = () => !$("#menu-box").hidden;
 $("#btn-menu").onclick = () => { const a = !menuAperto(); menuApri(a); suona("clic"); };
 document.addEventListener("click", ev => {
@@ -5356,6 +5436,8 @@ load();
 if (!S.mondo) S.mondo = mondoNuovo();
 guidaCarica();
 updBadges(); drawRoster(); drawSlots(); detail(null); drawModes();
+fissa("s-mode");                                  /* la prima schermata e' questa */
+sfumaModi();
 if (saveFuturo){
   /* Meglio una riga onesta che far credere di aver perso tutto: il salvataggio
      c'e' ancora, e' il gioco a essere piu' vecchio. */
