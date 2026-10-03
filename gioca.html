@@ -647,6 +647,42 @@ button.spento{opacity:.55;text-decoration:line-through}
 .guida b{color:var(--accent2)}
 .guida button{font-size:.72rem;padding:5px 10px}
 
+/* --- nuvolette di spiegazione, ancorate a quello che spiegano ---
+   Non sono una finestra: non coprono lo schermo, non bloccano i clic e stanno
+   attaccate al pezzo di interfaccia di cui parlano. Il faro e' l'anello che
+   circonda quel pezzo, cosi' non c'e' dubbio su che cosa si sta spiegando. */
+.faro{
+  position:fixed;z-index:60;pointer-events:none;border-radius:11px;
+  border:2px solid var(--accent2);box-shadow:0 0 0 4px rgba(75,195,255,.16);
+  transition:left .16s,top .16s,width .16s,height .16s
+}
+.nuvola{
+  position:fixed;z-index:61;width:min(304px,calc(100vw - 24px));
+  background:var(--panel2);border:1px solid var(--accent2);border-radius:12px;
+  box-shadow:0 16px 42px rgba(0,0,0,.55);padding:12px 13px 10px;
+  /* Una spiegazione non deve mai mangiarsi un clic: il corpo lascia passare,
+     intercettano solo i suoi tre comandi. Senza questo, un pulsante finito
+     sotto alla nuvoletta diventava morto finche' non la chiudevi. */
+  pointer-events:none
+}
+.nuvola .piedi button{pointer-events:auto}       /* solo i comandi, non il contatore */
+.nuvola .becco{
+  position:absolute;width:11px;height:11px;background:var(--panel2);
+  border:1px solid var(--accent2);transform:rotate(45deg)
+}
+.nuvola .tit{font-size:.68rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.6px;margin-bottom:5px}
+.nuvola p{font-size:.8rem;line-height:1.55;margin-bottom:11px}
+.nuvola p b{color:var(--accent2)}
+.nuvola .piedi{display:flex;align-items:center;gap:6px}
+.nuvola .n{flex:1;text-align:center;font-size:.68rem;color:var(--muted);
+  font-variant-numeric:tabular-nums}
+.nuvola .tondo{width:28px;height:28px;min-height:28px;flex:0 0 28px;font-size:.9rem}
+.nuvola .chiudi{position:static;font-size:1.05rem}
+/* Il punto interrogativo che riapre la spiegazione quando si vuole. */
+.conaiuto{display:flex;align-items:center;gap:10px}
+.conaiuto .aiuto{font-size:.85rem}
+
 /* --- invito e pannello del feedback --- */
 .invito{
   margin-top:14px;padding:11px 13px;border:1px dashed var(--line);border-radius:10px;
@@ -741,6 +777,7 @@ footer.note a{color:var(--accent2)}
   /* ...e i tondi restano tondi: 44 di altezza su 30 di larghezza li faceva
      ovali. Il bersaglio da 44 px resta, cambia la larghezza. */
   .tondo{width:44px;height:44px;min-height:44px;flex:0 0 44px}
+  .nuvola .tondo{width:44px;height:44px;min-height:44px;flex:0 0 44px}
   .badge{padding:7px 12px;font-size:.78rem}
   .acts button,.scelte button,.guida button,.kbtn{padding:10px 12px}
 
@@ -906,7 +943,9 @@ footer.note a{color:var(--accent2)}
 <!-- ============ GABBIE: CIBO E CRESCITA ============ -->
 <section id="s-zoo" class="screen">
   <div class="card">
-    <h2>Gabbie</h2>
+    <h2 class="conaiuto">Gabbie
+      <button class="tondo aiuto" id="btn-aiuto-zoo"
+        aria-label="Come funziona l&rsquo;allevamento">?</button></h2>
     <p class="hint">Qui crescono i tuoi esemplari. Ogni pasto migliora le statistiche e
       consuma punti vita: <b>il budget non si rigenera</b>, quindi ogni boccone è una
       scelta. A sei punti spesi la larva diventa adulta e può combattere.</p>
@@ -928,6 +967,23 @@ footer.note a{color:var(--accent2)}
     </div>
   </div>
 </section>
+
+<!-- ============ NUVOLETTA DI SPIEGAZIONE ============
+     Una sola, riusata per ogni passo di ogni giro: il contenuto cambia, il
+     nodo no. Sta fuori dalle schermate perche' e' posizionata sulla finestra. -->
+<div class="faro" id="faro" hidden></div>
+<div class="nuvola" id="nuvola" role="dialog" aria-labelledby="nuvola-tit"
+     aria-describedby="nuvola-testo" hidden>
+  <span class="becco" id="nuvola-becco"></span>
+  <div class="tit" id="nuvola-tit">Come funziona</div>
+  <p id="nuvola-testo">&nbsp;</p>
+  <div class="piedi">
+    <button class="tondo" id="btn-nuv-prec" aria-label="Suggerimento precedente">&lsaquo;</button>
+    <span class="n" id="nuvola-n" aria-live="polite">1 di 5</span>
+    <button class="tondo" id="btn-nuv-succ" aria-label="Suggerimento successivo">&rsaquo;</button>
+    <button class="tondo chiudi" id="btn-nuv-chiudi" aria-label="Chiudi i suggerimenti">&times;</button>
+  </div>
+</div>
 
 <div class="guida" id="guida" hidden>
   <span class="passo" id="guida-n">1 di 4</span>
@@ -979,7 +1035,9 @@ footer.note a{color:var(--accent2)}
 <!-- ============ MONDO: CATTURA CON TRAPPOLE ED ESCHE ============ -->
 <section id="s-mondo" class="screen">
   <div class="card">
-    <h2>Mondo</h2>
+    <h2 class="conaiuto">Mondo
+      <button class="tondo aiuto" id="btn-aiuto-mondo"
+        aria-label="Come funziona la cattura">?</button></h2>
     <p class="hint">Gli Insector non si creano soltanto: si <b>catturano</b>. Scegli dove
       piazzare la trappola e con quale esca — l&rsquo;esca esce dalla dispensa, quindi è cibo
       che non darai a nessuno. La trappola resta posata per <b id="mondo-attesa">2</b> partite
@@ -2490,6 +2548,199 @@ function guidaAggiorna(){
   $("#guida-testo").innerHTML = passo.testo;
   g.hidden = false;
 }
+
+/* =========================================================================
+   SPIEGAZIONI IN CONTESTO — le nuvolette
+   Gabbie e Mondo sono le due schermate che hanno regole vere da capire: un
+   budget di vita che non si rigenera, un'esca che e' cibo tolto a qualcun
+   altro, una trappola che costa partite. Finora quelle regole stavano scritte
+   in cima alla schermata, dove si leggono una volta e non si rileggono piu'.
+   Qui invece ogni regola sta attaccata al pezzo di interfaccia che la applica:
+   si apre da sola la prima volta, si scorre avanti e indietro, si chiude, e si
+   riapre dal punto interrogativo accanto al titolo.
+   ========================================================================= */
+const SPIEGA_CHIAVE = "insectron-spiega";
+let spiegaFatte = {};
+let giroAperto = null, passoIdx = 0, spiegaPrima = null;
+
+/* Ogni passo elenca piu' ancore: si usa la prima che esiste ed e' a video.
+   Un passo senza ancore vive viene saltato, perche' una nuvoletta che indica
+   il vuoto e' peggio di nessuna nuvoletta. */
+const GIRI = {
+  zoo: {
+    titolo: "Allevamento",
+    passi: [
+      { ancore:["#gabbie .gab", "#gabbie"], dove:"destra",
+        testo:"Ogni esemplare nasce <b>larva</b> e non può combattere. Qui stanno tutti, " +
+              "fino a dodici: toccane uno per scegliere chi nutrire." },
+      { ancore:["#dispensa"], dove:"sinistra",
+        testo:"Il cibo si vince <b>conquistando i rank</b> del torneo: quattro cibi per rank, " +
+              "più un Frutto regale dal Rank B. Non si compra e non ricresce." },
+      { ancore:["#dispensa .cibo", "#dispensa"], dove:"sinistra",
+        testo:"Ogni boccone alza le statistiche e <b>consuma punti vita</b>. I punti vita sono " +
+              "un budget che non torna: a sei spesi la larva diventa adulta, e da lì in poi " +
+              "ogni pasto è tolto a quelli dopo." },
+      { ancore:["#anteprima", "#dispensa"], dove:"sinistra",
+        testo:"Qui vedi dove stai andando: statistiche, punti che restano e resistenze " +
+              "accumulate. Conviene guardarlo <b>prima</b> di dare il boccone, non dopo." },
+      { ancore:["#btn-vai-cop"], dove:"sopra",
+        testo:"Due adulti, un maschio e una femmina, fanno un figlio che eredita da tutti e " +
+              "due — e i genitori ci lasciano vita. È questo a rendere l’allevamento " +
+              "<b>un ciclo</b> invece di un accumulo." }
+    ]
+  },
+  mondo: {
+    titolo: "Cattura",
+    passi: [
+      { ancore:["#luoghi .luogo", "#luoghi"], dove:"destra",
+        testo:"Ogni luogo ha i suoi abitanti: le famiglie scritte sotto al nome sono quelle " +
+              "che ci vivono. <b>Scegliere il posto è già metà della cattura.</b>" },
+      { ancore:["#sc-trap", "#spedizione"], dove:"sinistra",
+        testo:"La trappola decide <b>fino a che rango</b> puoi prendere. Quelle buone sono " +
+              "poche: si vincono, non si comprano." },
+      { ancore:["#sc-esca", "#spedizione"], dove:"sinistra",
+        testo:"L’esca esce dalla dispensa: è <b>cibo che non darai a nessuno</b> in gabbia. " +
+              "Il segno ✓ dice che è l’esca giusta per questo posto." },
+      { ancore:["#spedizione .prob", "#spedizione"], dove:"sinistra",
+        testo:"La probabilità è <b>dichiarata prima</b>, insieme a chi può farsi prendere. " +
+              "L’esca si consuma comunque; la trappola torna indietro se non prende nulla." },
+      { ancore:["#btn-posa", "#spedizione"], dove:"sopra",
+        testo:"Posata la trappola non resta lì ad aspettare te: devi <b>giocare partite di " +
+              "torneo</b>. La cattura costa tempo, non solo roba." },
+      { ancore:["#poste .posta", "#poste"], dove:"destra",
+        testo:"Qui ci sono le trappole in giro, al massimo tre, con quanto manca a ciascuna. " +
+              "Quando è pronta, <b>toccala per raccoglierla</b>." }
+    ]
+  }
+};
+
+function spiegaCarica(){
+  try { spiegaFatte = JSON.parse(localStorage.getItem(SPIEGA_CHIAVE) || "{}") || {}; }
+  catch(e){ spiegaFatte = {}; }
+}
+function spiegaSalva(){
+  try { localStorage.setItem(SPIEGA_CHIAVE, JSON.stringify(spiegaFatte)); } catch(e){}
+}
+/* «A video» vuole dire che occupa spazio: un riquadro svuotato esiste ancora
+   nel DOM, ha un rettangolo alto zero, e indicarlo vorrebbe dire puntare il
+   nulla fra due sezioni. */
+const visto = el => {
+  if (!el || el.hidden || !el.getClientRects().length) return false;
+  const r = el.getBoundingClientRect();
+  return r.width >= 8 && r.height >= 8;
+};
+function bersaglio(passo){
+  for (const sel of passo.ancore){ const e = $(sel); if (visto(e)) return e; }
+  return null;
+}
+function passiVivi(chiave){
+  return GIRI[chiave].passi.filter(bersaglio);
+}
+/* `forzato` distingue il punto interrogativo dall'apertura automatica: a mano
+   si riapre sempre, da solo soltanto la prima volta. */
+function apriSpiega(chiave, forzato){
+  const giro = GIRI[chiave];
+  if (!giro || demo()) return false;
+  if (!forzato && spiegaFatte[chiave]) return false;
+  const vivi = passiVivi(chiave);
+  if (!vivi.length) return false;
+  if (!giroAperto) spiegaPrima = document.activeElement;
+  giroAperto = chiave; passoIdx = 0;
+  disegnaNuvola();
+  const primo = $("#btn-nuv-succ") || $("#btn-nuv-chiudi");
+  if (primo) primo.focus();
+  return true;
+}
+function chiudiSpiega(){
+  if (!giroAperto) return;
+  spiegaFatte[giroAperto] = true; spiegaSalva();
+  giroAperto = null;
+  $("#nuvola").hidden = true; $("#faro").hidden = true;
+  const dove = spiegaPrima;
+  spiegaPrima = null;
+  if (dove && dove.focus && document.contains(dove)) dove.focus();
+}
+function vaiSpiega(d){
+  if (!giroAperto) return;
+  const n = passiVivi(giroAperto).length;
+  const i = passoIdx + d;
+  if (i < 0 || i >= n) return;
+  passoIdx = i; disegnaNuvola();
+}
+function disegnaNuvola(){
+  if (!giroAperto) return;
+  const vivi = passiVivi(giroAperto);
+  if (!vivi.length){ chiudiSpiega(); return; }
+  passoIdx = Math.min(passoIdx, vivi.length - 1);
+  const passo = vivi[passoIdx];
+  $("#nuvola-tit").textContent = GIRI[giroAperto].titolo;
+  $("#nuvola-testo").innerHTML = passo.testo;
+  $("#nuvola-n").textContent = (passoIdx + 1) + " di " + vivi.length;
+  $("#btn-nuv-prec").disabled = passoIdx === 0;
+  $("#btn-nuv-succ").disabled = passoIdx === vivi.length - 1;
+  piazzaNuvola(passo);
+}
+/* Il lato preferito vale se ci sta; se non ci sta si prende quello con piu'
+   spazio, e in ogni caso la nuvoletta resta dentro la finestra. Il becco punta
+   al centro del bersaglio, cosi' si capisce di che cosa si sta parlando anche
+   quando la nuvoletta e' stata spostata per non uscire dallo schermo. */
+function piazzaNuvola(passo){
+  const el = bersaglio(passo);
+  if (!el){ chiudiSpiega(); return; }
+  if (el.scrollIntoView) el.scrollIntoView({ block:"nearest", inline:"nearest" });
+  const n = $("#nuvola"), fa = $("#faro"), becco = $("#nuvola-becco");
+  n.hidden = false; fa.hidden = false;
+  const r = el.getBoundingClientRect(), M = 10, B = 7;
+  fa.style.left = (r.left - 4) + "px";  fa.style.top = (r.top - 4) + "px";
+  fa.style.width = (r.width + 8) + "px"; fa.style.height = (r.height + 8) + "px";
+  const w = n.offsetWidth, h = n.offsetHeight;
+  const spazio = { sotto: innerHeight - r.bottom, sopra: r.top,
+                   destra: innerWidth - r.right, sinistra: r.left };
+  const serve = l => (l === "sotto" || l === "sopra") ? h + M : w + M;
+  let lato = passo.dove || "sotto";
+  if (spazio[lato] < serve(lato))
+    lato = Object.keys(spazio).sort((a, b) => (spazio[b] - serve(b)) - (spazio[a] - serve(a)))[0];
+  let x, y;
+  if (lato === "sotto"){ x = r.left + r.width/2 - w/2; y = r.bottom + M; }
+  else if (lato === "sopra"){ x = r.left + r.width/2 - w/2; y = r.top - h - M; }
+  else if (lato === "destra"){ x = r.right + M; y = r.top + r.height/2 - h/2; }
+  else { x = r.left - w - M; y = r.top + r.height/2 - h/2; }
+  x = Math.min(Math.max(M, x), Math.max(M, innerWidth - w - M));
+  y = Math.min(Math.max(M, y), Math.max(M, innerHeight - h - M));
+  n.style.left = Math.round(x) + "px"; n.style.top = Math.round(y) + "px";
+  const cx = Math.min(Math.max(r.left + r.width/2 - x, 14), w - 14);
+  const cy = Math.min(Math.max(r.top + r.height/2 - y, 14), h - 14);
+  becco.style.cssText = "position:absolute;width:11px;height:11px;" +
+    "background:var(--panel2);border:1px solid var(--accent2);transform:rotate(45deg);";
+  if (lato === "sotto"){ becco.style.left = (cx - 5) + "px"; becco.style.top = -B + "px";
+    becco.style.borderRight = "0"; becco.style.borderBottom = "0"; }
+  else if (lato === "sopra"){ becco.style.left = (cx - 5) + "px"; becco.style.top = (h - B + 1) + "px";
+    becco.style.borderLeft = "0"; becco.style.borderTop = "0"; }
+  else if (lato === "destra"){ becco.style.top = (cy - 5) + "px"; becco.style.left = -B + "px";
+    becco.style.borderRight = "0"; becco.style.borderTop = "0"; }
+  else { becco.style.top = (cy - 5) + "px"; becco.style.left = (w - B + 1) + "px";
+    becco.style.borderLeft = "0"; becco.style.borderBottom = "0"; }
+}
+/* Gabbie e Mondo si ridisegnano a ogni clic: se la nuvoletta e' aperta va
+   riportata dove sta adesso il suo bersaglio, altrimenti indica il vuoto. */
+let riposizionaChiesto = false;
+function spiegaRiposiziona(){
+  if (!giroAperto || riposizionaChiesto) return;
+  riposizionaChiesto = true;
+  requestAnimationFrame(() => { riposizionaChiesto = false; if (giroAperto) disegnaNuvola(); });
+}
+addEventListener("resize", spiegaRiposiziona);
+addEventListener("scroll", spiegaRiposiziona, true);
+$("#btn-nuv-prec").onclick   = () => { vaiSpiega(-1); suona("clic"); };
+$("#btn-nuv-succ").onclick   = () => { vaiSpiega(1);  suona("clic"); };
+$("#btn-nuv-chiudi").onclick = () => { chiudiSpiega(); suona("clic"); };
+$("#btn-aiuto-zoo").onclick   = () => { apriSpiega("zoo", true); suona("clic"); };
+$("#btn-aiuto-mondo").onclick = () => { apriSpiega("mondo", true); suona("clic"); };
+$("#nuvola").onkeydown = ev => {
+  if (ev.key === "ArrowRight"){ ev.preventDefault(); vaiSpiega(1); }
+  else if (ev.key === "ArrowLeft"){ ev.preventDefault(); vaiSpiega(-1); }
+};
+
 /* Chi torna con una partita in corso non e' un principiante: niente guida. */
 function guidaCarica(){
   let fatta = false;
@@ -2691,6 +2942,9 @@ function apriGabbie(u){
   if (demo()) return;                             /* nella demo non esistono: nemmeno forzando */
   S.nutri = u || (S.zoo[0] && S.zoo[0].u) || null;
   drawGabbie(); show("s-zoo");
+  /* Dopo `show`, che chiude quella eventualmente aperta altrove, e dopo un
+     frame, perche' le ancore vanno misurate quando sono davvero a video. */
+  requestAnimationFrame(() => apriSpiega("zoo", false));
 }
 function effettiCibo(c){
   const p = [];
@@ -2727,6 +2981,7 @@ function drawGabbie(){
     box.appendChild(b);
   });
   drawDispensa();
+  spiegaRiposiziona();
 }
 function drawDispensa(){
   const box = $("#dispensa"); box.innerHTML = "";
@@ -3012,11 +3267,13 @@ function apriMondo(){
   if (!S.mondo) S.mondo = mondoNuovo();
   if (!S.luogo) S.luogo = HABITAT[0].id;
   drawMondo(); show("s-mondo");
+  requestAnimationFrame(() => apriSpiega("mondo", false));
 }
 function drawMondo(){
   $("#mondo-seme").textContent = S.mondo.seme;
   $("#mondo-attesa").textContent = ATTESA;
   drawLuoghi(); drawPoste(); drawSpedizione();
+  spiegaRiposiziona();
 }
 function drawLuoghi(){
   const box = $("#luoghi"); box.innerHTML = "";
@@ -3119,6 +3376,7 @@ function drawSpedizione(){
   });
   const posa = $("#btn-posa");
   if (posa) posa.onclick = piazzaTrappola;
+  spiegaRiposiziona();
 }
 function piazzaTrappola(){
   const l = luogoDi(S.luogo);
@@ -5036,8 +5294,10 @@ function show(id){
      puo' funzionare: si riprova appena e' a video. */
   else setTimeout(avvicinaCampo, 0);
   /* Cambiando schermata la scheda si chiude: un pop-up rimasto aperto sopra
-     un'altra pagina e' un modo sicuro di bloccare i clic di chi gioca. */
+     un'altra pagina e' un modo sicuro di bloccare i clic di chi gioca. Vale
+     anche per la nuvoletta, che indicherebbe un bersaglio non piu' a video. */
   chiudiUnita();
+  chiudiSpiega();
   /* Roster e riepilogo stanno in una schermata: niente da scorrere, e per
      riuscirci la pagina prende un'altezza fissa. Le altre schermate no: il
      campo, le gabbie e il mondo sono piu' alti di una finestra e va bene cosi'. */
@@ -5356,6 +5616,7 @@ document.addEventListener("keydown", ev => {
   else if (!$("#uni-box").hidden) chiudiUnita();
   else if (!$("#save-box").hidden) chiudiSalvataggio();
   else if (menuAperto()){ menuApri(false); $("#btn-menu").focus(); }
+  else if (giroAperto) chiudiSpiega();
 });
 $("#btn-copy").onclick = async () => {
   const area = $("#save-code");
@@ -5435,6 +5696,7 @@ load();
    salvataggio di schema 2) se ne semina uno adesso, con la prima trappola. */
 if (!S.mondo) S.mondo = mondoNuovo();
 guidaCarica();
+spiegaCarica();
 updBadges(); drawRoster(); drawSlots(); detail(null); drawModes();
 fissa("s-mode");                                  /* la prima schermata e' questa */
 sfumaModi();

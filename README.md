@@ -356,6 +356,23 @@ scomodo:
 - «Entra in arena» stava in fondo a cinque schede e quasi due schermate di scorrimento:
   adesso resta in basso mentre leggi.
 
+## Le spiegazioni che compaiono dove servono
+
+Gabbie e Mondo hanno le regole più difficili del gioco: i punti vita sono un budget che
+non si rigenera, l'esca è cibo che togli a qualcun altro, una trappola costa partite di
+torneo. Prima quelle regole stavano scritte in cima alla schermata — dove si leggono una
+volta e non si rileggono più.
+
+Adesso stanno **attaccate alla cosa di cui parlano**: una nuvoletta piccola, con un
+anello azzurro intorno al pezzo che sta spiegando e il becco che lo indica. Dentro ci
+sono i comandi per andare avanti e indietro fra i suggerimenti, il numero del passo e la
+× per chiudere. Cinque passi per l'allevamento, sei per la cattura.
+
+Si apre da sola la prima volta che entri, e una volta chiusa non torna più. Se la vuoi
+rivedere c'è il **punto interrogativo** tondo accanto al titolo. Non copre niente di
+cliccabile: un pulsante che le finisce sotto resta premibile lo stesso. Da tastiera si
+scorre con le frecce e si chiude con Esc.
+
 ## Il menu
 
 In testata restano tre pulsanti: **Menu**, **Salvataggio** e **Azzera torneo**. Dentro al
