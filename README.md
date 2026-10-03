@@ -356,6 +356,29 @@ scomodo:
 - «Entra in arena» stava in fondo a cinque schede e quasi due schermate di scorrimento:
   adesso resta in basso mentre leggi.
 
+## Un gesto solo, in tutto il gioco
+
+**Tocco breve: scegli. Tocco lungo: ti dico tutto quello che so.**
+
+Nel **roster** una toccata mette l'Insector in squadra — toccalo di nuovo e torna indietro
+— mentre tenendo premuto si apre la sua scheda: vita, forza, difesa, movimento e mossa
+speciale. In **battaglia** una toccata sceglie la pedina da muovere, e tenendo premuto si
+vedono le sue mosse e le sue caratteristiche, anche di una pedina avversaria.
+
+Funziona uguale col dito e col mouse. Col mouse va bene anche il **tasto destro**, e da
+tastiera il tasto Menu: senza di quelli, chi non può tenere premuto resterebbe fuori.
+
+## Il campo risponde da solo
+
+Scelta una pedina, le caselle si accendono subito: **blu** dove può andare, **rosso** chi
+può colpire. Toccane una e l'azione parte — non serve più premere «Muovi» o «Attacca»
+prima di vedere dove si può andare. I due pulsanti restano per la mossa speciale, per
+passare il turno e per chi gioca da tastiera.
+
+La **mossa speciale** non si può usare a ogni turno. Quando è in ricarica, sotto alla
+pedina compare il numero dei turni che mancano: a colpo d'occhio si vede quale dei cinque
+ce l'ha pronta, senza doverle selezionare una per una.
+
 ## Le spiegazioni che compaiono dove servono
 
 Gabbie e Mondo hanno le regole più difficili del gioco: i punti vita sono un budget che

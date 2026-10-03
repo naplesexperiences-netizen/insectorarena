@@ -280,6 +280,19 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 @keyframes blip{0%,100%{transform:scale(1);opacity:.55}50%{transform:scale(1.5);opacity:.95}}
 .cell.tg{background:#5c1f22;border-color:var(--foe);cursor:pointer;box-shadow:0 0 0 1px var(--foe) inset}
 .cell.cur{box-shadow:0 0 0 2px var(--accent) inset}
+/* Tenere premuto non deve far comparire la lente, il menu di sistema o la
+   selezione del testo: il gesto e' nostro. */
+.mon,.cell,.tok{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+/* La ricarica della speciale, scritta sulla pedina: a colpo d'occhio si vede
+   quale dei cinque ce l'ha pronta, senza selezionarle una a una. */
+.tok .cdn{
+  position:absolute;left:50%;bottom:-3px;transform:translateX(-50%);
+  min-width:15px;height:15px;padding:0 3px;border-radius:999px;
+  background:var(--panel);border:1px solid var(--warn);color:var(--warn);
+  font-size:.56rem;line-height:13px;text-align:center;font-variant-numeric:tabular-nums;
+  pointer-events:none
+}
+.tok .cdn:empty{display:none}
 
 /* due strati sopra la griglia, entrambi trasparenti ai click:
    fxlayer è ritagliato sul bordo (onde e proiettili non devono uscire dal campo),
@@ -1093,7 +1106,9 @@ footer.note a{color:var(--accent2)}
   <p class="banner" id="team-who" hidden></p>
   <div class="two">
     <div class="card">
-      <h2>Roster Insector</h2>
+      <h2 class="conaiuto">Roster Insector
+        <button class="tondo aiuto" id="btn-aiuto-squadra"
+          aria-label="Come si sceglie la squadra">?</button></h2>
       <p class="hint" id="roster-hint">&nbsp;</p>
       <div class="roster" id="roster"></div>
     </div>
@@ -1141,6 +1156,8 @@ footer.note a{color:var(--accent2)}
         <span class="pill p" id="turnpill">Il tuo turno</span>
         <span class="badge" id="b-opp">Avversario: <b>—</b></span>
         <div class="spacer"></div>
+        <button class="tondo aiuto" id="btn-aiuto-campo"
+          aria-label="Come si gioca il turno">?</button>
         <button id="btn-quit" hidden>Torna al roster</button>
         <button id="btn-end" class="primary">Fine turno</button>
       </div>
@@ -2567,6 +2584,40 @@ let giroAperto = null, passoIdx = 0, spiegaPrima = null;
    Un passo senza ancore vive viene saltato, perche' una nuvoletta che indica
    il vuoto e' peggio di nessuna nuvoletta. */
 const GIRI = {
+  squadra: {
+    titolo: "Il roster",
+    passi: [
+      { ancore:["#roster .mon", "#roster"], dove:"destra",
+        testo:"<b>Tocca</b> un Insector e va in squadra; toccalo di nuovo e torna indietro. " +
+              "Te ne servono cinque." },
+      { ancore:["#roster .mon", "#roster"], dove:"destra",
+        testo:"<b>Tieni premuto</b> sulla stessa scheda, invece, e si apre tutto quello che " +
+              "sa fare: vita, forza, difesa, movimento e mossa speciale. Col mouse funziona " +
+              "anche il tasto destro." },
+      { ancore:["#slots .slot", "#slots"], dove:"sopra",
+        testo:"Qui sotto c’è la squadra che stai mettendo insieme. La crocetta su una " +
+              "pedina la rimanda nel roster." }
+    ]
+  },
+  campo: {
+    titolo: "In battaglia",
+    passi: [
+      { ancore:["#board .cell.cur", "#boardwrap"], dove:"destra",
+        testo:"<b>Tocca</b> una tua pedina per sceglierla. <b>Tieni premuto</b> su una " +
+              "qualsiasi — anche avversaria — per vedere le sue mosse e le sue " +
+              "caratteristiche." },
+      { ancore:["#board .cell.mv", "#board"], dove:"destra",
+        testo:"Scelta la pedina, il campo risponde da solo: in <b>blu</b> dove può andare, " +
+              "in <b>rosso</b> chi può colpire. Tocca una casella illuminata e l’azione parte." },
+      { ancore:["#acts button:nth-child(3)", "#acts", "#ucard"], dove:"sopra",
+        testo:"La mossa speciale non si può usare a ogni turno. Quando è in ricarica il " +
+              "pulsante dice <b>fra quanti turni</b> torna, e lo stesso numero compare sulla " +
+              "pedina in campo." },
+      { ancore:["#btn-end", "#turnbar"], dove:"sinistra",
+        testo:"Ogni pedina si muove <b>una volta</b> e poi attacca o usa la speciale. Quando " +
+              "hai finito, chiudi il turno da qui." }
+    ]
+  },
   zoo: {
     titolo: "Allevamento",
     passi: [
@@ -2640,7 +2691,10 @@ function passiVivi(chiave){
    si riapre sempre, da solo soltanto la prima volta. */
 function apriSpiega(chiave, forzato){
   const giro = GIRI[chiave];
-  if (!giro || demo()) return false;
+  if (!giro) return false;
+  /* Nella demo gabbie e mondo non esistono, quindi non si spiegano. Roster e
+     campo invece ci sono, e il gesto va spiegato li' come altrove. */
+  if (demo() && (chiave === "zoo" || chiave === "mondo")) return false;
   if (!forzato && spiegaFatte[chiave]) return false;
   const vivi = passiVivi(chiave);
   if (!vivi.length) return false;
@@ -2736,6 +2790,8 @@ $("#btn-nuv-succ").onclick   = () => { vaiSpiega(1);  suona("clic"); };
 $("#btn-nuv-chiudi").onclick = () => { chiudiSpiega(); suona("clic"); };
 $("#btn-aiuto-zoo").onclick   = () => { apriSpiega("zoo", true); suona("clic"); };
 $("#btn-aiuto-mondo").onclick = () => { apriSpiega("mondo", true); suona("clic"); };
+$("#btn-aiuto-squadra").onclick = () => { apriSpiega("squadra", true); suona("clic"); };
+$("#btn-aiuto-campo").onclick   = () => { apriSpiega("campo", true); suona("clic"); };
 $("#nuvola").onkeydown = ev => {
   if (ev.key === "ArrowRight"){ ev.preventDefault(); vaiSpiega(1); }
   else if (ev.key === "ArrowLeft"){ ev.preventDefault(); vaiSpiega(-1); }
@@ -3462,14 +3518,20 @@ function lockNote(u){
   return "Si sblocca avanzando nel torneo.";
 }
 function drawRoster(){
-  const r = $("#roster"); r.innerHTML = "";
+  const r = $("#roster");
+  /* Il roster si ridisegna tutto a ogni scelta, e con lui sparisce la scheda
+     che aveva il fuoco: da tastiera il secondo Invio finiva nel vuoto. Si
+     ricorda dov'era e ce lo si rimette. */
+  const dentro = document.activeElement && document.activeElement.closest("#roster .mon");
+  const fuocoEra = dentro ? dentro.dataset.id : null;
+  r.innerHTML = "";
   const open = UNITS.filter(unlocked).length;
   /* Si mostrano **solo** gli Insector che puoi davvero schierare: una lista
      piena di lucchetti e' soprattutto una lista di cose che non puoi fare.
      Quanti ne restano da sbloccare lo dice questa riga, che basta. */
   const chiusi = UNITS.length - open;
   $("#roster-hint").innerHTML = "Disponibili <b>" + open + "</b>, scegline <b>5</b>: " +
-    "toccane uno per la scheda. " +
+    "toccane uno per metterlo in squadra, tieni premuto per la scheda. " +
     (chiusi
       ? "Altri <b>" + chiusi + "</b> coi rank del torneo."
       : "Li hai sbloccati tutti, Folgore compreso.");
@@ -3485,7 +3547,7 @@ function drawRoster(){
         ? st.hp + "hp \u00b7 " + st.str + "str \u00b7 " + st.def + "def"
         : "larva \u00b7 ancora " + (VITA_ADULTO - e.speso) + " punti") + '</span></span>';
     b.dataset.id = rif;
-    b.onclick = () => pickLook(rif);
+    pressione(b, () => tocconRoster(rif), () => apriUnita(rif));
     r.appendChild(b);
   });
   UNITS.filter(unlocked).sort((a,b) => a.rank - b.rank || a.name.localeCompare(b.name)).forEach(u => {
@@ -3496,9 +3558,13 @@ function drawRoster(){
       '<span class="st">R' + u.rank + " \u00b7 " + u.hp + "hp \u00b7 " + u.str + "str \u00b7 " +
         u.def + 'def</span></span>';
     b.dataset.id = u.id;
-    b.onclick = () => pickLook(u.id);
+    pressione(b, () => tocconRoster(u.id), () => apriUnita(u.id));
     r.appendChild(b);
   });
+  if (fuocoEra){
+    const torna = r.querySelector('[data-id="' + fuocoEra + '"]');
+    if (torna) torna.focus();
+  }
 }
 /* Danno indicativo: quanto toglie il colpo a un avversario senza difesa.
    Serve a confrontare le unita' fra loro, non a predire l'esito di un singolo scontro. */
@@ -3519,6 +3585,44 @@ function dannoSpeciale(u){
    tastiera perderebbe il punto in cui si trovava. */
 /* Il fuoco entra nel pop-up; chiudendolo torna da solo sulla carta da cui sei
    partito, perche' `apriUnita` se l'e' segnata. */
+/* =========================================================================
+   UN GESTO SOLO, IN TUTTO IL GIOCO
+   Tocco breve: scegli. Tocco lungo: ti dico tutto quello che so. Vale col dito
+   e col mouse, e il tasto destro fa la stessa cosa del tocco lungo -- che e'
+   anche il modo in cui la tastiera ci arriva, col tasto Menu o Maiusc+F10.
+   Senza questa seconda via, chi non puo' tenere premuto resterebbe fuori.
+   ========================================================================= */
+const PRESSIONE = 450;                             /* ms */
+function pressione(el, breve, lunga){
+  let t = null, scattata = false, x0 = 0, y0 = 0;
+  const ferma = () => { if (t) clearTimeout(t); t = null; };
+  el.addEventListener("pointerdown", ev => {
+    if (ev.button) return;                         /* il destro passa da contextmenu */
+    scattata = false; x0 = ev.clientX; y0 = ev.clientY;
+    ferma();
+    t = setTimeout(() => { t = null; scattata = true; lunga(); }, PRESSIONE);
+  });
+  /* Se il dito si sposta sta scorrendo la pagina, non tenendo premuto. */
+  el.addEventListener("pointermove", ev => {
+    if (t && Math.hypot(ev.clientX - x0, ev.clientY - y0) > 10) ferma();
+  });
+  el.addEventListener("pointerup", () => { ferma(); if (!scattata) breve(); scattata = false; });
+  el.addEventListener("pointercancel", () => { ferma(); scattata = false; });
+  el.addEventListener("pointerleave", ferma);
+  el.addEventListener("contextmenu", ev => { ev.preventDefault(); ferma(); lunga(); });
+  /* `detail` vale 0 solo quando il click arriva dalla tastiera: li' il tocco
+     breve non e' passato da pointerup e va fatto qui. */
+  el.addEventListener("click", ev => { if (ev.detail === 0) breve(); });
+}
+/* Nel roster il tocco breve mette o toglie dalla squadra. Dove non si puo'
+   -- una larva, o la squadra al completo -- invece di non fare niente si apre
+   la scheda, che il perche' lo dice. */
+const mettibile = rif => { const e = esemplare(rif); return e ? adulto(e) : unlocked(defOf(rif)); };
+function tocconRoster(rif){
+  if (mettibile(rif) && (S.team.includes(rif) || S.team.length < 5)){
+    suona("clic"); toggle(rif);
+  } else apriUnita(rif);
+}
 function pickLook(id){ apriUnita(id); }
 /* La scheda accetta un riferimento: una definizione del roster ("mantis") o un
    esemplare allevato ("@s3"). */
@@ -4076,6 +4180,7 @@ function beginFight(){
     return;
   }
   S.phase = "battle"; S.pick = null; S.sel = null;
+  if (!pcMode()) requestAnimationFrame(() => apriSpiega("campo", false));
   log("Schieramento completato. <b>Abbatti il Re avversario per vincere.</b>");
   if (duoMode()){
     passTo("p", "Si comincia",
@@ -5019,7 +5124,12 @@ function initBoard(){
       c.tabIndex = -1;
       c.dataset.vxy = x + "," + y;             /* posizione a schermo, fissa */
       c.dataset.xy = x + "," + y;              /* casella di gioco, riscritta a ogni draw */
-      c.onclick = () => { const q = c.dataset.xy.split(","); click(+q[0], +q[1]); };
+      /* La casella a schermo cambia casella di gioco quando la scacchiera si
+         gira: la posizione va letta adesso, non chiusa dentro al gestore. */
+      const dove = () => c.dataset.xy.split(",").map(Number);
+      pressione(c,
+        () => { const q = dove(); click(q[0], q[1]); },
+        () => { const q = dove(); const u = at(q[0], q[1]); if (u) apriSchedaCampo(u); });
       row.appendChild(c);
     }
     b.appendChild(row);
@@ -5095,9 +5205,14 @@ function draw(){
   $("#deploybar").style.display = dep ? "" : "none";
   $("#turnbar").style.display  = dep ? "none" : "";
 
+  /* Selezionata una pedina si vede subito dove puo' andare (blu) e chi puo'
+     colpire (rosso), senza passare prima da «Muovi» o «Attacca»: quei due
+     pulsanti dicevano una cosa che il campo puo' mostrare da solo. Col tasto
+     della speciale premuto, il rosso passa ai bersagli di quella. */
   const sel = S.sel;
-  const mvSet = !dep && sel && S.mode === "move" && !sel.moved ? moves(sel) : [];
-  const tgSet = !dep && sel ? (S.mode === "atk" ? foesAdj(sel) : (S.mode === "spec" ? specTargets(sel) : [])) : [];
+  const vive = !dep && sel && !sel.acted && sel.side === meSide() && S.turn === meSide() && !S.busy;
+  const mvSet = vive && !sel.moved ? moves(sel) : [];
+  const tgSet = vive ? (S.mode === "spec" ? specTargets(sel) : foesAdj(sel)) : [];
 
   for (let vy = 0; vy < NY; vy++) for (let vx = 0; vx < NX; vx++){
     const c = document.querySelector('[data-vxy="' + vx + "," + vy + '"]');
@@ -5140,7 +5255,8 @@ function drawTokens(){
         '<div class="shadow"></div>' +
         '<div class="hpbar"><i></i></div>' +
         (u.isKing ? '<span class="kmark" aria-hidden="true">&#9819;</span>' : '') +
-        '<span class="status" aria-hidden="true"></span>';
+        '<span class="status" aria-hidden="true"></span>' +
+        '<span class="cdn" aria-hidden="true"></span>';
       /* respiro sfasato: altrimenti tutte le unit\u00e0 oscillano all'unisono */
       e.querySelector(".inner").style.animationDelay = (-Math.random() * 2.6).toFixed(2) + "s";
       l.appendChild(e);
@@ -5162,6 +5278,9 @@ function drawTokens(){
     e.querySelector(".hpbar i").style.width = Math.max(0, u.hp / u.maxHp * 100) + "%";
     e.querySelector(".status").textContent =
       (u.stun ? "\u{1F4A4}" : "") + (u.guard ? "\u{1F6E1}" : "") + (u.exposed ? "!" : "");
+    /* Quanti turni mancano alla speciale: zero vuol dire pronta, e la
+       targhetta sparisce invece di dire «0». */
+    e.querySelector(".cdn").textContent = u.cd > 0 ? u.cd : "";
   });
 }
 /* Vero solo dove la scheda e' ancorata in basso: la larghezza la decide il CSS,
@@ -5194,6 +5313,51 @@ function avvicinaCampo(){
   catch(e){ window.scrollBy(0, r.top - 8); }
 }
 
+/* Le righe che dicono chi e' e cosa sa fare. Stesse in due posti -- la barra
+   di battaglia e il pop-up del tocco lungo -- perche' due copie diverse degli
+   stessi numeri sono due occasioni di dire due cose diverse. */
+function ricaricaTesto(u){
+  if (!u.cd) return "";
+  return " \u00b7 pronta fra " + u.cd + (u.cd === 1 ? " turno" : " turni");
+}
+function corpoScheda(u){
+  const f = FAMS[u.d.fam], sp = f.sp;
+  const tAtk = foesAdj(u).sort((a,b) => a.dfn - b.dfn)[0];
+  const tSp  = specTargets(u).sort((a,b) => a.dfn - b.dfn)[0];
+  const stimaAtk = tAtk ? estDmg(u, tAtk, 1) + ' su ' + tAtk.d.name
+                        : Math.round(u.str * 2) + ' indicativo';
+  const stimaSp = SP_LABEL[sp] ? SP_LABEL[sp]
+    : (tSp ? estDmg(u, tSp, SP_MULT[sp] || 1) + ' su ' + tSp.d.name
+           : Math.round(u.str * 2 * (SP_MULT[sp] || 1)) + ' indicativo');
+  return '<div class="row">' + art(u.d.fam, false, u.d.rank) +
+      '<div><h3 id="uni-nome">' + (u.isKing ? "\u265b " : "") + u.d.name + '</h3><div class="fam">' +
+      u.d.fam + ' \u00b7 rank ' + u.d.rank + '</div></div></div>' +
+    '<div class="stats"><div>VITA<b>' + Math.max(0,u.hp) + '</b></div><div>FORZA<b>' +
+      u.str + '</b></div><div>DIFESA<b>' + u.dfn + '</b></div></div>' +
+    (RES.some(k => (u.res[k]|0) !== 0)
+      ? '<div class="fam" style="margin:-2px 0 7px">Resistenze: ' +
+        RES.filter(k => u.res[k]).map(k => RES_NOME[k] + " " + (u.res[k] > 0 ? "+" : "") + u.res[k]).join(" \u00b7 ") +
+        '</div>'
+      : '') +
+    '<div class="moves">' +
+      '<div><span>Attacco</span><b>' + stimaAtk + '</b></div>' +
+      '<div><span>' + f.spn + ricaricaTesto(u) + '</span><b>' + stimaSp + '</b></div>' +
+      '<div><span>Movimento</span><b>' + (u.moved ? 'gi\u00e0 speso' : moveLabel(u.isKing ? "step" : u.d.mv)) + '</b></div>' +
+    '</div>' +
+    '<div class="spec">' + f.spd + '</div>';
+}
+/* Il tocco lungo su una pedina in campo: le stesse righe, nel pop-up gia' in
+   casa, cosi' funziona anche dove la barra non c'e' o e' coperta. */
+function apriSchedaCampo(u){
+  if (!u || !u.alive) return;
+  fuocoPrima = document.activeElement;
+  fuocoCarta = null;
+  $("#uni-corpo").innerHTML = '<div class="sheet">' + corpoScheda(u) +
+    '<div class="acts"><button id="btn-uni-chiudi">Chiudi</button></div></div>';
+  $("#btn-uni-chiudi").onclick = chiudiUnita;
+  $("#uni-box").hidden = false;
+  $("#btn-uni-x").focus();
+}
 function drawCard(){
   const el = $("#ucard"), u = S.sel;
   if (!u){
@@ -5207,35 +5371,8 @@ function drawCard(){
      resta una scheda normale e non ruba spazio al campo. */
   ancora(u.side === meSide() && S.turn === meSide() && !u.acted && !S.busy);
   avvicinaCampo();
-  const f = FAMS[u.d.fam];
-  /* Danno vero contro chi ha davvero di fronte: se un bersaglio e' a tiro mostro
-     quello, altrimenti il valore indicativo contro un avversario senza difesa. */
-  const sp = FAMS[u.d.fam].sp;
-  const tAtk = foesAdj(u).sort((a,b) => a.dfn - b.dfn)[0];
-  const tSp  = specTargets(u).sort((a,b) => a.dfn - b.dfn)[0];
-  const stimaAtk = tAtk
-    ? estDmg(u, tAtk, 1) + ' su ' + tAtk.d.name
-    : Math.round(u.str * 2) + ' indicativo';
-  const stimaSp = SP_LABEL[sp]
-    ? SP_LABEL[sp]
-    : (tSp ? estDmg(u, tSp, SP_MULT[sp] || 1) + ' su ' + tSp.d.name
-           : Math.round(u.str * 2 * (SP_MULT[sp] || 1)) + ' indicativo');
-  el.innerHTML =
-    '<div class="row">' + art(u.d.fam, false, u.d.rank) +
-      '<div><h3>' + (u.isKing ? "\u265b " : "") + u.d.name + '</h3><div class="fam">' + u.d.fam + ' \u00b7 rank ' + u.d.rank + '</div></div></div>' +
-    '<div class="stats"><div>VITA<b>' + Math.max(0,u.hp) + '</b></div><div>FORZA<b>' + u.str + '</b></div><div>DIFESA<b>' + u.dfn + '</b></div></div>' +
-    (RES.some(k => (u.res[k]|0) !== 0)
-      ? '<div class="fam" style="margin:-2px 0 7px">Resistenze: ' +
-        RES.filter(k => u.res[k]).map(k => RES_NOME[k] + " " + (u.res[k] > 0 ? "+" : "") + u.res[k]).join(" \u00b7 ") +
-        '</div>'
-      : '') +
-    '<div class="moves">' +
-      '<div><span>Attacco</span><b>' + stimaAtk + '</b></div>' +
-      '<div><span>' + f.spn + (u.cd ? ' \u00b7 ricarica ' + u.cd : '') + '</span><b>' + stimaSp + '</b></div>' +
-      '<div><span>Movimento</span><b>' + (u.moved ? 'gi\u00e0 speso' : moveLabel(u.isKing ? "step" : u.d.mv)) + '</b></div>' +
-    '</div>' +
-    '<div class="spec">' + f.spd + '</div>' +
-    '<div class="acts" id="acts"></div>';
+  const f = FAMS[u.d.fam];                        /* serve ai pulsanti qui sotto */
+  el.innerHTML = corpoScheda(u) + '<div class="acts" id="acts"></div>';
   const acts = $("#acts");
   if (u.side !== meSide() || S.turn !== meSide() || u.acted || S.busy) return;
   const mkb = (label, mode, on) => {
@@ -5249,11 +5386,13 @@ function drawCard(){
   mkb("Attacca", "atk", foesAdj(u).length > 0);
   if (selfCast(u)){
     const b = document.createElement("button");
-    b.className = "primary"; b.textContent = f.spn; b.disabled = !canSpecial(u);
+    b.className = "primary";
+    b.textContent = f.spn + (u.cd ? " \u00b7 fra " + u.cd : "");
+    b.disabled = !canSpecial(u);
     b.onclick = () => { doSpecial(u, null); u.acted = true; S.sel = null; S.mode = "idle"; draw(); };
     acts.appendChild(b);
   } else {
-    mkb(f.spn, "spec", canSpecial(u));
+    mkb(f.spn + (u.cd ? " \u00b7 fra " + u.cd : ""), "spec", canSpecial(u));
   }
   const p = document.createElement("button");
   p.textContent = "Passa"; p.onclick = () => { u.acted = true; S.sel = null; S.mode = "idle"; draw(); };
@@ -5263,10 +5402,14 @@ function click(x, y){
   if (S.phase === "deploy"){ deployClick(x, y); return; }
   if (S.busy || S.over || S.turn !== meSide()) return;
   const u = at(x,y);
-  if (S.sel && S.mode === "move" && !S.sel.moved && moves(S.sel).some(p => p.x === x && p.y === y)){
+  /* Le caselle illuminate si toccano e basta: una casella blu muove, una
+     rossa attacca. I pulsanti restano -- servono alla speciale, a passare e a
+     chi gioca da tastiera -- ma non sono piu' di strada. */
+  const libero = S.mode === "idle" || S.mode === "move";
+  if (S.sel && libero && !S.sel.moved && moves(S.sel).some(p => p.x === x && p.y === y)){
     S.sel.x = x; S.sel.y = y; S.sel.moved = true; S.mode = "idle"; suona("passo"); draw(); passo(S.sel); return;
   }
-  if (S.sel && S.mode === "atk" && u && foesAdj(S.sel).includes(u)){
+  if (S.sel && (S.mode === "atk" || S.mode === "idle") && u && foesAdj(S.sel).includes(u)){
     basicAttack(S.sel, u); S.sel.acted = true; S.sel = null; S.mode = "idle"; draw(); return;
   }
   if (S.sel && S.mode === "spec" && u && specTargets(S.sel).includes(u)){
@@ -5302,6 +5445,10 @@ function show(id){
      riuscirci la pagina prende un'altezza fissa. Le altre schermate no: il
      campo, le gabbie e il mondo sono piu' alti di una finestra e va bene cosi'. */
   fissa(id);
+  /* Il roster spiega il gesto la prima volta che ci si arriva; il campo lo fa
+     a battaglia cominciata, non durante lo schieramento, dove il gesto non
+     serve ancora. */
+  if (id === "s-team") requestAnimationFrame(() => apriSpiega("squadra", false));
   window.scrollTo(0,0);
   musicaScena(id === "s-battle" ? "campo" : "roster");
   guidaAggiorna();
