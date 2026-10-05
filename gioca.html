@@ -1764,11 +1764,42 @@ function shade(hex, amt){
 
 /* Tre livelli di dettaglio: rank 1-2 base, 3-4 intermedio, 5-6 elite.
    Stessa famiglia, ma corna, ali e chele crescono salendo di rank. */
+/* Il rango dice dove sta un Insector nel torneo. Dentro alla sua famiglia,
+   pero', quello che si vede e' un'altra cosa: il **grado**, cioe' il
+   quanto-esimo e' dal piu' debole al piu' forte. Prima tre taglie coprivano sei
+   ranghi (`rank>=5 ? 3 : rank>=3 ? 2 : 1`) e nove coppie finivano identiche al
+   pixel -- Rasoio e Bipenne, Falcetta e Falcione, Lusinga e Malia e cosi' via:
+   due pedine diverse, in campo, erano la stessa figura. Adesso ogni membro di
+   una famiglia ha il suo grado, e quindi il suo disegno. */
+let GRADI = null;
+function gradoDi(fam, rank){
+  if (!GRADI){
+    GRADI = {};
+    UNITS.forEach(u => { (GRADI[u.fam] = GRADI[u.fam] || []).push(u.rank); });
+    Object.keys(GRADI).forEach(k =>
+      GRADI[k] = GRADI[k].filter((r, i, a) => a.indexOf(r) === i).sort((a, b) => a - b));
+  }
+  const lista = GRADI[fam] || [];
+  return { g: lista.indexOf(rank), n: lista.length };
+}
 function art(fam, flip, rank){
   const col = (FAMS[fam] || {}).col || "#9aa6b8";
   const K = "#0a0e15";
   const lo = shade(col, -0.45), hi = shade(col, 0.34), mid = col;
-  const t  = rank >= 5 ? 3 : (rank >= 3 ? 2 : 1);
+  const { g, n } = gradoDi(fam, rank);
+  const vecchiaTaglia = rank >= 5 ? 3 : (rank >= 3 ? 2 : 1);
+  /* Chi e' solo nella sua famiglia non ha da distinguersi da nessuno, e le
+     chiamate che non vengono dal roster -- gli sprite dei luoghi del Mondo
+     chiedono famiglia e rango 3 anche dove quel rango non esiste -- tengono la
+     taglia di prima: quei disegni non cambiano di una virgola. */
+  const fuori = g < 0 || n <= 1;
+  const t  = fuori ? vecchiaTaglia : 1 + g * (2 / (n - 1));
+  /* Le tre soglie decidono che cosa si aggiunge salendo di grado. Erano due,
+     legate alla taglia; adesso sono tre e contano i gradi, cosi' anche una
+     famiglia di quattro ha quattro figure diverse e non due. */
+  const d2 = fuori ? vecchiaTaglia >= 2 : g >= 1;
+  const d3 = fuori ? vecchiaTaglia >= 3 : g >= 2;
+  const d4 = !fuori && g >= 3;
   /* Id univoco per ogni SVG: con id ripetuti il browser risolve url(#id) alla PRIMA
      definizione del documento, che puo' trovarsi in una sezione display:none \u2014 e in quel
      caso il gradiente non viene dipinto. */
@@ -1776,7 +1807,11 @@ function art(fam, flip, rank){
   const S2 = ' stroke="' + K + '" stroke-width="2" stroke-linejoin="round"';
   const S1 = ' stroke="' + K + '" stroke-width="1.5" stroke-linejoin="round"';
   const G  = ' fill="url(#' + gid + ')"';
-  const sc = 1 + (t - 1) * 0.085;                /* le unità di rank alto sono più massicce */
+  /* Scala d'insieme: i gradi alti arrivano alla taglia naturale del disegno, i
+     bassi stanno un filo piu' piccoli. Prima cresceva oltre l'1 e cinque disegni
+     su trentaquattro sbordavano dal viewBox: adesso l'1 e' il tetto. Chi ricade
+     sulla vecchia taglia tiene la vecchia scala, per non muovere quei disegni. */
+  const sc = fuori ? 1 + (vecchiaTaglia - 1) * 0.085 : 0.93 + (t - 1) * 0.035;
 
   /* --- attrezzi di disegno condivisi ---------------------------------------
      Tre cose separano un insetto da una macchia colorata: le zampe, un punto di
@@ -1815,82 +1850,128 @@ function art(fam, flip, rank){
     '<circle cx="' + (cx+sp+r*0.35) + '" cy="' + (cy-r*0.35) + '" r="' + (r*0.34) + '" fill="#fff" opacity=".85"/>';
 
   const shapes = {
-    /* Lamidi: corazza stretta e una lama al posto del corno. La lama si
-       allunga e mette barbe salendo di rank. */
+    /* Lamidi: corazza stretta e una lama al posto del corno. Ogni grado allunga
+       e allarga la lama, ingrossa le elitre e aggiunge un pezzo in una zona sua
+       -- filo, spalle, base -- perche' i segni non si coprano a vicenda. */
     "Lamidi": () => {
-      const punta = 20 - t*4;
-      return zampe(32, 44, 13, 8, 2.4) +
-        '<ellipse cx="32" cy="44" rx="14" ry="15"' + G + S2 + '/>' +
-        '<path d="M32 30 v29" stroke="' + K + '" stroke-width="1.8" opacity=".55"/>' +
+      const punta = 18 - t*5;                    /* quota della punta: piu' alta, lama piu' lunga */
+      const mezza = 3 + (t - 1) * 2.4;           /* mezza larghezza della lama */
+      const rx = 12 + t*1.5, ry = 13 + t*1.3;    /* le elitre si ingrossano col grado */
+      const by = (punta + (28 - punta) * 0.35).toFixed(1);   /* barbe sul terzo alto della lama */
+      const bx = (mezza * 0.35).toFixed(1);
+      return zampe(32, 44, Math.round(rx), 8, 2.4) +
+        '<ellipse cx="32" cy="44" rx="' + rx.toFixed(1) + '" ry="' + ry.toFixed(1) + '"' + G + S2 + '/>' +
+        '<path d="M32 30 v' + (ry + 14).toFixed(1) + '" stroke="' + K + '" stroke-width="1.8" opacity=".55"/>' +
         bordo("M20 41 q4 -9 12 -10 q8 1 12 10") +
         luce(26, 39, 3.6, 2.6, .18) +
         '<path d="M23 30 q9 -5 18 0 q1 4 0 6 h-18 q-1 -2 0 -6z"' + G + S2 + '/>' +
         occhi(32, 29, 6, 2) +
-        '<path d="M28 28 L32 ' + punta + ' L36 28z" fill="' + hi + '"' + S2 + '/>' +
-        '<path d="M32 ' + (punta+2) + ' v22" stroke="' + K + '" stroke-width="1.2" opacity=".35"/>' +
-        (t >= 2 ? '<path d="M29.5 ' + (punta+8) + ' l-6 -3 M34.5 ' + (punta+8) + ' l6 -3"' + S2 + ' fill="none" stroke-linecap="round"/>' : '') +
-        (t >= 3 ? '<path d="M30 ' + (punta+15) + ' l-7 -3 M34 ' + (punta+15) + ' l7 -3"' + S2 + ' fill="none" stroke-linecap="round"/>' : '');
+        '<path d="M' + (32-mezza).toFixed(1) + ' 28 L32 ' + punta.toFixed(1) + ' L' +
+          (32+mezza).toFixed(1) + ' 28z" fill="' + hi + '"' + S2 + '/>' +
+        '<path d="M32 ' + (punta+2).toFixed(1) + ' v' + (24-punta).toFixed(1) +
+          '" stroke="' + K + '" stroke-width="1.2" opacity=".35"/>' +
+        /* Secondo grado: due barbe sul filo. */
+        (d2 ? '<path d="M' + (32-bx) + ' ' + by + ' l-13 -5 l4 11z" fill="' + hi + '"' + S2 + '/>' +
+              '<path d="M' + (32+bx) + ' ' + by + ' l13 -5 l-4 11z" fill="' + hi + '"' + S2 + '/>' : '') +
+        /* Terzo grado: la bipenne, due lame sulle spalle. */
+        (d3 ? '<path d="M19 26 l-10 -5 l1 13z" fill="' + mid + '"' + S2 + '/>' +
+              '<path d="M45 26 l10 -5 l-1 13z" fill="' + mid + '"' + S2 + '/>' : '') +
+        /* Quarto grado: l'elsa, una traversa alla base della lama. */
+        (d4 ? '<path d="M20 27.5 h24 l-3 4.5 h-18z" fill="' + hi + '"' + S2 + '/>' : '');
     },
-    /* Hercules: massa e corno. Pinza superiore e inferiore che si allungano col
-       rank, guscio bombato con la fessura delle elitre e piastre sulle spalle. */
+    /* Hercules: massa e corno. Il corno si alza e si allarga di grado in grado,
+       le elitre si ingrossano, e i tre segni stanno in tre fasce diverse:
+       mandibole al capo, barbe sul corno, piastre alla coda. */
     "Bastidi": () => {
-      const hy = 27 - (9 + t*3.4);                /* quota della punta del corno */
-      const largo = 6 + t;                       /* base del corno */
-      return zampe(32, 46, 15, 9, 2.8) +
-        /* corno: base larga sul capo, punta biforcuta. Cresce e si allarga col rank. */
-        '<path d="M' + (32-largo) + ' 28 q-1 -' + (28-hy)*0.62 + ' ' + (largo-3) + ' -' + (28-hy)*0.86 +
-          ' l3 ' + ((28-hy)*0.2).toFixed(1) + ' l3 -' + ((28-hy)*0.2).toFixed(1) +
-          ' q' + (largo-2) + ' ' + (28-hy)*0.24 + ' ' + (largo-3) + ' ' + (28-hy)*0.86 +
-          ' q-' + largo + ' 4 -' + (largo*2) + ' 0z" fill="' + hi + '"' + S2 + '/>' +
+      const hy = 27 - (7 + t*5.2);                /* quota di riferimento del corno */
+      const largo = 5 + t*1.6;                    /* base del corno */
+      const rx = 15 + t*0.9, ry = 13 + t*0.8;     /* elitre */
+      const alt = (28 - hy);
+      return zampe(32, 46, Math.round(rx), 9, 2.8) +
+        /* corno: base larga sul capo, punta biforcuta. Cresce e si allarga col grado. */
+        '<path d="M' + (32-largo).toFixed(1) + ' 28 q-1 -' + (alt*0.62).toFixed(1) + ' ' +
+          (largo-3).toFixed(1) + ' -' + (alt*0.86).toFixed(1) +
+          ' l3 ' + (alt*0.2).toFixed(1) + ' l3 -' + (alt*0.2).toFixed(1) +
+          ' q' + (largo-2).toFixed(1) + ' ' + (alt*0.24).toFixed(1) + ' ' + (largo-3).toFixed(1) +
+          ' ' + (alt*0.86).toFixed(1) +
+          ' q-' + largo.toFixed(1) + ' 4 -' + (largo*2).toFixed(1) + ' 0z" fill="' + hi + '"' + S2 + '/>' +
         '<path d="M32 ' + (hy+4).toFixed(1) + ' v' + (24-hy).toFixed(1) + '" stroke="' + K +
           '" stroke-width="1.5" opacity=".4"/>' +
-        (t >= 3 ? '<path d="M' + (32-largo+1) + ' ' + (hy+7).toFixed(1) + ' l-5 -3 M' + (32+largo-1) + ' ' +
-          (hy+7).toFixed(1) + ' l5 -3"' + S1 + ' fill="none" stroke-linecap="round"/>' : '') +
+        /* Terzo grado: due barbe sul corno, a mezza altezza. */
+        (d3 ? '<path d="M' + (32-largo+2.5).toFixed(1) + ' ' + (hy+8).toFixed(1) + ' l-9 -5 l2 9z" fill="' + mid + '"' + S2 + '/>' +
+              '<path d="M' + (32+largo-2.5).toFixed(1) + ' ' + (hy+8).toFixed(1) + ' l9 -5 l-2 9z" fill="' + mid + '"' + S2 + '/>' : '') +
         /* torace */
         '<path d="M22 30 q10 -6 20 0 q2 6 0 9 h-20 q-2 -3 0 -9z"' + G + S2 + '/>' +
-        (t >= 2 ? '<path d="M22 33 h20" stroke="' + K + '" stroke-width="1.4" opacity=".5"/>' : '') +
+        /* Secondo grado: le mandibole, ai lati del capo. */
+        (d2 ? '<path d="M25 27 l-11 -5 l3 10z" fill="' + hi + '"' + S2 + '/>' +
+              '<path d="M39 27 l11 -5 l-3 10z" fill="' + hi + '"' + S2 + '/>' : '') +
         /* elitre */
-        '<ellipse cx="32" cy="45" rx="17" ry="15"' + G + S2 + '/>' +
-        '<path d="M32 31 v28" stroke="' + K + '" stroke-width="2" opacity=".65"/>' +
+        '<ellipse cx="32" cy="45" rx="' + rx.toFixed(1) + '" ry="' + ry.toFixed(1) + '"' + G + S2 + '/>' +
+        '<path d="M32 31 v' + (ry + 14).toFixed(1) + '" stroke="' + K + '" stroke-width="2" opacity=".65"/>' +
         bordo("M19 42 q4 -10 13 -11 q9 1 13 11") +
         luce(25, 39, 4.5, 3, .18) +
-        (t >= 2 ? '<circle cx="22" cy="48" r="2.4" fill="' + lo + '"/><circle cx="42" cy="48" r="2.4" fill="' + lo + '"/>' : '') +
+        (d2 ? '<circle cx="22" cy="48" r="2.4" fill="' + lo + '"/><circle cx="42" cy="48" r="2.4" fill="' + lo + '"/>' : '') +
+        /* Quarto grado: le piastre di coda, che allargano la sagoma in basso. */
+        (d4 ? '<path d="M23 53 l-10 5 l9 2z" fill="' + hi + '"' + S2 + '/>' +
+              '<path d="M41 53 l10 5 l-9 2z" fill="' + hi + '"' + S2 + '/>' : '') +
         occhi(32, 28, 7, 2.2);
     },
-    /* Bazoo: il cannone e' la sagoma. Canna con volata e anello di rinforzo,
-       corpo tozzo che la regge; col rank la canna si allunga e prende gli sfiati. */
+    /* Bazoo: il cannone e' la sagoma. La canna si allunga e aumenta di calibro
+       col grado; poi arrivano la culatta, gli sfiati e infine le ruote
+       dell'affusto, che sporgono dai fianchi e si vedono anche da piccole. */
     "Bombardidi": () => {
-      const ly = 12 - t*2, lar = 11 + t*2;
-      return zampe(32, 46, 14, 8, 2.6) +
-        '<rect x="' + (32 - lar/2) + '" y="' + ly + '" width="' + lar + '" height="' + (32 - ly) +
+      const ly = 13 - t*2.6, lar = 10 + t*2.4;    /* bocca della canna e calibro */
+      const rx = 14.5 + t*0.9, ry = 11.5 + t*0.7;
+      const mz = 32 - lar/2;                      /* fianco sinistro della canna */
+      return zampe(32, 46, Math.round(rx), 8, 2.6) +
+        '<rect x="' + mz.toFixed(1) + '" y="' + ly.toFixed(1) + '" width="' + lar.toFixed(1) +
+          '" height="' + (32 - ly).toFixed(1) +
           '" rx="' + (lar/2.6).toFixed(1) + '" fill="' + shade(col,-0.32) + '"' + S2 + '/>' +
-        '<rect x="' + (32 - lar/2 - 2) + '" y="' + (ly + 1) + '" width="' + (lar + 4) +
+        '<rect x="' + (mz - 2).toFixed(1) + '" y="' + (ly + 1).toFixed(1) + '" width="' + (lar + 4).toFixed(1) +
           '" height="5" rx="2.5" fill="' + mid + '"' + S1 + '/>' +
-        '<ellipse cx="32" cy="' + (ly + 3) + '" rx="' + (lar/2 - 1) + '" ry="2.6" fill="' + K + '"/>' +
-        (t >= 2 ? '<path d="M' + (32 - lar/2) + ' ' + (ly + 12) + ' h' + lar + ' M' + (32 - lar/2) + ' ' +
-          (ly + 17) + ' h' + lar + '" stroke="' + K + '" stroke-width="1.4" opacity=".45"/>' : '') +
-        (t >= 3 ? '<path d="M' + (32 - lar/2 - 3) + ' ' + (ly + 8) + ' h3 M' + (32 + lar/2) + ' ' +
-          (ly + 8) + ' h3"' + S1 + ' fill="none" stroke-linecap="round"/>' : '') +
+        '<ellipse cx="32" cy="' + (ly + 3).toFixed(1) + '" rx="' + (lar/2 - 1).toFixed(1) +
+          '" ry="2.6" fill="' + K + '"/>' +
+        /* Terzo grado: gli sfiati, sul tratto alto della canna. */
+        (d3 ? '<path d="M' + mz.toFixed(1) + ' ' + (ly + 6).toFixed(1) + ' l-9 -3 l1 9z" fill="' + mid + '"' + S2 + '/>' +
+              '<path d="M' + (32 + lar/2).toFixed(1) + ' ' + (ly + 6).toFixed(1) + ' l9 -3 l-1 9z" fill="' + mid + '"' + S2 + '/>' : '') +
+        /* Secondo grado: la culatta, il blocco quadrato alla base della canna. */
+        (d2 ? '<rect x="' + (mz - 7).toFixed(1) + '" y="21" width="' + (lar + 14).toFixed(1) +
+          '" height="10" rx="2" fill="' + shade(col,-0.22) + '"' + S2 + '/>' : '') +
         '<path d="M23 32 q9 -4 18 0 q1 4 0 6 h-18 q-1 -2 0 -6z"' + G + S2 + '/>' +
         occhi(32, 33, 6, 2) +
-        '<ellipse cx="32" cy="47" rx="16" ry="13"' + G + S2 + '/>' +
+        /* Quarto grado: le ruote dell'affusto, una per fianco. */
+        (d4 ? [-1, 1].map(s => '<circle cx="' + (32 + s*(rx + 2)).toFixed(1) + '" cy="52" r="6" fill="' +
+          shade(col,-0.3) + '"' + S2 + '/><circle cx="' + (32 + s*(rx + 2)).toFixed(1) +
+          '" cy="52" r="2" fill="' + K + '" opacity=".6"/>').join('') : '') +
+        '<ellipse cx="32" cy="47" rx="' + rx.toFixed(1) + '" ry="' + ry.toFixed(1) + '"' + G + S2 + '/>' +
         bordo("M19 45 q5 -9 13 -10 q8 1 13 10") +
         luce(26, 43, 4, 2.8, .18) +
-        '<path d="M32 36 v24" stroke="' + K + '" stroke-width="1.6" opacity=".45"/>';
+        '<path d="M32 36 v' + (ry + 11).toFixed(1) + '" stroke="' + K + '" stroke-width="1.6" opacity=".45"/>';
     },
     /* Voltidi: il ribaltatore. Una pala larga davanti al guscio, fatta per
-       infilarsi sotto l'avversario; col rank si allarga e si rinforza. */
+       infilarsi sotto l'avversario: col grado si allarga, si incurva di piu' e
+       mette pattini, puntoni e infine le punte del forcone. */
     "Voltidi": () => {
-      const pa = 15 + t*3;
-      return zampe(32, 44, 15, 8, 2.5) +
-        '<path d="M' + (32-pa) + ' 26 q' + pa + ' -' + (9+t*2) + ' ' + (pa*2) + ' 0 q-' + (pa*0.55) + ' 7 -' +
-          pa + ' 7 q-' + (pa*0.45) + ' 0 -' + pa + ' -7z" fill="' + hi + '"' + S2 + '/>' +
-        (t >= 2 ? '<path d="M' + (32-pa+5) + ' 24 q' + (pa-5) + ' -6 ' + ((pa-5)*2) + ' 0"' +
-          ' stroke="' + K + '" stroke-width="1.5" fill="none" opacity=".4"/>' : '') +
-        (t >= 3 ? '<circle cx="' + (32-pa+3) + '" cy="27" r="1.8" fill="' + K + '" opacity=".5"/>' +
-          '<circle cx="' + (32+pa-3) + '" cy="27" r="1.8" fill="' + K + '" opacity=".5"/>' : '') +
-        '<ellipse cx="32" cy="42" rx="17" ry="15"' + G + S2 + '/>' +
-        '<path d="M32 28 v29" stroke="' + K + '" stroke-width="1.8" opacity=".5"/>' +
+      const pa = 12.5 + t*3.7;                    /* mezza larghezza della pala */
+      const h  = 5 + t*4.5;                       /* quanto la pala si incurva in alto */
+      const rx = 16 + t*0.6, ry = 14 + t*0.5;
+      return zampe(32, 44, Math.round(rx - 1), 8, 2.5) +
+        '<path d="M' + (32-pa).toFixed(1) + ' 26 q' + pa.toFixed(1) + ' -' + h.toFixed(1) + ' ' +
+          (pa*2).toFixed(1) + ' 0 q-' + (pa*0.55).toFixed(1) + ' 7 -' + pa.toFixed(1) +
+          ' 7 q-' + (pa*0.45).toFixed(1) + ' 0 -' + pa.toFixed(1) + ' -7z" fill="' + hi + '"' + S2 + '/>' +
+        '<path d="M' + (32-pa+5).toFixed(1) + ' 24 q' + (pa-5).toFixed(1) + ' -6 ' +
+          ((pa-5)*2).toFixed(1) + ' 0" stroke="' + K + '" stroke-width="1.5" fill="none" opacity=".4"/>' +
+        /* Secondo grado: i due pattini alle punte della pala. */
+        (d2 ? '<path d="M' + (32-pa+1).toFixed(1) + ' 26 l-5 8 l10 1z" fill="' + hi + '"' + S2 + '/>' +
+              '<path d="M' + (32+pa-1).toFixed(1) + ' 26 l5 8 l-10 1z" fill="' + hi + '"' + S2 + '/>' : '') +
+        /* Terzo grado: i due puntoni che reggono la pala. */
+        (d3 ? '<path d="M' + (32-pa+3).toFixed(1) + ' 28 l-3 10 l8 -3z" fill="' + mid + '"' + S2 + '/>' +
+              '<path d="M' + (32+pa-3).toFixed(1) + ' 28 l3 10 l-8 -3z" fill="' + mid + '"' + S2 + '/>' : '') +
+        /* Quarto grado: la pala si biforca alle punte, e diventa un forcone. */
+        (d4 ? '<path d="M' + (32-pa+2).toFixed(1) + ' 24 l-3 -13 l9 7z" fill="' + hi + '"' + S2 + '/>' +
+              '<path d="M' + (32+pa-2).toFixed(1) + ' 24 l3 -13 l-9 7z" fill="' + hi + '"' + S2 + '/>' : '') +
+        '<ellipse cx="32" cy="42" rx="' + rx.toFixed(1) + '" ry="' + ry.toFixed(1) + '"' + G + S2 + '/>' +
+        '<path d="M32 28 v' + (ry + 14).toFixed(1) + '" stroke="' + K + '" stroke-width="1.8" opacity=".5"/>' +
         bordo("M19 40 q5 -10 13 -11 q8 1 13 11") +
         luce(26, 37, 4.2, 3, .18) +
         occhi(32, 33, 7, 2.2) +
@@ -1906,7 +1987,7 @@ function art(fam, flip, rank){
         '<g transform="translate(32 28) scale(' + (dir*k) + ' ' + k + ') translate(-32 -28)">' +
           '<path d="M38 28 C44 24 48 20 46 14 C45 10 41 9 39 11 C41 13 42 16 40 19 C37 22 35 25 35 28z"' +
             ' fill="' + hi + '"' + S1 + '/>' +
-          (t >= 2 ? '<path d="M40.5 18 l-3.5 1.5 M43 13.5 l-3.5 1.5"' +
+          (d2 ? '<path d="M40.5 18 l-3.5 1.5 M43 13.5 l-3.5 1.5"' +
             ' stroke="' + K + '" stroke-width="1.4" fill="none" stroke-linecap="round"/>' : '') +
         '</g>';
       return zampe(32, 46, 14, 8, 2.6) +
@@ -1917,34 +1998,49 @@ function art(fam, flip, rank){
         '<path d="M32 33 v27" stroke="' + K + '" stroke-width="1.8" opacity=".55"/>' +
         bordo("M20 44 q5 -9 12 -10 q7 1 12 10") +
         luce(26, 42, 3.8, 2.8, .17) +
-        (t >= 3 ? '<circle cx="23" cy="50" r="2.2" fill="' + lo + '"/><circle cx="41" cy="50" r="2.2" fill="' + lo + '"/>' : '');
+        (d3 ? '<circle cx="23" cy="50" r="2.2" fill="' + lo + '"/><circle cx="41" cy="50" r="2.2" fill="' + lo + '"/>' : '');
     },
     /* Mantide: torace stretto e verticale, braccia raptatorie ripiegate davanti,
-       addome affusolato. Le lame crescono e si dentellano col rank. */
+       addome affusolato. Col grado la falce si allunga, il braccio si sporge di
+       piu' e l'addome si allarga; poi denti, spine del torace e uncino. */
     "Falcidi": () => {
-      const lama = 9 + t*2;
+      const lama = 7 + t*3;                       /* la falce */
+      const ar = 8 + t*1.6;                       /* quanto il braccio si sporge */
+      const aw = 5 + t*0.9;                       /* mezza larghezza dell'addome */
       const braccio = (dir) => {
         const x = 32 + dir*7;
-        return '<path d="M' + x + ' 30 q' + (dir*9) + ' 3 ' + (dir*10) + ' 11"' +
-            ' stroke="' + shade(col,-0.25) + '" stroke-width="4.6" fill="none" stroke-linecap="round"/>' +
-          '<path d="M' + (x + dir*10) + ' 41 q' + (dir*2) + ' -' + lama + ' ' + (-dir*4) + ' -' + (lama+3) + '"' +
+        return '<path d="M' + x + ' 30 q' + (dir*ar*0.9).toFixed(1) + ' 3 ' + (dir*ar).toFixed(1) + ' 11"' +
+            ' stroke="' + shade(col,-0.25) + '" stroke-width="' + (4 + t*0.5).toFixed(1) +
+            '" fill="none" stroke-linecap="round"/>' +
+          '<path d="M' + (x + dir*ar).toFixed(1) + ' 41 q' + (dir*2) + ' -' + lama.toFixed(1) + ' ' +
+            (-dir*4) + ' -' + (lama+3).toFixed(1) + '"' +
             ' stroke="' + hi + '" stroke-width="3.6" fill="none" stroke-linecap="round"/>' +
-          (t >= 2 ? '<path d="M' + (x + dir*9) + ' 38 l' + (dir*4) + ' -2 M' + (x + dir*7) + ' 33 l' + (dir*4) + ' -2"' +
-            ' stroke="' + K + '" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".75"/>' : '');
+          /* Secondo grado: la dentellatura, tre denti sul filo della falce. */
+          (d2 ? '<path d="M' + (x + dir*ar).toFixed(1) + ' ' + (41 - lama*0.3).toFixed(1) + ' l' + (dir*6) +
+            ' -2 M' + (x + dir*(ar-1)).toFixed(1) + ' ' + (41 - lama*0.6).toFixed(1) + ' l' + (dir*6) +
+            ' -2 M' + (x + dir*(ar-2)).toFixed(1) + ' ' + (41 - lama*0.9).toFixed(1) + ' l' + (dir*6) + ' -2"' +
+            ' stroke="' + mid + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>' : '') +
+          /* Quarto grado: l'uncino interno, che chiude la falce a tenaglia. */
+          (d4 ? '<path d="M' + (x + dir*(ar-4)).toFixed(1) + ' ' + (41 - lama).toFixed(1) + ' q' +
+            (-dir*6) + ' 2 ' + (-dir*6) + ' 9" stroke="' + hi +
+            '" stroke-width="3.6" fill="none" stroke-linecap="round"/>' : '');
       };
       return zampe(32, 44, 7, 8, 2.2) +
         /* addome */
-        '<path d="M32 58 q-7 -6 -6 -15 q6 -4 12 0 q1 9 -6 15z"' + G + S2 + '/>' +
+        '<path d="M32 58 q-' + (aw+2).toFixed(1) + ' -6 -' + (aw+1).toFixed(1) + ' -15 q' +
+          (aw+1).toFixed(1) + ' -4 ' + (aw*2).toFixed(1) + ' 0 q1 9 -' + (aw+1).toFixed(1) + ' 15z"' + G + S2 + '/>' +
         /* torace */
         '<path d="M32 17 l9 26 h-18z"' + G + S2 + '/>' +
         bordo("M27 35 l5 -15 l5 15") +
         luce(30, 28, 2.6, 6, .2) +
+        /* Terzo grado: le spine del torace. */
+        (d3 ? '<path d="M26 22 l-11 -4 l3 10z" fill="' + mid + '"' + S2 + '/>' +
+              '<path d="M38 22 l11 -4 l-3 10z" fill="' + mid + '"' + S2 + '/>' : '') +
         braccio(-1) + braccio(1) +
         /* testa triangolare */
         '<path d="M32 11 l6.5 7 q-6.5 4 -13 0z"' + G + S2 + '/>' +
         occhi(32, 15, 4, 2.4) +
-        antenne(32, 12, 4, 3) +
-        (t >= 3 ? '<path d="M25 20 l-5 -3 M39 20 l5 -3"' + S1 + ' fill="none" stroke-linecap="round"/>' : '');
+        antenne(32, 12, 4, 3);
     },
     /* Trivellidi: bruco a segmenti, ognuno con la sua coppia di zampette e le
        lame davanti. Col rank i segmenti mettono spine. */
@@ -1954,9 +2050,9 @@ function art(fam, flip, rank){
         leg(32-r+1, cy+2, -5, 5, 2.2) + leg(32+r-1, cy+2, 5, 5, 2.2)).join("") +
         seg.map(([cy,r],i) =>
           '<circle cx="32" cy="' + cy + '" r="' + r + '"' + G + S2 + '/>' +
-          (t >= 2 ? '<path d="M' + (32-r+2) + ' ' + (cy-3) + ' q' + (r-2) + ' -4 ' + ((r-2)*2) + ' 0"' +
+          (d2 ? '<path d="M' + (32-r+2) + ' ' + (cy-3) + ' q' + (r-2) + ' -4 ' + ((r-2)*2) + ' 0"' +
             ' stroke="' + K + '" stroke-width="1.3" fill="none" opacity=".35"/>' : '') +
-          (t >= 3 ? '<path d="M' + (32-r-1) + ' ' + (cy-2) + ' l-4 -3 M' + (32+r+1) + ' ' + (cy-2) +
+          (d3 ? '<path d="M' + (32-r-1) + ' ' + (cy-2) + ' l-4 -3 M' + (32+r+1) + ' ' + (cy-2) +
             ' l4 -3"' + S1 + ' fill="none" stroke-linecap="round"/>' : '')).join("") +
         luce(27, 38, 3.4, 5, .16) +
         /* capo con le lame */
@@ -1975,9 +2071,9 @@ function art(fam, flip, rank){
           (dir*w) + ' ' + (su ? 6 : 12) + ' q' + (-dir*w*0.5) + ' ' + (su ? 6 : 4) + ' ' +
           (-dir*w) + ' ' + (su ? -2 : -10) + 'z" fill="' + hi + '" opacity="' + (su ? .95 : .8) + '"' + S1 + '/>';
       return ala(-1, false) + ala(1, false) + ala(-1, true) + ala(1, true) +
-        (t >= 2 ? '<circle class="wing" cx="' + (32-w*0.62) + '" cy="30" r="3.2" fill="' + lo + '" opacity=".75"/>' +
+        (d2 ? '<circle class="wing" cx="' + (32-w*0.62) + '" cy="30" r="3.2" fill="' + lo + '" opacity=".75"/>' +
           '<circle class="wing" cx="' + (32+w*0.62) + '" cy="30" r="3.2" fill="' + lo + '" opacity=".75"/>' : '') +
-        (t >= 3 ? '<circle class="wing" cx="' + (32-w*0.55) + '" cy="43" r="2.2" fill="' + lo + '" opacity=".6"/>' +
+        (d3 ? '<circle class="wing" cx="' + (32-w*0.55) + '" cy="43" r="2.2" fill="' + lo + '" opacity=".6"/>' +
           '<circle class="wing" cx="' + (32+w*0.55) + '" cy="43" r="2.2" fill="' + lo + '" opacity=".6"/>' : '') +
         leg(29, 46, -4, 7, 1.9) + leg(35, 46, 4, 7, 1.9) +
         '<ellipse cx="32" cy="37" rx="4.6" ry="15"' + G + S2 + '/>' +
@@ -1990,8 +2086,8 @@ function art(fam, flip, rank){
        rank, come il conto degli anni sul guscio. */
     "Coccinidi": () => {
       const macchie = [[-9,-6,4],[9,-6,4],[-8,6,3.4],[8,6,3.4]]
-        .concat(t >= 2 ? [[0,12,2.8],[0,-12,2.6]] : [])
-        .concat(t >= 3 ? [[-13,1,2.4],[13,1,2.4]] : []);
+        .concat(d2 ? [[0,12,2.8],[0,-12,2.6]] : [])
+        .concat(d3 ? [[-13,1,2.4],[13,1,2.4]] : []);
       return zampe(32, 42, 16, 8, 2.4) +
         '<circle cx="32" cy="40" r="17"' + G + S2 + '/>' +
         '<path d="M32 23 v34" stroke="' + K + '" stroke-width="2.4" opacity=".7"/>' +
@@ -2021,11 +2117,11 @@ function art(fam, flip, rank){
         '<ellipse cx="32" cy="46" rx="15" ry="10"' + G + S2 + '/>' +
         bordo("M19 47 q5 -8 13 -8 q8 0 13 8") +
         '<path d="M32 38 v14" stroke="' + K + '" stroke-width="1.6" opacity=".4"/>' +
-        (t >= 2 ? '<path d="M21 49 q11 4 22 0" stroke="' + K + '" stroke-width="1.4" fill="none" opacity=".4"/>' : '') +
+        (d2 ? '<path d="M21 49 q11 4 22 0" stroke="' + K + '" stroke-width="1.4" fill="none" opacity=".4"/>' : '') +
         /* capo piccolo, davanti al dorso */
         '<path d="M25 52 q7 -4 14 0 q-1 6 -7 6 q-6 0 -7 -6z"' + G + S1 + '/>' +
         occhi(32, 53, 4, 1.8) +
-        (t >= 3 ? '<path d="M26 51 l-4 -3 M38 51 l4 -3"' + S1 + ' fill="none" stroke-linecap="round"/>' : '');
+        (d3 ? '<path d="M26 51 l-4 -3 M38 51 l4 -3"' + S1 + ' fill="none" stroke-linecap="round"/>' : '');
     },
     /* Corsidi: la sagoma equina resta, ma con criniera, orecchio e zoccoli.
        Col rank la criniera si allunga e arriva il ciuffo sulla fronte. */
@@ -2049,7 +2145,7 @@ function art(fam, flip, rank){
         '<circle cx="39" cy="16" r="2.3" fill="' + K + '"/>' +
         '<circle cx="39.8" cy="15.2" r=".8" fill="#fff" opacity=".85"/>' +
         '<path d="M41 21 q4 2 3 6" stroke="' + K + '" stroke-width="1.6" fill="none" opacity=".55"/>' +
-        (t >= 3 ? '<path d="M37 9 q3 -4 6 -3" stroke="' + hi + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>' : '');
+        (d3 ? '<path d="M37 9 q3 -4 6 -3" stroke="' + hi + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>' : '');
     },
     /* Silfidi: due paia d\u2019ali velate, corpo sottile, alone. Le ali portano la
        classe "wing": la CSS le fa battere, ferma se l\u2019utente chiede meno moto. */
@@ -2074,9 +2170,9 @@ function art(fam, flip, rank){
         luce(29.5, 19.5, 2.4, 1.8, .3) +
         occhi(32, 22, 2.8, 2) +
         antenne(32, 16, 4, 5) +
-        (t >= 2 ? '<ellipse cx="32" cy="' + upY(11) + '" rx="7" ry="2.2" fill="none" stroke="' + hi +
+        (d2 ? '<ellipse cx="32" cy="' + upY(11) + '" rx="7" ry="2.2" fill="none" stroke="' + hi +
           '" stroke-width="1.6" opacity=".8"/>' : '') +
-        (t >= 3 ? '<circle cx="20" cy="' + upY(20) + '" r="1.7" fill="' + hi + '" opacity=".9"/>' +
+        (d3 ? '<circle cx="20" cy="' + upY(20) + '" r="1.7" fill="' + hi + '" opacity=".9"/>' +
           '<circle cx="45" cy="' + upY(26) + '" r="1.4" fill="' + hi + '" opacity=".75"/>' : '');
     },
     /* Tonantidi: il premio finale. Corona di punte, mantello di elitre,

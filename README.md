@@ -37,7 +37,9 @@ muoversi e Invio per selezionare.
 | `robots.txt`, `sitemap.xml` | per i motori di ricerca |
 
 Dentro al gioco **non c'è un solo file immagine**: sprite, icone e animazioni sono
-generati da codice.
+generati da codice. Tutti e 34 gli Insector hanno un disegno diverso: dentro una stessa
+famiglia la figura cambia di grado in grado — arma più lunga, corpo più massiccio, pezzi
+nuovi — e due pedine diverse non sono mai la stessa immagine.
 
 ## Come è pubblicato
 
