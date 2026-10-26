@@ -1,0 +1,25 @@
+PROMPT — famiglia Corsidi (1 Insector)
+colore della famiglia: #fcd34d
+============================================================
+
+Draw 1 side-view character of the same insect family for a
+turn-based tactics game, in ONE image, left to right, evenly spaced, on a flat
+#2a3147 background, no text anywhere.
+
+STYLE — match the reference exactly: cartoon mascot, bold dark outline, flat
+fill with one soft highlight, three-quarter side view facing right, standing on
+its legs, friendly but not childish. Family colour #fcd34d on the body: use it,
+do not introduce new hues.
+
+FAMILY SIGNATURE — all of them must read as relatives:
+long legs and a mane, built to kick.
+
+THE 1 MEMBER, weakest to strongest. 
+  1. Galoppo (rank 1)
+
+WHAT THEY DO, for the attitude: Mobility: two squares in a straight line in any direction, and it kicks.
+
+The progression is carried by real shape — longer weapon, heavier body, extra
+parts — not by size alone. Whoever is stronger must look it at a glance.
+
+Return the 1 character in one image, nothing else.

@@ -1,0 +1,29 @@
+PROMPT — famiglia Falcidi (4 Insector)
+colore della famiglia: #4ade80
+============================================================
+
+Draw 4 side-view characters of the same insect family for a
+turn-based tactics game, in ONE image, left to right, evenly spaced, on a flat
+#2a3147 background, no text anywhere.
+
+STYLE — match the reference exactly: cartoon mascot, bold dark outline, flat
+fill with one soft highlight, three-quarter side view facing right, standing on
+its legs, friendly but not childish. Family colour #4ade80 on the body: use it,
+do not introduce new hues.
+
+FAMILY SIGNATURE — all of them must read as relatives:
+raised sickle forelegs like a mantis, slim upright thorax.
+
+THE 4 MEMBERS, weakest to strongest. Each one must be clearly different
+from the one before — same body plan, more weapon:
+  1. Falcetta (rank 1) — plain sickles
+  2. Falcione (rank 2) — serrations on the sickle edge
+  3. Roncola (rank 3) — spines on the thorax
+  4. Turbine (rank 4) — an inner hook closing the sickle
+
+WHAT THEY DO, for the attitude: Area damage: alone among three enemies it is worth more than any other unit.
+
+The progression is carried by real shape — longer weapon, heavier body, extra
+parts — not by size alone. Whoever is stronger must look it at a glance.
+
+Return the 4 characters in one image, nothing else.

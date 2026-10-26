@@ -35,6 +35,16 @@ muoversi e Invio per selezionare.
 | `img/` | le schermate e l'anteprima per la condivisione |
 | `manifest.webmanifest`, `sw.js`, `icon*` | quello che rende il sito installabile e utilizzabile offline |
 | `robots.txt`, `sitemap.xml` | per i motori di ricerca |
+| **`DOCUMENTAZIONE.md`** | **la documentazione tecnica**: com'è fatto, da dove vengono i dati, che cosa è stato misurato |
+| `ROADMAP.md`, `PIANO-*.md` | dove siamo, e i piani per quello che manca |
+| `prove-automatiche/` | le 31 suite di prove: 816 controlli, `sh prove-automatiche/batteria.sh` |
+| `sprite-da-migliorare/` | il materiale per far ridisegnare gli Insector da un generatore |
+| `telemetria/` | worker Cloudflare, schema e prova. **Spenta**, in attesa del consulente privacy |
+| `prove/` | i confronti fra strumenti grafici (Canva, Figma, Higgsfield) |
+| `insectors.json` | il dataset grezzo estratto dal wiki |
+
+Da ottobre 2026 **tutto il materiale di lavoro sta qui**: prima era diviso fra
+questo repository e l'hub delle demo, che adesso tiene solo la copia giocabile.
 
 Dentro al gioco **non c'è un solo file immagine**: sprite, icone e animazioni sono
 generati da codice. Tutti e 34 gli Insector hanno un disegno diverso: dentro una stessa

@@ -1,0 +1,29 @@
+PROMPT — famiglia Bombardidi (4 Insector)
+colore della famiglia: #a78bfa
+============================================================
+
+Draw 4 side-view characters of the same insect family for a
+turn-based tactics game, in ONE image, left to right, evenly spaced, on a flat
+#2a3147 background, no text anywhere.
+
+STYLE — match the reference exactly: cartoon mascot, bold dark outline, flat
+fill with one soft highlight, three-quarter side view facing right, standing on
+its legs, friendly but not childish. Family colour #a78bfa on the body: use it,
+do not introduce new hues.
+
+FAMILY SIGNATURE — all of them must read as relatives:
+a cannon barrel mounted on the back, stubby body carrying it.
+
+THE 4 MEMBERS, weakest to strongest. Each one must be clearly different
+from the one before — same body plan, more weapon:
+  1. Mortaio (rank 3) — plain barrel
+  2. Colubrina (rank 4) — a breech block at the base of the barrel
+  3. Bombarda (rank 5) — side vents on the barrel
+  4. Basilisco (rank 6) — carriage wheels on the flanks
+
+WHAT THEY DO, for the attitude: Artillery: hits from far off, but must be kept under cover — its defence is low.
+
+The progression is carried by real shape — longer weapon, heavier body, extra
+parts — not by size alone. Whoever is stronger must look it at a glance.
+
+Return the 4 characters in one image, nothing else.

@@ -1,0 +1,28 @@
+PROMPT — famiglia Silfidi (3 Insector)
+colore della famiglia: #e879f9
+============================================================
+
+Draw 3 side-view characters of the same insect family for a
+turn-based tactics game, in ONE image, left to right, evenly spaced, on a flat
+#2a3147 background, no text anywhere.
+
+STYLE — match the reference exactly: cartoon mascot, bold dark outline, flat
+fill with one soft highlight, three-quarter side view facing right, standing on
+its legs, friendly but not childish. Family colour #e879f9 on the body: use it,
+do not introduce new hues.
+
+FAMILY SIGNATURE — all of them must read as relatives:
+two pairs of delicate veined fairy wings, slender body, faint halo.
+
+THE 3 MEMBERS, weakest to strongest. Each one must be clearly different
+from the one before — same body plan, more weapon:
+  1. Lusinga (rank 1) — plain wings
+  2. Malia (rank 2) — a ring above the head
+  3. Incanto (rank 3) — sparks beside the body
+
+WHAT THEY DO, for the attitude: A saboteur: steals an opponent away from the enemy team.
+
+The progression is carried by real shape — longer weapon, heavier body, extra
+parts — not by size alone. Whoever is stronger must look it at a glance.
+
+Return the 3 characters in one image, nothing else.

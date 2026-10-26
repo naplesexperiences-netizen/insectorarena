@@ -1,0 +1,1787 @@
+[
+ {
+  "id": "big_staggy",
+  "family_name": "Staggy",
+  "rank": "2",
+  "description": "A strongman who never lets its target get away. Its large pincers can grab any enemy!",
+  "special_move": "Scissor Throw",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Staggy + Any female. (Female level & rank should be same or lower than male).",
+  "special_breeding": "None",
+  "traps": "None",
+  "bait": "Firestone",
+  "location": "Juraika, near Spring teleporter, by Meresa. Vedan, near Corbis Shop, esat by garbage.",
+  "stats": {
+   "HP": {
+    "min": 120,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 22,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 20,
+    "max": 99
+   },
+   "Str": {
+    "min": 18,
+    "max": 99
+   },
+   "Cut": {
+    "min": 22,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 22,
+    "max": 99
+   },
+   "Def": {
+    "min": 9,
+    "max": 99
+   },
+   "Throw": {
+    "min": 18,
+    "max": 99
+   },
+   "Poison": {
+    "min": 20,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "bomb_roller",
+  "family_name": "Dung Roller",
+  "rank": "3",
+  "description": "A famous defender, never forgetting its buddies. Is it rolling dung, or its own fate?",
+  "special_move": "Fill Hole",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Gum Roller + Any female. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Flipperbug + Flipperbug (F)",
+  "traps": "None",
+  "bait": "Iago Milk, Ultraspicy Pepper, Firestone, Sticky Gum",
+  "location": "Rosa in Salgin at the house to the far left as you enter the Residential District from the west gate. Use Iago Milk on the ground floor near the left side of the stairs as you view the door. Zerard in Gladius Towers, Right Tower, by NPC near elevator 5F. Vedan: Corbis Shop, east garbage. Zerard in Rosencaster Prison, A2 battle room.",
+  "stats": {
+   "HP": {
+    "min": 144,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 27,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 24,
+    "max": 99
+   },
+   "Str": {
+    "min": 22,
+    "max": 99
+   },
+   "Cut": {
+    "min": 27,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 27,
+    "max": 99
+   },
+   "Def": {
+    "min": 10,
+    "max": 99
+   },
+   "Throw": {
+    "min": 29,
+    "max": 99
+   },
+   "Poison": {
+    "min": 22,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "butterflap",
+  "family_name": "Flutterbug",
+  "rank": "4",
+  "description": "A popular idol known for its elegant flight. Proud of its agility and affability.",
+  "special_move": "Wing Flap",
+  "range_of_movement": "7 x 7 squares",
+  "normal_breeding": "Flittery + Any female. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Faerie + Faerie (F)",
+  "traps": "None",
+  "bait": "None",
+  "location": "None",
+  "stats": {
+   "HP": {
+    "min": 140,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 27,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 33,
+    "max": 99
+   },
+   "Str": {
+    "min": 26,
+    "max": 99
+   },
+   "Cut": {
+    "min": 27,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 10,
+    "max": 99
+   },
+   "Def": {
+    "min": 12,
+    "max": 99
+   },
+   "Throw": {
+    "min": 33,
+    "max": 99
+   },
+   "Poison": {
+    "min": 33,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "carver_beetle",
+  "family_name": "Knife Beetle",
+  "rank": "5",
+  "description": "A predominate figure in the Insector world. Its horn houses a keen fighting spirit.",
+  "special_move": "Jumping Stab",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Hatchet Beetle + Any female. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Knife Beetle + Saber Beetle (F)",
+  "traps": "None",
+  "bait": "None",
+  "location": "None",
+  "stats": {
+   "HP": {
+    "min": 208,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 40,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 35,
+    "max": 99
+   },
+   "Str": {
+    "min": 33,
+    "max": 99
+   },
+   "Cut": {
+    "min": 40,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 40,
+    "max": 99
+   },
+   "Def": {
+    "min": 17,
+    "max": 99
+   },
+   "Throw": {
+    "min": 33,
+    "max": 99
+   },
+   "Poison": {
+    "min": 35,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "dark_emperor",
+  "family_name": "Dark Emperor",
+  "rank": "1",
+  "description": "Its dark mask invites anyone nearby into the depths. No one has seen its true face.",
+  "special_move": "The Emperor's Rage",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "None",
+  "special_breeding": "None",
+  "traps": "I",
+  "bait": "Royal Fruit",
+  "location": "Mariglenn: Gulza Sanctuary / Plaza. Place the trap on the platform at the middle.",
+  "stats": {
+   "HP": {
+    "min": 300,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 30,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 30,
+    "max": 99
+   },
+   "Str": {
+    "min": 30,
+    "max": 99
+   },
+   "Cut": {
+    "min": 30,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 30,
+    "max": 99
+   },
+   "Def": {
+    "min": 15,
+    "max": 99
+   },
+   "Throw": {
+    "min": 30,
+    "max": 99
+   },
+   "Poison": {
+    "min": 30,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "drillerpillar",
+  "family_name": "Cutterpillar",
+  "rank": "4",
+  "description": "A well-known Insector attacker. Its sharp chin and body hit with the force of a battering ram!",
+  "special_move": "Body Blow",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Rhyzas Looper + Any female. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Cutterpillar + Cold Cuts (F)",
+  "traps": "None",
+  "bait": "None",
+  "location": "None",
+  "stats": {
+   "HP": {
+    "min": 140,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 27,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 27,
+    "max": 99
+   },
+   "Str": {
+    "min": 27,
+    "max": 99
+   },
+   "Cut": {
+    "min": 27,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 29,
+    "max": 99
+   },
+   "Def": {
+    "min": 5,
+    "max": 99
+   },
+   "Throw": {
+    "min": 33,
+    "max": 99
+   },
+   "Poison": {
+    "min": 33,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "dustpan",
+  "family_name": "Flipperbug",
+  "rank": "5",
+  "description": "A big brother type who loves to burrow and snare enemies in holes.",
+  "special_move": "Over Easy",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Shoveler + Any female except Slaying Mantis. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Flipperbug + Turner (F)",
+  "traps": "None",
+  "bait": "None",
+  "location": "None",
+  "stats": {
+   "HP": {
+    "min": 208,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 35,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 40,
+    "max": 99
+   },
+   "Str": {
+    "min": 33,
+    "max": 99
+   },
+   "Cut": {
+    "min": 40,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 44,
+    "max": 99
+   },
+   "Def": {
+    "min": 15,
+    "max": 99
+   },
+   "Throw": {
+    "min": 35,
+    "max": 99
+   },
+   "Poison": {
+    "min": 35,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "faerie",
+  "family_name": "Faerie",
+  "rank": "1",
+  "description": "An Insector that charms its enemies. Once it locks eyes with you, you're done for.",
+  "special_move": "Charm Beam",
+  "range_of_movement": "3 squares (diagonal)",
+  "normal_breeding": "None",
+  "special_breeding": "None",
+  "traps": "II, III",
+  "bait": "Sticky Gum",
+  "location": "Zerard: Rosencaster Prison / Interior Pathway A2. Set traps in the room where you fought Rosencaster.",
+  "stats": {
+   "HP": {
+    "min": 90,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 16,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 18,
+    "max": 99
+   },
+   "Str": {
+    "min": 14,
+    "max": 99
+   },
+   "Cut": {
+    "min": 15,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 16,
+    "max": 99
+   },
+   "Def": {
+    "min": 5,
+    "max": 99
+   },
+   "Throw": {
+    "min": 18,
+    "max": 99
+   },
+   "Poison": {
+    "min": 16,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "fishface_beetle",
+  "family_name": "Bazoo Beetle",
+  "rank": "3",
+  "description": "A beetle whose powerful cannon devastates it's enemies. Those puckered lips aren't for show",
+  "special_move": "Cannon Blast",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Big Bazoo Beetle + Any female except Dung Roller. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Itsahorse + Itsahorse (F)",
+  "traps": "I/II",
+  "bait": "Edensia",
+  "location": "Zerard:Rosencaster Prison Level 4, intersection near the guard. Ghost Ship: SW of first shop, near NPC Parkash.",
+  "stats": {
+   "HP": {
+    "min": 116,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 24,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 22,
+    "max": 99
+   },
+   "Str": {
+    "min": 21,
+    "max": 99
+   },
+   "Cut": {
+    "min": 22,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 24,
+    "max": 99
+   },
+   "Def": {
+    "min": 8,
+    "max": 99
+   },
+   "Throw": {
+    "min": 27,
+    "max": 99
+   },
+   "Poison": {
+    "min": 22,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "flipperbug",
+  "family_name": "Flipperbug",
+  "rank": "1",
+  "description": "A mischievous little guy who sends enemies spinning with its unique horn.",
+  "special_move": "Over Easy",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "None",
+  "special_breeding": "None",
+  "traps": "I, II, III",
+  "bait": "Yago Milk, Ruby",
+  "location": "Zerard: Starship Factory/ Near Pocacchio\u2019s Lab. Place traps on the right of Joshua. Juraika: Path to Burkaqua / Near Darios's. Place trap near the door. Vedan in the mines near the transporter by the first elevator.",
+  "stats": {
+   "HP": {
+    "min": 100,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 18,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 16,
+    "max": 99
+   },
+   "Str": {
+    "min": 15,
+    "max": 99
+   },
+   "Cut": {
+    "min": 18,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 15,
+    "max": 99
+   },
+   "Def": {
+    "min": 6,
+    "max": 99
+   },
+   "Throw": {
+    "min": 16,
+    "max": 99
+   },
+   "Poison": {
+    "min": 16,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "gum_roller",
+  "family_name": "Dung Roller",
+  "rank": "2",
+  "description": "A famous defender, never forgetting its buddies. Is it rolling dung, or its own fate?",
+  "special_move": "Fill Hole",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Dung Roller + Any female. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Miss Mysterious + Itsareindeer (F)",
+  "traps": "I",
+  "bait": "Pirate Grog, Lapis Lazuli, Edensia",
+  "location": "Juraika, Star God Altar Transporter, right around the corner towards the plaza in the bushes. Rosa: Labyrinth / Near Core Transporter. Mariglenn: Gulza Sanctuary / Near Plaza Teleporter.",
+  "stats": {
+   "HP": {
+    "min": 120,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 22,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 20,
+    "max": 99
+   },
+   "Str": {
+    "min": 18,
+    "max": 99
+   },
+   "Cut": {
+    "min": 22,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 22,
+    "max": 99
+   },
+   "Def": {
+    "min": 8,
+    "max": 99
+   },
+   "Throw": {
+    "min": 24,
+    "max": 99
+   },
+   "Poison": {
+    "min": 18,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "handsome_faerie",
+  "family_name": "Faerie",
+  "rank": "2",
+  "description": "An Insector that charms its enemies. Once it locks eyes with you, you're done for.",
+  "special_move": "Charm Beam",
+  "range_of_movement": "3 squares (diagonal)",
+  "normal_breeding": "Faerie + Any female except Faerie. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Butterflap + Butterflap (F)",
+  "traps": "None",
+  "bait": "None",
+  "location": "None",
+  "stats": {
+   "HP": {
+    "min": 108,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 20,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 22,
+    "max": 99
+   },
+   "Str": {
+    "min": 17,
+    "max": 99
+   },
+   "Cut": {
+    "min": 22,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 18,
+    "max": 99
+   },
+   "Def": {
+    "min": 6,
+    "max": 99
+   },
+   "Throw": {
+    "min": 22,
+    "max": 99
+   },
+   "Poison": {
+    "min": 20,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "hatchet_beetle",
+  "family_name": "Knife Beetle",
+  "rank": "4",
+  "description": "A predominate figure in the Insector world. Its horn houses a keen fighting spirit.",
+  "special_move": "Jumping Stab",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Saber Beetle + Any female except Orion Beetle. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Mantis + Big Staggy (F)",
+  "traps": "None",
+  "bait": "None",
+  "location": "None",
+  "stats": {
+   "HP": {
+    "min": 173,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 33,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 29,
+    "max": 99
+   },
+   "Str": {
+    "min": 27,
+    "max": 99
+   },
+   "Cut": {
+    "min": 29,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 33,
+    "max": 99
+   },
+   "Def": {
+    "min": 14,
+    "max": 99
+   },
+   "Throw": {
+    "min": 27,
+    "max": 99
+   },
+   "Poison": {
+    "min": 29,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "hercules_beetle",
+  "family_name": "Hercules Beetle",
+  "rank": "1",
+  "description": "A heroic symbol of the Insector world. Combines brute force strength with ancient mystique.",
+  "special_move": "Crushing Horn",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "None",
+  "special_breeding": "None",
+  "traps": "I",
+  "bait": "Sanchez Fruit",
+  "location": "Juraika: Leo King's Castle/ 3F. On the right of the transporter. Rosa: Labyrinth/ Near the Core. South room where you fought Sand Kraken. Place trap anywhere on the sand.",
+  "stats": {
+   "HP": {
+    "min": 150,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 20,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 15,
+    "max": 99
+   },
+   "Str": {
+    "min": 15,
+    "max": 99
+   },
+   "Cut": {
+    "min": 18,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 18,
+    "max": 99
+   },
+   "Def": {
+    "min": 8,
+    "max": 99
+   },
+   "Throw": {
+    "min": 15,
+    "max": 99
+   },
+   "Poison": {
+    "min": 16,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "itsahorse",
+  "family_name": "Itsahorse",
+  "rank": "1",
+  "description": "A genuine horse that plays by its own rules. Hasn't noticed how out-of-place it is.",
+  "special_move": "Itsakick",
+  "range_of_movement": "Can move two squares forward in a straight line.",
+  "normal_breeding": "None",
+  "special_breeding": "None",
+  "traps": "I, II",
+  "bait": "Smoked Rainbow Newt",
+  "location": "Vedan: Myna/ Near Item Shop Corbis. Go east under Tunnel where NPC Shukowa is. Place traps under the same tunnel.",
+  "stats": {
+   "HP": {
+    "min": 150,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 18,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 16,
+    "max": 99
+   },
+   "Str": {
+    "min": 15,
+    "max": 99
+   },
+   "Cut": {
+    "min": 16,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 16,
+    "max": 99
+   },
+   "Def": {
+    "min": 7,
+    "max": 99
+   },
+   "Throw": {
+    "min": 18,
+    "max": 99
+   },
+   "Poison": {
+    "min": 15,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "kaboom_beetle",
+  "family_name": "Bazoo Beetle",
+  "rank": "5",
+  "description": "A beetle whose powerful cannon devastates it's enemies. Those puckered lips aren't for show",
+  "special_move": "Cannon Blast",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Planet Beetle + Any female. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Bazoo Beetle + Fishface Beetle (F)",
+  "traps": "None",
+  "bait": "None",
+  "location": "None",
+  "stats": {
+   "HP": {
+    "min": 168,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 35,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 33,
+    "max": 99
+   },
+   "Str": {
+    "min": 32,
+    "max": 99
+   },
+   "Cut": {
+    "min": 33,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 35,
+    "max": 99
+   },
+   "Def": {
+    "min": 12,
+    "max": 99
+   },
+   "Throw": {
+    "min": 40,
+    "max": 99
+   },
+   "Poison": {
+    "min": 33,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "knife_beetle",
+  "family_name": "Knife Beetle",
+  "rank": "1",
+  "description": "A predominate figure in the Insector world. Its horn houses a keen fighting spirit.",
+  "special_move": "Jumping Stab",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "None",
+  "special_breeding": "None",
+  "traps": "I",
+  "bait": "Sanchez Fruit",
+  "location": "Just after the title Path to Burkaqua flashes on screen coming from Rhyzas Swamp. Place the trap under first bridge.",
+  "stats": {
+   "HP": {
+    "min": 100,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 18,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 16,
+    "max": 99
+   },
+   "Str": {
+    "min": 15,
+    "max": 99
+   },
+   "Cut": {
+    "min": 18,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 18,
+    "max": 99
+   },
+   "Def": {
+    "min": 8,
+    "max": 99
+   },
+   "Throw": {
+    "min": 15,
+    "max": 99
+   },
+   "Poison": {
+    "min": 16,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "mantis",
+  "family_name": "Mantis",
+  "rank": "1",
+  "description": "A lone wolf who inspires fear in its opponents, taking them down with its long, nimble arms.",
+  "special_move": "Sickle Dance",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "None",
+  "special_breeding": "None",
+  "traps": "II",
+  "bait": "Juraikan Coffee Beans, Sanchez Fruit",
+  "location": "Juraika: Valley of Departure/ Depot. Place trap near the transporter. Juraika: Path to the Altar/ Near Sherio\u2019s. Place trap outside Sherio\u2019s house.",
+  "stats": {
+   "HP": {
+    "min": 80,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 16,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 16,
+    "max": 99
+   },
+   "Str": {
+    "min": 15,
+    "max": 99
+   },
+   "Cut": {
+    "min": 15,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 16,
+    "max": 99
+   },
+   "Def": {
+    "min": 3,
+    "max": 99
+   },
+   "Throw": {
+    "min": 18,
+    "max": 99
+   },
+   "Poison": {
+    "min": 16,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "miss_mysterious",
+  "family_name": "Faerie",
+  "rank": "3",
+  "description": "An Insector that charms its enemies. Once it locks eyes with you, you're done for.",
+  "special_move": "Charm Beam",
+  "range_of_movement": "3 squares (diagonal)",
+  "normal_breeding": "Handsome Faerie + Any female. (Female level & rank should be same or lower than male).",
+  "special_breeding": "None",
+  "traps": "I e II",
+  "bait": "Sanchez Fruit",
+  "location": "Rosa: Labyrinth/ Near the Core. South room where you fought Sand Kraken. Place trap anywhere on the sand.",
+  "stats": {
+   "HP": {
+    "min": 130,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 24,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 27,
+    "max": 99
+   },
+   "Str": {
+    "min": 21,
+    "max": 99
+   },
+   "Cut": {
+    "min": 22,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 24,
+    "max": 99
+   },
+   "Def": {
+    "min": 8,
+    "max": 99
+   },
+   "Throw": {
+    "min": 27,
+    "max": 99
+   },
+   "Poison": {
+    "min": 24,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "narcissus_beetle",
+  "family_name": "Hercules Beetle",
+  "rank": "4",
+  "description": "A heroic symbol of the Insector world. Combines brute force strength with ancient mystique.",
+  "special_move": "Crushing Horn",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Orion Beetle + Any female. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Hercules Beetle + Orion Beetle (F)",
+  "traps": "None",
+  "bait": "None",
+  "location": "None",
+  "stats": {
+   "HP": {
+    "min": 260,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 35,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 27,
+    "max": 99
+   },
+   "Str": {
+    "min": 27,
+    "max": 99
+   },
+   "Cut": {
+    "min": 33,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 33,
+    "max": 99
+   },
+   "Def": {
+    "min": 14,
+    "max": 99
+   },
+   "Throw": {
+    "min": 27,
+    "max": 99
+   },
+   "Poison": {
+    "min": 29,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "orion_beetle",
+  "family_name": "Hercules Beetle",
+  "rank": "3",
+  "description": "A heroic symbol of the Insector world. Combines brute force strength with ancient mystique.",
+  "special_move": "Crushing Horn",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Pegasus Beetle + Any female. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Stun Staggy + Stun Staggy (F)",
+  "traps": "Trap I",
+  "bait": "Sanchez Fruit",
+  "location": "Juraika, on the Leo King's Crypt, rosa, the labyrinth, in the core",
+  "stats": {
+   "HP": {
+    "min": 216,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 29,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 22,
+    "max": 99
+   },
+   "Str": {
+    "min": 22,
+    "max": 99
+   },
+   "Cut": {
+    "min": 27,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 27,
+    "max": 99
+   },
+   "Def": {
+    "min": 32,
+    "max": 99
+   },
+   "Throw": {
+    "min": 22,
+    "max": 99
+   },
+   "Poison": {
+    "min": 24,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "planet_beetle",
+  "family_name": "Bazoo Beetle",
+  "rank": "4",
+  "description": "A beetle whose powerful cannon devastates it's enemies. Those puckered lips aren't for show",
+  "special_move": "Cannon Blast",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Fishface Beetle + Any female. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Staggy + Bomb Roller (F)",
+  "traps": "None",
+  "bait": "None",
+  "location": "None",
+  "stats": {
+   "HP": {
+    "min": 140,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 29,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 27,
+    "max": 99
+   },
+   "Str": {
+    "min": 26,
+    "max": 99
+   },
+   "Cut": {
+    "min": 27,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 29,
+    "max": 99
+   },
+   "Def": {
+    "min": 10,
+    "max": 99
+   },
+   "Throw": {
+    "min": 33,
+    "max": 99
+   },
+   "Poison": {
+    "min": 27,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "saber_beetle",
+  "family_name": "Knife Beetle",
+  "rank": "3",
+  "description": "A predominate figure in the Insector world. Its horn houses a keen fighting spirit.",
+  "special_move": "Jumping Stab",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Blade Beetle + Any female except Blade Beetle. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Slaying Mantis + Slaying Mantis (F)",
+  "traps": "None",
+  "bait": "None",
+  "location": "None",
+  "stats": {
+   "HP": {
+    "min": 144,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 27,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 24,
+    "max": 99
+   },
+   "Str": {
+    "min": 22,
+    "max": 99
+   },
+   "Cut": {
+    "min": 27,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 27,
+    "max": 99
+   },
+   "Def": {
+    "min": 11,
+    "max": 99
+   },
+   "Throw": {
+    "min": 22,
+    "max": 99
+   },
+   "Poison": {
+    "min": 24,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "shoveler",
+  "family_name": "Flipperbug",
+  "rank": "4",
+  "description": "A big brother type who loves to burrow and snare enemies in holes.",
+  "special_move": "Over Easy",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Turner + Any female. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Bomb Roller + Bomb Roller (F)",
+  "traps": "None",
+  "bait": "None",
+  "location": "None",
+  "stats": {
+   "HP": {
+    "min": 173,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 33,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 29,
+    "max": 99
+   },
+   "Str": {
+    "min": 27,
+    "max": 99
+   },
+   "Cut": {
+    "min": 33,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 27,
+    "max": 99
+   },
+   "Def": {
+    "min": 12,
+    "max": 99
+   },
+   "Throw": {
+    "min": 29,
+    "max": 99
+   },
+   "Poison": {
+    "min": 29,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "slaying_mantis",
+  "family_name": "Mantis",
+  "rank": "2",
+  "description": "A lone wolf who inspires fear in its opponents, taking them down with its long, nimble arms.",
+  "special_move": "Sickle Dance",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Mantis + Any female. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Fishface Beetle + Flappillon (F)",
+  "traps": "None",
+  "bait": "None",
+  "location": "None",
+  "stats": {
+   "HP": {
+    "min": 96,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 20,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 20,
+    "max": 99
+   },
+   "Str": {
+    "min": 18,
+    "max": 99
+   },
+   "Cut": {
+    "min": 18,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 20,
+    "max": 99
+   },
+   "Def": {
+    "min": 4,
+    "max": 99
+   },
+   "Throw": {
+    "min": 22,
+    "max": 99
+   },
+   "Poison": {
+    "min": 20,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "spotted_lady",
+  "family_name": "Lady Beetle",
+  "rank": "3",
+  "description": "A soothing presence in the Insector World. But who will be around to soothe its own troubles?",
+  "special_move": "Healing Jig",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Lovely Lady + Any female. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Rollerover + Rollerover (F)",
+  "traps": "None",
+  "bait": "Firestone, Sticky Gum",
+  "location": "Mariglenn, by the middle forest Transporter.",
+  "stats": {
+   "HP": {
+    "min": 116,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 27,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 24,
+    "max": 99
+   },
+   "Str": {
+    "min": 22,
+    "max": 99
+   },
+   "Cut": {
+    "min": 27,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 27,
+    "max": 99
+   },
+   "Def": {
+    "min": 10,
+    "max": 99
+   },
+   "Throw": {
+    "min": 24,
+    "max": 99
+   },
+   "Poison": {
+    "min": 22,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "staggy",
+  "family_name": "Staggy",
+  "rank": "1",
+  "description": "A strongman who never lets its target get away. Its large pincers can grab any enemy!",
+  "special_move": "Scissor Throw",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "None",
+  "special_breeding": "None",
+  "traps": "I",
+  "bait": "Electric Eel, Diamond",
+  "location": "Juraika/ Valley of Departure/ Depot. It\u2019s actually near the village. Place trap just after the title Burkaqua Village flashes on screen. Also by Spring teleporter, near Meresa. Zerard, Gladius Tower 1 Throne Room.",
+  "stats": {
+   "HP": {
+    "min": 100,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 18,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 16,
+    "max": 99
+   },
+   "Str": {
+    "min": 15,
+    "max": 99
+   },
+   "Cut": {
+    "min": 18,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 18,
+    "max": 99
+   },
+   "Def": {
+    "min": 8,
+    "max": 99
+   },
+   "Throw": {
+    "min": 15,
+    "max": 99
+   },
+   "Poison": {
+    "min": 16,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "stinger_bill",
+  "family_name": "Cutterpillar",
+  "rank": "6",
+  "description": "A well-known Insector attacker. Its sharp chin and body hit with the force of a battering ram!",
+  "special_move": "Body Blow",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Slitherpede + Any female except Itsahorse. (Female level & rank should be same or lower than male).",
+  "special_breeding": "None",
+  "traps": "None",
+  "bait": "None",
+  "location": "None",
+  "stats": {
+   "HP": {
+    "min": 202,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 40,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 40,
+    "max": 99
+   },
+   "Str": {
+    "min": 40,
+    "max": 99
+   },
+   "Cut": {
+    "min": 40,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 42,
+    "max": 99
+   },
+   "Def": {
+    "min": 8,
+    "max": 99
+   },
+   "Throw": {
+    "min": 48,
+    "max": 99
+   },
+   "Poison": {
+    "min": 48,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "stun_staggy",
+  "family_name": "Staggy",
+  "rank": "3",
+  "description": "A strongman who never lets its target get away. Its large pincers can grab any enemy!",
+  "special_move": "Scissor Throw",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Big Staggy + Any female. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Hercules Beetle + Hercules Beetle (F)",
+  "traps": "None",
+  "bait": "Firestone",
+  "location": "Vedan: near Corbis Shop, garbage pile to the east.",
+  "stats": {
+   "HP": {
+    "min": 144,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 27,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 24,
+    "max": 99
+   },
+   "Str": {
+    "min": 22,
+    "max": 99
+   },
+   "Cut": {
+    "min": 27,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 27,
+    "max": 99
+   },
+   "Def": {
+    "min": 11,
+    "max": 99
+   },
+   "Throw": {
+    "min": 22,
+    "max": 99
+   },
+   "Poison": {
+    "min": 24,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "super_mantis",
+  "family_name": "Mantis",
+  "rank": "3",
+  "description": "A lone wolf who inspires fear in its opponents, taking them down with its long, nimble arms.",
+  "special_move": "Sickle Dance",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Slaying Mantis + Any female except Slaying Mantis. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Blade Beetle + Blade Beetle (F)",
+  "traps": "None",
+  "bait": "Ruby",
+  "location": "Juraika, before Waterfall transporter, by NPC Ramba.",
+  "stats": {
+   "HP": {
+    "min": 116,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 24,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 24,
+    "max": 99
+   },
+   "Str": {
+    "min": 22,
+    "max": 99
+   },
+   "Cut": {
+    "min": 24,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 24,
+    "max": 99
+   },
+   "Def": {
+    "min": 5,
+    "max": 99
+   },
+   "Throw": {
+    "min": 27,
+    "max": 99
+   },
+   "Poison": {
+    "min": 24,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "susanoo_beetle",
+  "family_name": "Hercules Beetle",
+  "rank": "5",
+  "description": "A heroic symbol of the Insector world. Combines brute force strength with ancient mystique.",
+  "special_move": "Crushing Horn",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Narcissus Beetle + Any female. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Big Staggy + Miss Mysterious (F)",
+  "traps": "None",
+  "bait": "None",
+  "location": "None",
+  "stats": {
+   "HP": {
+    "min": 312,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 42,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 33,
+    "max": 99
+   },
+   "Str": {
+    "min": 33,
+    "max": 99
+   },
+   "Cut": {
+    "min": 40,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 40,
+    "max": 99
+   },
+   "Def": {
+    "min": 17,
+    "max": 99
+   },
+   "Throw": {
+    "min": 33,
+    "max": 99
+   },
+   "Poison": {
+    "min": 35,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "tornado_mantis",
+  "family_name": "Mantis",
+  "rank": "4",
+  "description": "A lone wolf who inspires fear in its opponents, taking them down with its long, nimble arms.",
+  "special_move": "Sickle Dance",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Super Mantis + Any female. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Mantis + Slaying Mantis (F)",
+  "traps": "None",
+  "bait": "None",
+  "location": "None",
+  "stats": {
+   "HP": {
+    "min": 140,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 29,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 29,
+    "max": 99
+   },
+   "Str": {
+    "min": 27,
+    "max": 99
+   },
+   "Cut": {
+    "min": 27,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 29,
+    "max": 99
+   },
+   "Def": {
+    "min": 6,
+    "max": 99
+   },
+   "Throw": {
+    "min": 33,
+    "max": 99
+   },
+   "Poison": {
+    "min": 29,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "turner",
+  "family_name": "Flipperbug",
+  "rank": "3",
+  "description": "A mischievous little guy who sends enemies spinning with its unique corn.",
+  "special_move": "Over Easy",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Rollerover + Any female except Rollerover and Big Staggy. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Orion Beetle + Stinger Bill (F)",
+  "traps": "None",
+  "bait": "None",
+  "location": "On Zerard: Pocacchio's Lab using Hard Candy",
+  "stats": {
+   "HP": {
+    "min": 144,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 27,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 24,
+    "max": 99
+   },
+   "Str": {
+    "min": 22,
+    "max": 99
+   },
+   "Cut": {
+    "min": 27,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 22,
+    "max": 99
+   },
+   "Def": {
+    "min": 10,
+    "max": 99
+   },
+   "Throw": {
+    "min": 24,
+    "max": 99
+   },
+   "Poison": {
+    "min": 24,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "western_beetle",
+  "family_name": "Bazoo Beetle",
+  "rank": "6",
+  "description": "A beetle whose powerful cannon devastates it's enemies. Those puckered lips aren't for show",
+  "special_move": "Cannon Blast",
+  "range_of_movement": "3 x 3 squares",
+  "normal_breeding": "Kaboom Beetle + Any female except Kaboom Beetle. (Female level & rank should be same or lower than male).",
+  "special_breeding": "(M) Drillerpillar + Gum Roller (F)",
+  "traps": "None",
+  "bait": "None",
+  "location": "None",
+  "stats": {
+   "HP": {
+    "min": 202,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 42,
+    "max": 99
+   },
+   "Confusion": {
+    "min": 40,
+    "max": 99
+   },
+   "Str": {
+    "min": 39,
+    "max": 99
+   },
+   "Cut": {
+    "min": 40,
+    "max": 99
+   },
+   "Explosion": {
+    "min": 42,
+    "max": 99
+   },
+   "Def": {
+    "min": 15,
+    "max": 99
+   },
+   "Throw": {
+    "min": 48,
+    "max": 99
+   },
+   "Poison": {
+    "min": 40,
+    "max": 99
+   }
+  }
+ },
+ {
+  "id": "white_miracle",
+  "family_name": "White Miracle",
+  "rank": "1",
+  "description": "The ultimate android Insector, invented by the infamous Dr. Pocacchio!",
+  "special_move": "Unknown",
+  "range_of_movement": "Unknown",
+  "normal_breeding": "None",
+  "special_breeding": "None",
+  "traps": "None",
+  "bait": "None",
+  "location": "Not available. This Insector can only be used by Dr. Pocacchio.",
+  "stats": {
+   "HP": {
+    "min": 999,
+    "max": 999
+   },
+   "Knockback": {
+    "min": 112,
+    "max": 122
+   },
+   "Confusion": {
+    "min": 128,
+    "max": 138
+   },
+   "Str": {
+    "min": 108,
+    "max": 118
+   },
+   "Cut": {
+    "min": 128,
+    "max": 138
+   },
+   "Explosion": {
+    "min": 110,
+    "max": 120
+   },
+   "Def": {
+    "min": 106,
+    "max": 116
+   },
+   "Throw": {
+    "min": 125,
+    "max": 135
+   },
+   "Poison": {
+    "min": 125,
+    "max": 135
+   }
+  }
+ }
+]

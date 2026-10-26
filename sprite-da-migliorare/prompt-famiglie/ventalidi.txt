@@ -1,0 +1,25 @@
+PROMPT — famiglia Ventalidi (1 Insector)
+colore della famiglia: #22d3ee
+============================================================
+
+Draw 1 side-view character of the same insect family for a
+turn-based tactics game, in ONE image, left to right, evenly spaced, on a flat
+#2a3147 background, no text anywhere.
+
+STYLE — match the reference exactly: cartoon mascot, bold dark outline, flat
+fill with one soft highlight, three-quarter side view facing right, standing on
+its legs, friendly but not childish. Family colour #22d3ee on the body: use it,
+do not introduce new hues.
+
+FAMILY SIGNATURE — all of them must read as relatives:
+four broad wings with eyespots.
+
+THE 1 MEMBER, weakest to strongest. 
+  1. Bufera (rank 4)
+
+WHAT THEY DO, for the attitude: A raider: flies three squares and sweeps away whatever stands around it.
+
+The progression is carried by real shape — longer weapon, heavier body, extra
+parts — not by size alone. Whoever is stronger must look it at a glance.
+
+Return the 1 character in one image, nothing else.

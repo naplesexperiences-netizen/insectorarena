@@ -1,0 +1,92 @@
+I QUATTRO PROMPT DI ANIMAZIONE
+Modelli di testo, uno per stato. {NOME} {FAMIGLIA} {COLORE} {FIRMA} li
+riempie genera-richieste.js leggendo gioca.html.
+======================================================================
+
+TESTA COMUNE — va in cima a tutti e quattro
+----------------------------------------------------------------------
+The attached image is the reference for this character. Keep it EXACTLY:
+same body plan, same proportions, same {COLORE} body colour, same dark
+outline weight, same flat shading with one soft highlight, same cartoon
+mascot style, three-quarter side view facing right.
+
+This is {NOME}, of the {FAMIGLIA} family: {FIRMA}.
+
+Draw ONE strip of {N} animation frames, left to right, evenly spaced, each
+frame the same square size, on a flat #2a3147 background. No text, no
+numbers, no frame borders, no captions anywhere in the image.
+
+THE CHARACTER MUST NOT CHANGE BETWEEN FRAMES. Same size, same colours,
+same markings, same number of limbs. Only the pose and the effects change.
+Keep the feet on the same ground line in every frame, and keep the
+character at the same distance from the camera: these frames are played
+one after the other, and anything that drifts reads as a glitch.
+
+
+1. ATTACCO — 6 fotogrammi
+----------------------------------------------------------------------
+  1. ready stance, weight on the back legs, {ARMA} ready
+  2. wind-up: the whole body leans back, {ARMA} drawn back
+  3. lunge forward, {ARMA} leading, with motion streaks behind it
+  4. impact: {ARMA} driven into an unseen target at the right edge, a
+     bright yellow-white burst at the point of contact
+  5. follow-through: body low and forward past the strike, a small dust
+     puff at the feet, a white arc tracing the path of {ARMA}
+  6. back to the ready stance of frame 1
+
+{ARMA} e' quello con cui quella famiglia colpisce: la lama dei Lamidi, il
+corno dei Bastidi, la canna dei Bombardidi, la pala dei Voltidi, le falci
+dei Falcidi, le tenaglie dei Tenaglidi, la testa a trivella dei Trivellidi,
+le ali di Silfidi e Ventalidi, il guscio dei Coccinidi, la palla dei
+Sferidi, le zampe posteriori dei Corsidi, la scarica dei Tonantidi.
+Senza, il prompt direbbe "weapon" anche a chi un'arma non ce l'ha.
+
+The force comes from the anticipation in frame 2 and the recovery in
+frame 5. Frame 4 is the only one with the burst.
+
+
+2. COLPITO — 4 fotogrammi
+----------------------------------------------------------------------
+  1. recoil: head back, body compressed, pained expression
+  2. the whole character washed out to near-white, as if lit from inside
+     by the impact — keep the silhouette identical to frame 1
+  3. staggering, off balance, small coloured stars circling the head
+  4. upright again, shaken, eyes narrowed
+
+Frame 2 is a flash: same shape, different colour, nothing else.
+
+
+3. VITTORIA — 6 fotogrammi
+----------------------------------------------------------------------
+  1. both forelimbs raised, chest out, delighted
+  2. a small jump, feet off the ground, limbs up
+  3. at the top of the jump, surrounded by small coloured confetti
+  4. a courteous bow, one limb folded across the body
+  5. upright again with warm sparkles around the head
+  6. a final raised fist, pleased with itself
+
+Happy, not manic. This is a creature that has just won a duel, not a
+cartoon on a sugar rush.
+
+
+4. SCONFITTA — 6 fotogrammi
+----------------------------------------------------------------------
+  1. hunched, exhausted, limbs hanging
+  2. a dizzy spiral over one eye, swaying
+  3. knees buckling, body sagging forward
+  4. flat on the ground, side view, limbs splayed
+  5. on the ground with coloured stars circling above the head
+  6. on the ground, eyes closed, a slow spiral of stars settling
+
+Defeated and tired, never gruesome: no blood, no injury, no distress.
+The character keeps its dignity.
+
+
+NOTE
+----------------------------------------------------------------------
+Lo sfondo si chiede PIENO (#2a3147), non trasparente. L'alfa si toglie
+dopo, con uno scontorno deterministico: chiedere la trasparenza al modello
+e' una variabile in piu' che non serve, perche' lo sfondo e' un colore
+piatto e noto e si rimuove senza ambiguita'.
+
+22 fotogrammi per Insector: 6 + 4 + 6 + 6.

@@ -1,0 +1,36 @@
+# Configurazione del Worker della telemetria.
+#
+# Prima di pubblicare vanno riempiti i due punti segnati con DA-RIEMPIRE:
+# l'identificativo del database (lo stampa `wrangler d1 create`) e l'origine
+# del sito, che e' l'unica a cui il Worker risponde.
+#
+# Le istruzioni complete stanno in README.md, in questa stessa cartella.
+
+name = "insectron-eco"
+main = "worker.js"
+compatibility_date = "2026-09-30"
+
+# Osservabilita' SPENTA di proposito: con i log accesi Cloudflare conserverebbe
+# le richieste, e con esse l'indirizzo IP che l'informativa promette di non
+# conservare. Se un giorno servisse per capire un errore, si accende, si guarda
+# e si rispegne — sapendo che in quella finestra la promessa non vale.
+[observability]
+enabled = false
+
+[[d1_databases]]
+binding = "DB"
+database_name = "insectron-eco"
+database_id = "DA-RIEMPIRE-con-l-id-che-stampa-wrangler-d1-create"
+
+[vars]
+# L'unico sito autorizzato a mandare rapporti. Con "*" accetterebbe da
+# chiunque, e chiunque potrebbe riempire il database di righe finte.
+ORIGINE = "https://naplesexperiences-netizen.github.io"
+
+# La chiave per leggere gli aggregati NON sta qui: e' un secret, si mette con
+#   wrangler secret put CHIAVE_LETTURA
+# Senza, l'endpoint /numeri risponde 401 a tutti — compresi noi.
+
+# Pulizia notturna: cancella le righe piu' vecchie di dodici mesi.
+[triggers]
+crons = ["7 4 * * *"]

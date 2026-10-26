@@ -1,0 +1,63 @@
+PROMPT DA INCOLLARE INSIEME A "insetti-per-il-modello.png"
+(in inglese: i modelli di immagine rispondono meglio)
+=========================================================
+
+This image is a sprite sheet of 34 creatures from a turn-based tactics browser
+game. Redraw all 34, better, and return ONE image with the SAME layout.
+
+HARD RULES — breaking any of these makes the result unusable:
+
+1. KEEP THE GRID EXACTLY. 6 columns x 6 rows, square cells of equal size, same
+   order, same positions. The last cell (row 6, column 5 and 6) stays empty.
+   I slice the result back apart by position, so nothing may shift.
+
+2. NO TEXT. No labels, no names, no numbers, no captions, no watermark,
+   anywhere in the image.
+
+3. KEEP EVERY COLOUR. Each cell has a coloured border: that is the creature's
+   family colour, and the creature inside must stay that colour. Do not
+   recolour anything, do not introduce new hues.
+
+4. KEEP THE BACKGROUND flat and identical in every cell: the same dark navy
+   (#232d40). No scenery, no gradients on the background, no drop shadows
+   outside the creature.
+
+5. KEEP THE VIEW: every creature seen from directly above, bilaterally
+   symmetrical, centred in its cell, facing up (head at the top).
+
+6. THESE ARE PLAYED AT 28 TO 64 PIXELS ON SCREEN. Bold shapes, thick dark
+   outlines, high contrast, flat colour. Any detail that disappears when the
+   cell is shrunk to 46 pixels is wasted - and worse, it turns into mud.
+
+WHAT I WANT IMPROVED:
+
+A. Cells that share a border colour are ONE FAMILY. They must read as
+   relatives: same body plan, same signature weapon.
+
+B. But inside each family every creature must stay CLEARLY DIFFERENT from its
+   siblings. They already are: as of 5 October 2026 no two members of a family
+   share a silhouette, and the smallest step between one grade and the next is
+   5% of the silhouette, measured at the 46 pixels the pieces are played at.
+   Do not lose that. Within a family, cells go left to right from the weakest
+   to the strongest, and the progression is carried by real shape - longer
+   weapon, heavier body, extra parts - not by size alone. Keep every part you
+   see: if a creature has barbs, plates, wheels or hooks that its weaker
+   sibling does not have, those are what tell them apart on the board.
+
+C. Give each family a stronger, more readable signature. One family, one idea:
+
+      light blue  (r1c1-r1c4)  - a straight blade horn pointing forward
+      yellow      (r1c5-r2c2)  - thick curved charging horns
+      purple      (r2c3-r2c6)  - a cannon barrel on the back
+      green       (r3c1-r3c4)  - a flat flipper body, built to flip others over
+      orange      (r3c5-r4c1)  - big open pincer jaws at the front
+      light green (r4c2-r4c5)  - raised sickle forelegs, like a mantis
+      pink        (r4c6-r5c1)  - a drill-shaped head
+      cyan        (r5c2)       - large wings
+      red         (r5c3)       - a round spotted ladybird
+      beige       (r5c4-r5c5)  - rolling a ball
+      amber       (r5c6)       - long legs, built to kick
+      magenta     (r6c1-r6c3)  - delicate fairy wings
+      indigo      (r6c4)       - crowned, imposing: this one is the boss
+
+Return the full 6x6 sheet, nothing else.

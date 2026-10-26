@@ -1,0 +1,27 @@
+PROMPT — famiglia Trivellidi (2 Insector)
+colore della famiglia: #f472b6
+============================================================
+
+Draw 2 side-view characters of the same insect family for a
+turn-based tactics game, in ONE image, left to right, evenly spaced, on a flat
+#2a3147 background, no text anywhere.
+
+STYLE — match the reference exactly: cartoon mascot, bold dark outline, flat
+fill with one soft highlight, three-quarter side view facing right, standing on
+its legs, friendly but not childish. Family colour #f472b6 on the body: use it,
+do not introduce new hues.
+
+FAMILY SIGNATURE — all of them must read as relatives:
+a drill-shaped head and a segmented caterpillar body.
+
+THE 2 MEMBERS, weakest to strongest. Each one must be clearly different
+from the one before — same body plan, more weapon:
+  1. Trivella (rank 4) — smooth segments
+  2. Punteruolo (rank 6) — ridges on the segments
+
+WHAT THEY DO, for the attitude: A battering ram: charges straight and bowls things over, then stands exposed.
+
+The progression is carried by real shape — longer weapon, heavier body, extra
+parts — not by size alone. Whoever is stronger must look it at a glance.
+
+Return the 2 characters in one image, nothing else.
