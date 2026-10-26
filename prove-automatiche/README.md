@@ -127,7 +127,10 @@ sono dichiarati a mano per non far saltare il layout durante il caricamento.
 | | |
 |---|---|
 | `rigenera-mech.py` | genera `mech.js` e `game.js` da `gioca.html` |
-| `specchia.py` | rigenera questa copia del gioco da quella del sito (serve solo se tieni le due copie in due repository) |
+
+*(Qui c'era anche `specchia.py`, che teneva allineata la copia del gioco
+dentro all'hub delle demo. Dal 26 ottobre 2026 l'hub non ha più una copia: ha
+tre pagine che rimandano qui, e non c'è più niente da allineare.)*
 
 ## Due cose imparate, che valgono più dei controlli
 
