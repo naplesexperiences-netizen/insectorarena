@@ -37,7 +37,7 @@ muoversi e Invio per selezionare.
 | `robots.txt`, `sitemap.xml` | per i motori di ricerca |
 | **`DOCUMENTAZIONE.md`** | **la documentazione tecnica**: com'è fatto, da dove vengono i dati, che cosa è stato misurato |
 | `ROADMAP.md`, `PIANO-*.md` | dove siamo, e i piani per quello che manca |
-| `prove-automatiche/` | le 31 suite di prove: 816 controlli, `sh prove-automatiche/batteria.sh` |
+| `prove-automatiche/` | le 32 suite di prove: 890 controlli, `sh prove-automatiche/batteria.sh` |
 | `sprite-da-migliorare/` | il materiale per far ridisegnare gli Insector da un generatore |
 | `telemetria/` | worker Cloudflare, schema e prova. **Spenta**, in attesa del consulente privacy |
 | `prove/` | i confronti fra strumenti grafici (Canva, Figma, Higgsfield) |

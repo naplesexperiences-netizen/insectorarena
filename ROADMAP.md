@@ -7,7 +7,7 @@ lavoro, non di calendario.
 generati da codice — e dal 5 ottobre ogni Insector ha il suo disegno, perché la figura
 segue il grado dentro la famiglia e non più il rank assoluto — gabbie e allevamento, mondo e cattura con semi condivisibili,
 salvataggi esportabili, eco, edizione demo, nomenclatura tutta nostra e le due schermate
-prima della partita che stanno in una finestra sola. 816 controlli automatici, equilibrio
+prima della partita che stanno in una finestra sola. 890 controlli automatici, equilibrio
 misurato a simulazione. Quel che manca non sono pezzi rotti: sono pezzi mancanti.
 
 **La decisione che riordina tutto** *(27 settembre 2026)*: la demo si ferma finché il
@@ -140,6 +140,18 @@ non sono più di strada.
 **La ricarica della speciale si vede sulla pedina**: una targhetta col numero dei turni
 che mancano, che sparisce invece di dire zero. A colpo d'occhio si sa quale dei cinque può
 usarla. 39 controlli nuovi, più due giri di nuvolette che spiegano il gesto.
+
+## ~~Grafica, Fase 1 — Le fondamenta dell'interfaccia~~ · **fatta** (26 ottobre)
+
+Prima delle quattro fasi di `PIANO-UX.md`. **Sette gradini di testo** al posto di 33
+dimensioni sparse, con un pavimento a 0.68rem che vale anche sulle pedine. **Un solo
+primario per schermata**: i quattro «Torna» diventano pulsanti fantasma, e la speciale in
+campo e la sfida del giorno passano a un giallo di contorno, perché accanto a «Fine turno»
+e a «Entra in arena» erano un secondo giallo pieno. **Le statistiche del roster sono
+barre** rispetto al migliore del rank (Folgore escluso dal metro, come dai sorteggi); sul
+telefono, dove le schede sono righe da 44 px, restano icone e numeri. **Dodici icone**
+disegnate da codice. La scheda scelta **sale di un piano**. Pressione e dissolvenza fra
+le schermate, spente col movimento ridotto. Nessun file nuovo. 74 controlli nuovi.
 
 ## Priorità 6 — Quando si esce di casa
 

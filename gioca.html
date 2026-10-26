@@ -14,6 +14,14 @@
   --ally:#4bc3ff; --foe:#ff6b6b; --ok:#5ddb8f; --warn:#ffa94d;
   --r:12px; --font:'Trebuchet MS',Verdana,sans-serif;
   --barra:40vh;                                    /* altezza massima della barra sul telefono */
+  /* Sette gradini di testo e non uno di piu'. Prima erano 33 valori fra .56 e
+     1.8rem: la gerarchia non si leggeva e molte scritte scendevano sotto i
+     10 px. `micro` e' il pavimento: sotto non si va, nemmeno sulle pedine. */
+  --fs-display:1.75rem; --fs-h1:1.3rem; --fs-h2:1.1rem; --fs-body:.9rem;
+  --fs-small:.78rem; --fs-caption:.72rem; --fs-micro:.68rem;
+  /* Il terzo piano: quello che hai scelto sale, invece di cambiare solo il bordo. */
+  --surface-raised:#2a3650;
+  --shadow-raised:0 2px 0 rgba(0,0,0,.35),0 8px 20px rgba(0,0,0,.35);
 }
 html{color-scheme:dark}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -33,17 +41,17 @@ header.top{
   padding:14px 16px;background:var(--panel);border:1px solid var(--line);
   border-radius:var(--r);margin-bottom:16px;
 }
-header.top h1{font-size:1.3rem;letter-spacing:.5px}
+header.top h1{font-size:var(--fs-h1);letter-spacing:.5px}
 header.top h1 span{color:var(--accent)}
 .badge{
   background:var(--panel2);border:1px solid var(--line);border-radius:999px;
-  padding:5px 13px;font-size:.8rem;color:var(--muted);white-space:nowrap
+  padding:5px 13px;font-size:var(--fs-small);color:var(--muted);white-space:nowrap
 }
 .badge b{color:var(--text)}
 .badge select{
   background:var(--panel2);color:var(--text);     /* espliciti: su Windows in tema scuro servono */
   border:1px solid var(--line);border-radius:7px;
-  font-family:inherit;font-size:.8rem;padding:3px 6px;margin-left:6px;cursor:pointer
+  font-family:inherit;font-size:var(--fs-small);padding:3px 6px;margin-left:6px;cursor:pointer
 }
 .spacer{flex:1}
 /* --- una schermata sola -------------------------------------------------
@@ -109,14 +117,14 @@ body.fisso .wrap{height:100dvh}
 .tondo{
   width:30px;height:30px;min-height:30px;padding:0;border-radius:50%;
   display:inline-flex;align-items:center;justify-content:center;
-  font-size:.92rem;line-height:1;background:var(--panel);border:1px solid var(--line);
+  font-size:var(--fs-body);line-height:1;background:var(--panel);border:1px solid var(--line);
   color:var(--muted);flex:0 0 30px
 }
 .tondo:hover:not(:disabled){background:#2e3b52;border-color:var(--accent2);color:var(--text)}
-.chiudi{position:absolute;top:12px;right:12px;font-size:1.3rem;z-index:2}
+.chiudi{position:absolute;top:12px;right:12px;font-size:var(--fs-h1);z-index:2}
 .modalbox.scheda{position:relative;max-width:480px;padding:18px}
 .modalbox.scheda .sheet{background:none;border:0;padding:0}
-.sheet h2{font-size:1.1rem;line-height:1.2}
+.sheet h2{font-size:var(--fs-h2);line-height:1.2}
 .solotel{display:none}                             /* compare solo sul telefono */
 /* L'interruttore dell'invio: e' un comando, non una didascalia, e va guardato
    come tale. Il link all'informativa non deve virare al viola da visitato: qui
@@ -125,12 +133,12 @@ body.fisso .wrap{height:100dvh}
 .riga-invio{
   display:flex;align-items:center;gap:10px;margin:10px 0 14px;padding:11px 13px;
   background:var(--panel2);border:1px solid var(--line);border-radius:10px;
-  font-size:.85rem;color:var(--text);cursor:pointer
+  font-size:var(--fs-body);color:var(--text);cursor:pointer
 }
 .riga-invio input{width:18px;height:18px;flex:0 0 18px;accent-color:var(--accent);cursor:pointer}
-.sotto{font-size:.68rem;color:var(--muted)}        /* riga secondaria sotto un nome */
+.sotto{font-size:var(--fs-micro);color:var(--muted)}        /* riga secondaria sotto un nome */
 button{
-  font-family:inherit;font-size:.88rem;cursor:pointer;border-radius:9px;
+  font-family:inherit;font-size:var(--fs-body);cursor:pointer;border-radius:9px;
   border:1px solid var(--line);background:var(--panel2);color:var(--text);
   padding:9px 15px;transition:background .14s,border-color .14s,color .14s,opacity .14s;
 }
@@ -139,6 +147,26 @@ button:disabled{opacity:.35;cursor:not-allowed}
 button.primary{background:var(--accent);color:#231a04;border-color:#e0a83b;font-weight:bold}
 button.primary:hover:not(:disabled){background:#ffd06e}
 button.danger{border-color:#7d3a3a;color:#ffb3b3}
+/* Il fantasma: tornare indietro non e' un passo avanti, e non deve vestirsi
+   da primario. Prima quattro «Torna» erano gialli e pieni, e nel Mondo il
+   giallo largo tutta la finestra era «Torna al roster», non «Posa la trappola».
+   Un primario per schermata: quello che fa andare avanti. */
+/* L'accento: contorno e testo gialli, fondo neutro. Per la scelta che deve
+   spiccare accanto al primario senza fargli concorrenza -- la mossa speciale
+   vicino a «Fine turno», la sfida del giorno vicino a «Entra in arena». */
+button.accento{border-color:var(--accent);color:var(--accent);font-weight:bold}
+button.accento:hover:not(:disabled){background:#2a2415;border-color:#ffd06e}
+button.ghost{background:none;border-color:transparent;color:var(--muted)}
+button.ghost:hover:not(:disabled){background:none;border-color:var(--line);color:var(--text)}
+/* La pressione si sente: un filo di schiacciamento sotto il dito. Non sulle
+   caselle del campo, che hanno gia' i loro segnali. */
+button:not(.cell){transition:background .14s,border-color .14s,color .14s,opacity .14s,transform .08s}
+button:not(.cell):active:not(:disabled){transform:scale(.97)}
+/* Cambiare schermata e' una dissolvenza breve. Solo opacita': un `transform`
+   sulla schermata, anche per 160 ms, sposterebbe le finestre e le nuvolette
+   che si ancorano dentro, e farebbe misurare male chi le posiziona. */
+.screen.on{animation:entra .16s ease-out}
+@keyframes entra{from{opacity:0}}
 /* `hidden` e' un attributo, e una qualsiasi regola con `display` lo batte: era
    gia' successo a cinque elementi, corretti uno per uno, e al banner del
    riepilogo no — restava una striscia vuota sotto la testata. Una regola sola. */
@@ -149,8 +177,8 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 /* ---------- squadra ---------- */
 .two{display:grid;grid-template-columns:1fr 330px;gap:16px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px}
-.card h2{font-size:1rem;margin-bottom:4px;color:var(--accent)}
-.card p.hint{font-size:.8rem;color:var(--muted);margin-bottom:12px;line-height:1.5}
+.card h2{font-size:var(--fs-h2);margin-bottom:4px;color:var(--accent)}
+.card p.hint{font-size:var(--fs-small);color:var(--muted);margin-bottom:12px;line-height:1.5}
 .roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:9px;max-height:56vh;overflow:auto;padding-right:4px}
 .mon{
   background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px;
@@ -158,30 +186,51 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
   transition:background .13s,border-color .13s,transform .13s,opacity .13s
 }
 .mon:hover{border-color:var(--accent2);transform:translateY(-1px)}
-.mon.sel{border-color:var(--accent);background:#2b3448;box-shadow:0 0 0 1px var(--accent) inset}
+.mon.sel{border-color:var(--accent);background:var(--surface-raised);box-shadow:0 0 0 1px var(--accent) inset,var(--shadow-raised)}
 .mon.look{border-color:var(--accent2);box-shadow:0 0 0 1px var(--accent2) inset}
 .mon.locked{opacity:.4;filter:grayscale(.85);cursor:help}
 .mon.locked:hover{border-color:var(--warn);transform:none}
 .mon .art{width:38px;height:38px;flex:0 0 38px}
 .mon .grow{display:block;min-width:0}
-.mon .nm{display:block;font-size:.78rem;font-weight:bold;line-height:1.2}
-.mon .st{display:block;font-variant-numeric:tabular-nums;font-size:.68rem;color:var(--muted);margin-top:3px;font-family:ui-monospace,monospace}
+.mon .nm{display:block;font-size:var(--fs-small);font-weight:bold;line-height:1.2}
+.mon .st{display:block;font-variant-numeric:tabular-nums;font-size:var(--fs-micro);color:var(--muted);margin-top:3px;font-family:ui-monospace,monospace}
+/* Le statistiche come tre barre corte: la barra si riempie rispetto al
+   migliore del suo rank, e due Insector si confrontano senza leggere. Prima
+   era «R1 · 150hp · 15str · 8def» in una riga sola, che nelle schede strette
+   andava a capo a meta' numero. Il numero resta, accanto alla sua icona. */
+.ic{width:1em;height:1em;flex:0 0 auto;vertical-align:-.14em}
+.mon .nm:has(.rk){display:flex;align-items:center;min-width:0}
+.nmt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rk{display:inline-block;flex:none;font-size:var(--fs-micro);font-weight:bold;line-height:1.35;color:var(--muted);
+  background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:0 6px;margin-left:5px;vertical-align:1px}
+.st3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:5px}
+.sb{display:flex;flex-wrap:wrap;align-items:center;gap:2px 3px;min-width:0;
+  font-size:var(--fs-micro);color:var(--text);font-variant-numeric:tabular-nums}
+.sb .ic{font-size:var(--fs-caption)}
+.sb-vita .ic{color:var(--ok)} .sb-forza .ic{color:var(--foe)} .sb-difesa .ic{color:var(--accent2)}
+.sb u{flex:1 0 100%;height:4px;border-radius:999px;background:var(--bg);overflow:hidden;text-decoration:none}
+.sb u i{display:block;height:100%;border-radius:999px}
+.sb-vita u i{background:var(--ok)} .sb-forza u i{background:var(--foe)} .sb-difesa u i{background:var(--accent2)}
+/* Per chi legge con lo screen reader le barre sono mute: i numeri, con le
+   parole intere, stanno qui. */
+.badge .ic,.scelte .ic,.posta .q .ic,.mon .st .ic{margin-right:4px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
 /* ---- scheda di dettaglio dell'Insector (roster) ---- */
 .sheet{background:var(--panel2);border:1px solid var(--line);border-radius:var(--r);padding:16px}
 .sheet .row{display:flex;gap:13px;align-items:center;margin-bottom:12px}
 .sheet .art{width:54px;height:54px;flex:0 0 54px}
-.sheet h3{font-size:1.05rem;line-height:1.2}
-.sheet .fam{font-size:.74rem;color:var(--muted);margin-top:2px}
-.sheet .desc{font-size:.82rem;color:var(--muted);line-height:1.5;margin-bottom:12px}
+.sheet h3{font-size:var(--fs-h2);line-height:1.2}
+.sheet .fam{font-size:var(--fs-caption);color:var(--muted);margin-top:2px}
+.sheet .desc{font-size:var(--fs-small);color:var(--muted);line-height:1.5;margin-bottom:12px}
 .sheet .num{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
 .sheet .num div{background:var(--panel);border-radius:8px;padding:7px 4px;text-align:center;
-  font-size:.68rem;color:var(--muted);font-variant-numeric:tabular-nums}
-.sheet .num b{display:block;font-size:1.05rem;color:var(--accent);margin-top:2px}
-.sheet .line{display:flex;gap:9px;font-size:.78rem;line-height:1.5;margin-bottom:9px}
+  font-size:var(--fs-micro);color:var(--muted);font-variant-numeric:tabular-nums}
+.sheet .num b{display:block;font-size:var(--fs-h2);color:var(--accent);margin-top:2px}
+.sheet .line{display:flex;gap:9px;font-size:var(--fs-small);line-height:1.5;margin-bottom:9px}
 .sheet .line span:first-child{color:var(--muted);flex:0 0 84px}
 .sheet .line b{color:var(--accent2)}
-.sheet .locked{color:var(--warn);font-size:.8rem;margin-bottom:10px}
-.sheet .vuota{color:var(--muted);font-size:.84rem;line-height:1.6}
+.sheet .locked{color:var(--warn);font-size:var(--fs-small);margin-bottom:10px}
+.sheet .vuota{color:var(--muted);font-size:var(--fs-small);line-height:1.6}
 
 /* ---- riepilogo squadra prima della partita ---- */
 /* Cinque schede: su schermo largo stanno in fila, e la squadra si legge in
@@ -193,22 +242,22 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
   transition:border-color .15s,background .15s}
 .bcard:hover{border-color:var(--accent2)}
 .bcard .num div{background:var(--panel);border-radius:7px;padding:5px 2px}
-.bcard.re{border-color:var(--accent);background:#2b3448;box-shadow:0 0 0 1px var(--accent) inset}
+.bcard.re{border-color:var(--accent);background:var(--surface-raised);box-shadow:0 0 0 1px var(--accent) inset,var(--shadow-raised)}
 .bcard .top{display:flex;gap:11px;align-items:center}
 .bcard .art{width:46px;height:46px;flex:0 0 46px}
-.bcard h4{font-size:.94rem}
-.bcard .fam{font-size:.7rem;color:var(--muted)}
-.bcard .num{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center;font-size:.66rem;color:var(--muted)}
+.bcard h4{font-size:var(--fs-body)}
+.bcard .fam{font-size:var(--fs-caption);color:var(--muted)}
+.bcard .num{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center;font-size:var(--fs-micro);color:var(--muted)}
 .bcard .num div{background:var(--panel);border-radius:7px;padding:5px 2px;font-variant-numeric:tabular-nums}
-.bcard .num b{display:block;font-size:.92rem;color:var(--accent)}
-.bcard .sp{font-size:.74rem;color:var(--muted);line-height:1.45;flex:1}
+.bcard .num b{display:block;font-size:var(--fs-body);color:var(--accent)}
+.bcard .sp{font-size:var(--fs-caption);color:var(--muted);line-height:1.45;flex:1}
 .bcard .sp b{color:var(--accent2)}
 /* La scheda del riepilogo porta solo numeri: la prosa sta nel pop-up, che si
    apre col tondo in alto a destra. Cinque schede devono stare in una
    schermata, e cinque paragrafi non ci stanno. */
 .bcard{position:relative}
 .bcard .info{position:absolute;top:10px;right:10px}
-.bcard .dati{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.72rem;color:var(--muted);flex:1}
+.bcard .dati{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:var(--fs-caption);color:var(--muted);flex:1}
 /* La riga dei numeri si prende lo spazio che avanza: cosi' «Nomina Re» sta in
    fondo a tutte e cinque le schede, sulla stessa linea, anche quando una
    speciale va a capo e un'altra no. */
@@ -216,20 +265,20 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 .bcard .dati b{color:var(--text);font-variant-numeric:tabular-nums}
 .bcard h4{padding-right:34px}
 .bcard .scegli{
-  text-align:center;padding:9px;border-radius:8px;font-size:.78rem;width:100%;
+  text-align:center;padding:9px;border-radius:8px;font-size:var(--fs-small);width:100%;
   background:var(--panel);color:var(--muted);border:1px solid var(--line);min-height:40px
 }
 .bcard.re .scegli{background:var(--accent);color:#231a04;font-weight:bold;border-color:#e0a83b}
 .slots{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
 .slot{
   display:flex;gap:9px;align-items:center;background:var(--panel2);border:1px dashed var(--line);
-  border-radius:10px;padding:8px;min-height:52px;font-size:.78rem;color:var(--muted)
+  border-radius:10px;padding:8px;min-height:52px;font-size:var(--fs-small);color:var(--muted)
 }
 .slot.full{border-style:solid;color:var(--text)}
 .slot .art{width:32px;height:32px;flex:0 0 32px}
 .slot .grow{flex:1;min-width:0}
-.crown{color:var(--accent);font-size:.9rem}
-.kbtn{font-size:.66rem;padding:4px 8px}
+.crown{color:var(--accent);font-size:var(--fs-body)}
+.kbtn{font-size:var(--fs-micro);padding:4px 8px}
 
 /* ---------- battaglia ---------- */
 .arena{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start}
@@ -265,7 +314,7 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 .deploylist{display:flex;flex-direction:column;gap:6px}
 .dep{
   display:flex;gap:9px;align-items:center;background:var(--panel2);border:1px solid var(--line);
-  border-radius:9px;padding:7px;font-size:.78rem;cursor:pointer;text-align:left;width:100%
+  border-radius:9px;padding:7px;font-size:var(--fs-small);cursor:pointer;text-align:left;width:100%
 }
 .dep:hover{border-color:var(--accent2)}
 .dep.cur{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
@@ -287,9 +336,9 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
    quale dei cinque ce l'ha pronta, senza selezionarle una a una. */
 .tok .cdn{
   position:absolute;left:50%;bottom:-3px;transform:translateX(-50%);
-  min-width:15px;height:15px;padding:0 3px;border-radius:999px;
+  min-width:16px;height:16px;padding:0 3px;border-radius:999px;
   background:var(--panel);border:1px solid var(--warn);color:var(--warn);
-  font-size:.56rem;line-height:13px;text-align:center;font-variant-numeric:tabular-nums;
+  font-size:var(--fs-micro);line-height:14px;text-align:center;font-variant-numeric:tabular-nums;
   pointer-events:none
 }
 .tok .cdn:empty{display:none}
@@ -321,8 +370,8 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 .hpbar i{display:block;height:100%;background:var(--ok);transition:width .35s ease-out}
 .hpbar.p i{background:linear-gradient(90deg,#2a8fc4,var(--ally))}
 .hpbar.e i{background:linear-gradient(90deg,#c44a4a,var(--foe))}
-.kmark{position:absolute;top:2%;right:8%;font-size:.66rem;color:var(--accent);text-shadow:0 0 4px #000}
-.status{position:absolute;bottom:20%;left:6%;font-size:.6rem;letter-spacing:-1px}
+.kmark{position:absolute;top:2%;right:8%;font-size:var(--fs-micro);color:var(--accent);text-shadow:0 0 4px #000}
+.status{position:absolute;bottom:20%;left:6%;font-size:var(--fs-micro);letter-spacing:-1px}
 
 /* ---- animazioni ----
    Regola che tiene insieme tutto: prima di ogni azione forte c'e' un piccolo
@@ -407,7 +456,7 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
   transition:left .3s linear,top .3s linear
 }
 .fx{
-  position:absolute;font-weight:bold;font-size:.95rem;color:#fff;z-index:6;
+  position:absolute;font-weight:bold;font-size:var(--fs-body);color:#fff;z-index:6;
   text-shadow:0 0 5px #000,0 0 10px #000;pointer-events:none;animation:pop .9s ease-out forwards
 }
 @keyframes pop{
@@ -419,32 +468,34 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
   .tok,.tok .inner,.tok .art,.tok .shadow,.art .wing,.tok.sel .inner::after,
   .cell.mv::after{animation:none!important;transition:none!important}
   .wave,.bullet{display:none}
+  .screen.on{animation:none}
+  button:not(.cell):active:not(:disabled){transform:none}
 }
 
 .panel{display:flex;flex-direction:column;gap:12px}
 .unitcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:13px}
 .unitcard .row{display:flex;gap:10px;align-items:center;margin-bottom:9px}
 .unitcard .art{width:46px;height:46px;flex:0 0 46px}
-.unitcard h3{font-size:.92rem}
-.unitcard .fam{font-size:.7rem;color:var(--muted)}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:.72rem;text-align:center;margin-bottom:10px}
+.unitcard h3{font-size:var(--fs-body)}
+.unitcard .fam{font-size:var(--fs-caption);color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:var(--fs-caption);text-align:center;margin-bottom:10px}
 .stats div{background:var(--panel2);border-radius:7px;padding:5px 2px;font-variant-numeric:tabular-nums}
-.stats b{display:block;font-size:.9rem;color:var(--accent)}
+.stats b{display:block;font-size:var(--fs-body);color:var(--accent)}
 /* riquadro delle mosse a disposizione, in battaglia */
 .moves{display:flex;flex-direction:column;gap:5px;margin-bottom:9px}
 .moves div{display:flex;gap:8px;align-items:baseline;background:var(--panel2);
-  border-radius:8px;padding:7px 10px;font-size:.73rem}
+  border-radius:8px;padding:7px 10px;font-size:var(--fs-caption)}
 .moves span{color:var(--muted);flex:1;min-width:0}
 .moves b{color:var(--accent);font-variant-numeric:tabular-nums;text-align:right;flex:0 0 auto;max-width:58%}
-.spec{background:var(--panel2);border-radius:8px;padding:9px;font-size:.72rem;line-height:1.45;color:var(--muted)}
-.spec b{color:var(--accent2);display:block;margin-bottom:2px;font-size:.78rem}
+.spec{background:var(--panel2);border-radius:8px;padding:9px;font-size:var(--fs-caption);line-height:1.45;color:var(--muted)}
+.spec b{color:var(--accent2);display:block;margin-bottom:2px;font-size:var(--fs-small)}
 .acts{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
 /* «Continua» e' il passo avanti: su schermo largo si prende la sua riga. */
 #team-acts #btn-start{flex:1 0 100%}
-.acts button{flex:1;min-width:88px;padding:8px 6px;font-size:.78rem}
+.acts button{flex:1;min-width:88px;padding:8px 6px;font-size:var(--fs-small)}
 .log{
   background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:11px;
-  font-size:.74rem;line-height:1.6;height:190px;overflow:auto;color:var(--muted)
+  font-size:var(--fs-caption);line-height:1.6;height:190px;overflow:auto;color:var(--muted)
 }
 .log div{padding:2px 0;border-bottom:1px solid #1e2636}
 .log b{color:var(--text)}
@@ -452,7 +503,7 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 .log .ko{color:var(--foe);font-weight:bold}
 .log .good{color:var(--ok)}
 .turnbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
-.pill{padding:6px 13px;border-radius:999px;font-size:.78rem;font-weight:bold;border:1px solid}
+.pill{padding:6px 13px;border-radius:999px;font-size:var(--fs-small);font-weight:bold;border:1px solid}
 .pill.p{background:#12354a;border-color:var(--ally);color:var(--ally)}
 .pill.e{background:#4a1c1c;border-color:var(--foe);color:var(--foe)}
 
@@ -460,30 +511,30 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 .banner{
   display:flex;align-items:center;gap:10px;flex-wrap:wrap;
   background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--ally);
-  border-radius:var(--r);padding:11px 15px;margin-bottom:14px;font-size:.9rem
+  border-radius:var(--r);padding:11px 15px;margin-bottom:14px;font-size:var(--fs-body)
 }
 .banner b{color:var(--text)}
 .banner.e{border-left-color:var(--foe)}
 .banner .tag{
   display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
   background:#12354a;border:1px solid var(--ally);color:var(--ally);
-  border-radius:999px;padding:3px 11px;font-size:.72rem;font-weight:bold
+  border-radius:999px;padding:3px 11px;font-size:var(--fs-caption);font-weight:bold
 }
 .banner .tag .ico{width:15px;height:15px}
-.banner .tag i{font-style:normal;font-weight:normal;opacity:.7;font-size:.66rem;text-transform:uppercase}
-.banner .kbtn{font-size:.72rem;padding:5px 12px}
+.banner .tag i{font-style:normal;font-weight:normal;opacity:.7;font-size:var(--fs-micro);text-transform:uppercase}
+.banner .kbtn{font-size:var(--fs-caption);padding:5px 12px}
 .banner.e .tag{background:#4a1c1c;border-color:var(--foe);color:var(--foe)}
 .names{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-.names label{flex:1;min-width:190px;font-size:.78rem;color:var(--muted);display:block}
+.names label{flex:1;min-width:190px;font-size:var(--fs-small);color:var(--muted);display:block}
 .names input{
-  display:block;width:100%;margin-top:6px;font-family:inherit;font-size:.95rem;
+  display:block;width:100%;margin-top:6px;font-family:inherit;font-size:var(--fs-body);
   background:var(--panel2);color:var(--text);border:1px solid var(--line);
   border-radius:9px;padding:9px 11px
 }
 .opts{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-.opt{flex:1;min-width:210px;font-size:.78rem;color:var(--muted);display:block}
+.opt{flex:1;min-width:210px;font-size:var(--fs-small);color:var(--muted);display:block}
 .opt select{
-  display:block;width:100%;margin-top:6px;font-family:inherit;font-size:.9rem;
+  display:block;width:100%;margin-top:6px;font-family:inherit;font-size:var(--fs-body);
   background:var(--panel2);color:var(--text);border:1px solid var(--line);
   border-radius:9px;padding:9px 11px;cursor:pointer
 }
@@ -495,17 +546,17 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 }
 .modecard.on{border-color:var(--accent);background:#2a2415;box-shadow:0 0 0 1px var(--accent) inset}
 .modecard .vs{display:flex;align-items:center;justify-content:center;gap:10px}
-.modecard .who{display:flex;align-items:center;gap:7px;color:var(--text);font-size:.95rem}
+.modecard .who{display:flex;align-items:center;gap:7px;color:var(--text);font-size:var(--fs-body)}
 .modecard.on .who{color:var(--accent)}
-.modecard .x{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.7px}
-.modecard .d{font-size:.76rem;color:var(--muted);line-height:1.5;text-align:left}
+.modecard .x{font-size:var(--fs-caption);color:var(--muted);text-transform:uppercase;letter-spacing:.7px}
+.modecard .d{font-size:var(--fs-small);color:var(--muted);line-height:1.5;text-align:left}
 .ico{width:22px;height:22px;fill:currentColor;flex:none}
 .pass{
   position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
   padding:20px;background:rgba(7,11,18,.94);backdrop-filter:blur(3px)
 }
 /* --- gabbie e dispensa --- */
-.sez{font-size:.9rem;color:var(--accent);margin-bottom:9px}
+.sez{font-size:var(--fs-body);color:var(--accent);margin-bottom:9px}
 .gabbie,.dispensa{display:flex;flex-direction:column;gap:7px;max-height:46vh;overflow:auto;padding-right:4px}
 .gab{
   display:flex;gap:10px;align-items:center;text-align:left;width:100%;
@@ -513,8 +564,8 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 }
 .gab.on{border-color:var(--accent);background:#2a2415}
 .gab .art{width:38px;height:38px;flex:0 0 38px}
-.gab b{font-size:.84rem}
-.gab .st{display:block;font-size:.68rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.gab b{font-size:var(--fs-small)}
+.gab .st{display:block;font-size:var(--fs-micro);color:var(--muted);font-variant-numeric:tabular-nums}
 .vita{height:5px;border-radius:3px;background:#0b0f16;overflow:hidden;margin-top:5px}
 .vita i{display:block;height:100%;background:linear-gradient(90deg,#c44a4a,var(--ok))}
 .cibo{
@@ -522,17 +573,17 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
   background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 11px
 }
 .cibo:disabled{opacity:.4}
-.cibo b{font-size:.8rem}
-.cibo .eff{display:block;font-size:.68rem;color:var(--muted)}
-.cibo .q{margin-left:auto;font-size:.74rem;color:var(--accent);font-variant-numeric:tabular-nums}
-.nessuno{font-size:.78rem;color:var(--muted);padding:10px 2px}
-.tag-all{font-size:.6rem;background:#2a2415;border:1px solid var(--accent);color:var(--accent);
+.cibo b{font-size:var(--fs-small)}
+.cibo .eff{display:block;font-size:var(--fs-micro);color:var(--muted)}
+.cibo .q{margin-left:auto;font-size:var(--fs-caption);color:var(--accent);font-variant-numeric:tabular-nums}
+.nessuno{font-size:var(--fs-small);color:var(--muted);padding:10px 2px}
+.tag-all{font-size:var(--fs-micro);background:#2a2415;border:1px solid var(--accent);color:var(--accent);
   border-radius:999px;padding:2px 8px;vertical-align:2px}
 .mon.allevato{border-color:#5a4a20}
-.mon.allevato .nm i{font-style:normal;font-size:.6rem;color:var(--accent)}
+.mon.allevato .nm i{font-style:normal;font-size:var(--fs-micro);color:var(--accent)}
 .mon.larva{opacity:.75}
-.bonus{font-style:normal;font-size:.7rem;color:var(--ok)}
-.notarella{font-size:.72rem;color:var(--muted);margin-top:9px;line-height:1.5}
+.bonus{font-style:normal;font-size:var(--fs-caption);color:var(--ok)}
+.notarella{font-size:var(--fs-caption);color:var(--muted);margin-top:9px;line-height:1.5}
 
 /* --- collezione e traguardi --- */
 .collgriglia{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:9px}
@@ -541,8 +592,8 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
   padding:9px 7px;text-align:center
 }
 .colcard .art{width:40px;height:40px;margin:0 auto 5px}
-.colcard b{display:block;font-size:.74rem}
-.colcard .st{display:block;font-size:.64rem;color:var(--muted);margin-top:2px}
+.colcard b{display:block;font-size:var(--fs-caption)}
+.colcard .st{display:block;font-size:var(--fs-micro);color:var(--muted);margin-top:2px}
 .colcard.ignoto{opacity:.42}
 .colcard.ignoto .art{filter:grayscale(1) brightness(.5)}
 .trofei{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:9px}
@@ -550,25 +601,25 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
   background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;opacity:.55
 }
 .trofeo.preso{opacity:1;border-color:var(--accent);background:#2a2415}
-.trofeo b{font-size:.82rem}
-.trofeo .st{display:block;font-size:.68rem;color:var(--muted);margin-top:3px;line-height:1.45}
+.trofeo b{font-size:var(--fs-small)}
+.trofeo .st{display:block;font-size:var(--fs-micro);color:var(--muted);margin-top:3px;line-height:1.45}
 
 /* --- sfida del giorno --- */
 .sfida{
   display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:14px;
   background:var(--panel2);border:1px solid var(--accent);border-left:4px solid var(--accent);
-  border-radius:var(--r);padding:12px 14px;font-size:.84rem
+  border-radius:var(--r);padding:12px 14px;font-size:var(--fs-small)
 }
-.sfida .st{display:block;font-size:.73rem;color:var(--muted);margin-top:3px;line-height:1.5}
+.sfida .st{display:block;font-size:var(--fs-caption);color:var(--muted);margin-top:3px;line-height:1.5}
 .sfida b{color:var(--text)}
 
 /* --- accoppiamento --- */
 .gab.gen{border-color:var(--ok);background:#15251c}
-.sesso{font-size:.64rem;border-radius:999px;padding:2px 7px;vertical-align:2px;
+.sesso{font-size:var(--fs-micro);border-radius:999px;padding:2px 7px;vertical-align:2px;
   border:1px solid var(--line);color:var(--muted)}
 .sesso.m{color:var(--accent2);border-color:var(--accent2)}
 .sesso.f{color:#f0a6e0;border-color:#f0a6e0}
-.tag-nato{font-size:.6rem;background:#15251c;border:1px solid var(--ok);color:var(--ok);
+.tag-nato{font-size:var(--fs-micro);background:#15251c;border:1px solid var(--ok);color:var(--ok);
   border-radius:999px;padding:2px 8px;vertical-align:2px}
 .coppia{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;margin-bottom:12px}
 .genitore{
@@ -577,17 +628,17 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 }
 .genitore.pieno{border-style:solid;border-color:var(--ok)}
 .genitore .art{width:36px;height:36px;flex:0 0 36px}
-.genitore b{font-size:.82rem}
-.genitore .st{display:block;font-size:.67rem;color:var(--muted)}
-.piu{align-self:center;font-size:1.4rem;color:var(--muted)}
+.genitore b{font-size:var(--fs-small)}
+.genitore .st{display:block;font-size:var(--fs-micro);color:var(--muted)}
+.piu{align-self:center;font-size:var(--fs-h1);color:var(--muted)}
 .figlio{
   background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;
-  font-size:.78rem;line-height:1.6
+  font-size:var(--fs-small);line-height:1.6
 }
 .figlio.sp{border-color:var(--accent);background:#2a2415}
 .figlio .grande{display:flex;gap:11px;align-items:center;margin-bottom:8px}
 .figlio .grande .art{width:44px;height:44px;flex:0 0 44px}
-.figlio h4{font-size:.95rem}
+.figlio h4{font-size:var(--fs-body)}
 
 /* --- mondo: luoghi, trappole, spedizione --- */
 .luogo{
@@ -596,37 +647,37 @@ button.danger{border-color:#7d3a3a;color:#ffb3b3}
 }
 .luogo.on{border-color:var(--accent2);background:#16242e}
 .luogo .art{width:34px;height:34px;flex:0 0 34px}
-.luogo b{font-size:.84rem}
-.luogo .st{display:block;font-size:.68rem;color:var(--muted)}
+.luogo b{font-size:var(--fs-small)}
+.luogo .st{display:block;font-size:var(--fs-micro);color:var(--muted)}
 .posta{
   display:flex;gap:9px;align-items:center;text-align:left;width:100%;
   background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 11px
 }
 .posta.pronta{border-color:var(--ok)}
-.posta b{font-size:.8rem}
-.posta .st{display:block;font-size:.68rem;color:var(--muted)}
-.posta .q{margin-left:auto;font-size:.72rem;color:var(--accent);white-space:nowrap}
+.posta b{font-size:var(--fs-small)}
+.posta .st{display:block;font-size:var(--fs-micro);color:var(--muted)}
+.posta .q{margin-left:auto;font-size:var(--fs-caption);color:var(--accent);white-space:nowrap}
 .scelte{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
-.scelte button{font-size:.74rem;padding:6px 11px}
+.scelte button{font-size:var(--fs-caption);padding:6px 11px}
 .scelte button.on{border-color:var(--accent);color:var(--accent)}
 .prob{
   background:var(--panel2);border:1px solid var(--line);border-radius:10px;
-  padding:10px 12px;margin:10px 0;font-size:.76rem
+  padding:10px 12px;margin:10px 0;font-size:var(--fs-small)
 }
-.prob .grande{font-size:1.5rem;color:var(--accent);font-variant-numeric:tabular-nums;display:block}
+.prob .grande{font-size:var(--fs-display);color:var(--accent);font-variant-numeric:tabular-nums;display:block}
 .seme{
   display:flex;gap:8px;align-items:center;flex-wrap:wrap;
   background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:12px
 }
 .seme code{
-  font-size:1rem;letter-spacing:3px;color:var(--accent);background:#0b0f16;
+  font-size:var(--fs-h2);letter-spacing:3px;color:var(--accent);background:#0b0f16;
   border-radius:6px;padding:4px 10px
 }
 .seme input{
   background:#0b0f16;color:var(--text);border:1px solid var(--line);border-radius:6px;
   padding:6px 10px;font-family:inherit;letter-spacing:2px;text-transform:uppercase;width:120px
 }
-.tag-sel{font-size:.6rem;background:#16242e;border:1px solid var(--accent2);color:var(--accent2);
+.tag-sel{font-size:var(--fs-micro);background:#16242e;border:1px solid var(--accent2);color:var(--accent2);
   border-radius:999px;padding:2px 8px;vertical-align:2px}
 
 button.spento{opacity:.55;text-decoration:line-through}
@@ -639,9 +690,9 @@ button.spento{opacity:.55;text-decoration:line-through}
   background:var(--panel2);border:1px solid var(--line);border-radius:10px;
   box-shadow:0 14px 34px rgba(0,0,0,.5)
 }
-.menubox button{width:100%;text-align:left;font-size:.82rem;padding:8px 11px}
+.menubox button{width:100%;text-align:left;font-size:var(--fs-small);padding:8px 11px}
 .menubox button[role="menuitemcheckbox"]{display:flex;align-items:center;gap:10px}
-.menubox .st{margin-left:auto;font-size:.68rem;color:var(--muted)}
+.menubox .st{margin-left:auto;font-size:var(--fs-micro);color:var(--muted)}
 .menubox button.spento .st{color:var(--foe)}
 .menubox .sep{height:1px;background:var(--line);margin:3px 1px}
 
@@ -650,15 +701,15 @@ button.spento{opacity:.55;text-decoration:line-through}
   display:flex;gap:12px;align-items:center;flex-wrap:wrap;
   background:linear-gradient(90deg,#1d2a3f,var(--panel));
   border:1px solid var(--accent2);border-left:4px solid var(--accent2);
-  border-radius:var(--r);padding:11px 14px;margin-bottom:16px;font-size:.84rem
+  border-radius:var(--r);padding:11px 14px;margin-bottom:16px;font-size:var(--fs-small)
 }
 .guida .passo{
   background:var(--panel2);border:1px solid var(--line);border-radius:999px;
-  padding:3px 10px;font-size:.7rem;color:var(--muted);white-space:nowrap
+  padding:3px 10px;font-size:var(--fs-caption);color:var(--muted);white-space:nowrap
 }
 .guida p{margin:0;flex:1 1 260px;line-height:1.5}
 .guida b{color:var(--accent2)}
-.guida button{font-size:.72rem;padding:5px 10px}
+.guida button{font-size:var(--fs-caption);padding:5px 10px}
 
 /* --- nuvolette di spiegazione, ancorate a quello che spiegano ---
    Non sono una finestra: non coprono lo schermo, non bloccano i clic e stanno
@@ -683,29 +734,29 @@ button.spento{opacity:.55;text-decoration:line-through}
   position:absolute;width:11px;height:11px;background:var(--panel2);
   border:1px solid var(--accent2);transform:rotate(45deg)
 }
-.nuvola .tit{font-size:.68rem;color:var(--muted);text-transform:uppercase;
+.nuvola .tit{font-size:var(--fs-micro);color:var(--muted);text-transform:uppercase;
   letter-spacing:.6px;margin-bottom:5px}
-.nuvola p{font-size:.8rem;line-height:1.55;margin-bottom:11px}
+.nuvola p{font-size:var(--fs-small);line-height:1.55;margin-bottom:11px}
 .nuvola p b{color:var(--accent2)}
 .nuvola .piedi{display:flex;align-items:center;gap:6px}
-.nuvola .n{flex:1;text-align:center;font-size:.68rem;color:var(--muted);
+.nuvola .n{flex:1;text-align:center;font-size:var(--fs-micro);color:var(--muted);
   font-variant-numeric:tabular-nums}
-.nuvola .tondo{width:28px;height:28px;min-height:28px;flex:0 0 28px;font-size:.9rem}
-.nuvola .chiudi{position:static;font-size:1.05rem}
+.nuvola .tondo{width:28px;height:28px;min-height:28px;flex:0 0 28px;font-size:var(--fs-body)}
+.nuvola .chiudi{position:static;font-size:var(--fs-h2)}
 /* Il punto interrogativo che riapre la spiegazione quando si vuole. */
 .conaiuto{display:flex;align-items:center;gap:10px}
-.conaiuto .aiuto{font-size:.85rem}
+.conaiuto .aiuto{font-size:var(--fs-body)}
 
 /* --- invito e pannello del feedback --- */
 .invito{
   margin-top:14px;padding:11px 13px;border:1px dashed var(--line);border-radius:10px;
-  background:var(--panel2);font-size:.8rem;color:var(--muted);text-align:left
+  background:var(--panel2);font-size:var(--fs-small);color:var(--muted);text-align:left
 }
 .invito b{color:var(--text)}
 .invito .acts{margin-top:9px}
 .numeri{
   background:#0b0f16;border:1px solid var(--line);border-radius:8px;padding:10px 12px;
-  font-size:.74rem;color:var(--muted);font-variant-numeric:tabular-nums;line-height:1.7
+  font-size:var(--fs-caption);color:var(--muted);font-variant-numeric:tabular-nums;line-height:1.7
 }
 .numeri b{color:var(--text)}
 
@@ -718,19 +769,19 @@ button.spento{opacity:.55;text-decoration:line-through}
   width:100%;max-width:520px;max-height:92vh;overflow:auto;
   background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px
 }
-.modalbox h2{font-size:1.15rem;margin-bottom:8px}
-.modalbox h3{font-size:.92rem;margin:20px 0 6px;color:var(--accent)}
+.modalbox h2{font-size:var(--fs-h2);margin-bottom:8px}
+.modalbox h3{font-size:var(--fs-body);margin:20px 0 6px;color:var(--accent)}
 .modalbox textarea{
   display:block;width:100%;margin-top:6px;font-family:ui-monospace,Menlo,Consolas,monospace;
-  font-size:.74rem;line-height:1.45;word-break:break-all;resize:vertical;
+  font-size:var(--fs-caption);line-height:1.45;word-break:break-all;resize:vertical;
   background:var(--bg2);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:9px 11px
 }
 .riepilogo{
   background:var(--panel2);border:1px solid var(--line);border-radius:9px;
-  padding:9px 12px;font-size:.8rem;margin-bottom:14px
+  padding:9px 12px;font-size:var(--fs-small);margin-bottom:14px
 }
 .riepilogo b{color:var(--accent)}
-.esito{font-size:.8rem;margin-top:10px;min-height:1.2em}
+.esito{font-size:var(--fs-small);margin-top:10px;min-height:1.2em}
 .esito.ok{color:var(--ok)}
 .esito.ko{color:var(--foe)}
 .passbox{
@@ -739,22 +790,22 @@ button.spento{opacity:.55;text-decoration:line-through}
 }
 .passbox .who{
   display:inline-block;margin-bottom:12px;padding:5px 14px;border-radius:999px;
-  font-size:.74rem;font-weight:bold;background:#12354a;border:1px solid var(--ally);color:var(--ally)
+  font-size:var(--fs-caption);font-weight:bold;background:#12354a;border:1px solid var(--ally);color:var(--ally)
 }
 .passbox.e .who{background:#4a1c1c;border-color:var(--foe);color:var(--foe)}
-.passbox h2{font-size:1.25rem;margin-bottom:10px}
-.passbox p{font-size:.85rem;color:var(--muted);line-height:1.55;margin-bottom:18px}
+.passbox h2{font-size:var(--fs-h1);margin-bottom:10px}
+.passbox p{font-size:var(--fs-body);color:var(--muted);line-height:1.55;margin-bottom:18px}
 .passbox button{width:100%;padding:12px}
 
 /* ---------- esito ---------- */
 .result{max-width:520px;margin:6vh auto;text-align:center}
-.result h2{font-size:1.8rem;margin-bottom:10px}
+.result h2{font-size:var(--fs-display);margin-bottom:10px}
 .result .win{color:var(--ok)} .result .lose{color:var(--foe)}
-.result p{color:var(--muted);line-height:1.7;margin-bottom:18px;font-size:.9rem}
+.result p{color:var(--muted);line-height:1.7;margin-bottom:18px;font-size:var(--fs-body)}
 
 footer.note{
   margin-top:20px;padding:14px 16px;background:var(--panel);border:1px solid var(--line);
-  border-radius:var(--r);font-size:.72rem;color:var(--muted);line-height:1.7
+  border-radius:var(--r);font-size:var(--fs-caption);color:var(--muted);line-height:1.7
 }
 footer.note b{color:var(--text)}
 footer.note a{color:var(--accent2)}
@@ -769,7 +820,7 @@ footer.note a{color:var(--accent2)}
      mangiavano un quarto della prima schermata. Restano titolo, rank, round e
      Menu; Salvataggio e Azzera torneo scendono dentro al menu. */
   header.top{gap:8px;padding:10px 12px;margin-bottom:12px}
-  header.top h1{font-size:1.04rem}
+  header.top h1{font-size:var(--fs-h2)}
   #btn-save,#btn-reset{display:none}
   /* La testata va a capo, e a seconda della larghezza il pulsante Menu finisce
      a sinistra o a destra: il lato giusto lo decide `menuInQuadro()`, qui si
@@ -779,8 +830,8 @@ footer.note a{color:var(--accent2)}
      stanno, ma solo se ognuna costa qualche pixel in meno. */
   .modes{gap:9px;margin-bottom:12px}
   .modecard{padding:11px 12px;gap:6px}
-  .modecard .who{font-size:.9rem}
-  .modecard .d{font-size:.74rem;line-height:1.4}
+  .modecard .who{font-size:var(--fs-body)}
+  .modecard .d{font-size:var(--fs-caption);line-height:1.4}
   .menubox .solotel{display:block}
   .menubox .sep.solotel{display:block;width:auto}
 
@@ -791,7 +842,7 @@ footer.note a{color:var(--accent2)}
      ovali. Il bersaglio da 44 px resta, cambia la larghezza. */
   .tondo{width:44px;height:44px;min-height:44px;flex:0 0 44px}
   .nuvola .tondo{width:44px;height:44px;min-height:44px;flex:0 0 44px}
-  .badge{padding:7px 12px;font-size:.78rem}
+  .badge{padding:7px 12px;font-size:var(--fs-small)}
   .acts button,.scelte button,.guida button,.kbtn{padding:10px 12px}
 
   /* La barra del turno resta a vista mentre si scorre la scacchiera: \u00abFine
@@ -807,15 +858,21 @@ footer.note a{color:var(--accent2)}
   .turnbar .spacer{display:none}
   .turnbar .pill{order:1}
   .turnbar button{order:2;margin-left:auto}
-  .turnbar #b-opp{order:3;flex-basis:100%;font-size:.72rem;padding:4px 10px}
+  .turnbar #b-opp{order:3;flex-basis:100%;font-size:var(--fs-caption);padding:4px 10px}
 
   /* Il roster si legge: 11px di statistiche su un telefono non sono una scelta
      di stile, sono un ostacolo. */
-  .mon .nm{font-size:.86rem}
-  .mon .st{font-size:.76rem}
-  .card p.hint{font-size:.84rem}
+  .mon .nm{font-size:var(--fs-body)}
+  .mon .st{font-size:var(--fs-small)}
+  /* Qui le schede sono righe da 44 px, due per fila: tre barre non ci stanno.
+     Restano icone e numeri su una riga, e il rank senza la sua pillola. */
+  .st3{display:flex;gap:8px;margin-top:2px}
+  .sb{flex-wrap:nowrap;font-size:var(--fs-small)}
+  .sb u{display:none}
+  .rk{background:none;border:0;padding:0;margin-left:4px}
+  .card p.hint{font-size:var(--fs-small)}
   /* ...e i cinque slot vuoti non si prendono mezza schermata per dire \u00abvuoto\u00bb. */
-  .slot{min-height:44px;padding:6px 8px;font-size:.8rem}
+  .slot{min-height:44px;padding:6px 8px;font-size:var(--fs-small)}
   /* In colonna la griglia a due riquadri non sa restringersi: diventa una
      colonna flessibile, dove a cedere spazio e' il roster, che scorre. */
   #s-team .two{display:flex;flex-direction:column;gap:12px}
@@ -841,7 +898,7 @@ footer.note a{color:var(--accent2)}
   /* Il nome sta su una riga sola: a 86 px una seconda riga raddoppierebbe
      l'altezza della striscia per dire quello che si legge gia'. */
   #s-team .slot .grow{
-    flex:0 0 auto;width:100%;font-size:.68rem;line-height:1.2;
+    flex:0 0 auto;width:100%;font-size:var(--fs-micro);line-height:1.2;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis
   }
   #s-team .slot .sotto{display:none}        /* la famiglia si legge nella scheda */
@@ -855,9 +912,9 @@ footer.note a{color:var(--accent2)}
   }
   #s-team .slot .kbtn:hover,#s-team .slot .kbtn:focus-visible{color:var(--text);background:var(--panel)}
   #s-team .slot .kt{display:none}
-  #s-team .slot .kbtn::after{content:"\00d7";font-size:1.15rem;line-height:1}
+  #s-team .slot .kbtn::after{content:"\00d7";font-size:var(--fs-h2);line-height:1}
   /* La targhetta di quelle che mancano non e' una pedina: si allarga. */
-  #s-team .slot.vuoto{width:auto;flex:1 1 130px;min-width:130px;justify-content:center;font-size:.72rem}
+  #s-team .slot.vuoto{width:auto;flex:1 1 130px;min-width:130px;justify-content:center;font-size:var(--fs-caption)}
   #s-team #squadra-hint{display:none}
   /* Tre pulsanti in riga: a 360 px «Squadra rapida» non ci sta, «rapida» si'. */
   #team-acts #btn-start{flex:1 1 auto}
@@ -873,7 +930,7 @@ footer.note a{color:var(--accent2)}
   footer.note{margin-top:11px;padding:9px 12px;line-height:1.5}
   /* Il banner della modalita' andava a capo due volte per dire una riga: la
      targhetta «Human vs PC» dice gia' tutto, la frase lunga sparisce. */
-  .banner{padding:9px 12px;gap:8px;font-size:.82rem}
+  .banner{padding:9px 12px;gap:8px;font-size:var(--fs-small)}
   .banner .larga{display:none}
   /* «Entra in arena» stava in fondo a cinque schede: quasi due schermate di
      scorrimento per il pulsante che porta avanti. Adesso resta in basso. */
@@ -883,7 +940,7 @@ footer.note a{color:var(--accent2)}
     background:var(--panel);border-top:1px solid var(--line)
   }
   .banner .spacer{flex:0}
-  .fam,.sotto{font-size:.78rem}
+  .fam,.sotto{font-size:var(--fs-small)}
 
   /* Sul telefono la scheda dell'unita' non sta sotto alla scacchiera: si
      ancora in basso, sopra a tutto, cosi' si tocca una pedina e le azioni
@@ -897,12 +954,12 @@ footer.note a{color:var(--accent2)}
   .unitcard.ancorata .spec{display:none}            /* la prosa sta nel roster */
   .unitcard.ancorata .row{margin-bottom:6px}
   .unitcard.ancorata .art{width:34px;height:34px;flex:0 0 34px}
-  .unitcard.ancorata .stats{margin-bottom:6px;font-size:.68rem}
+  .unitcard.ancorata .stats{margin-bottom:6px;font-size:var(--fs-micro)}
   .unitcard.ancorata .stats div{padding:3px 2px}
   .unitcard.ancorata .moves{gap:3px;margin-bottom:6px}
-  .unitcard.ancorata .moves div{padding:5px 8px;font-size:.7rem}
+  .unitcard.ancorata .moves div{padding:5px 8px;font-size:var(--fs-caption)}
   .unitcard.ancorata .acts{margin-top:7px;gap:6px}
-  .unitcard.ancorata .acts button{padding:14px 8px;font-size:.84rem;min-height:46px}
+  .unitcard.ancorata .acts button{padding:14px 8px;font-size:var(--fs-small);min-height:46px}
   .unitcard.ancorata .deploylist{max-height:calc(var(--barra) - 84px)}
   /* La scacchiera si restringe quel tanto che basta a stare tutta sopra alla
      barra: meglio un campo piu' piccolo che un campo da inseguire scorrendo. */
@@ -975,7 +1032,7 @@ footer.note a{color:var(--accent2)}
       </div>
     </div>
     <div class="acts" style="margin-top:16px">
-      <button id="btn-zoo-back" class="primary">Torna al roster</button>
+      <button id="btn-zoo-back" class="ghost">Torna al roster</button>
       <button id="btn-vai-cop">Accoppia due adulti</button>
     </div>
   </div>
@@ -1015,7 +1072,7 @@ footer.note a{color:var(--accent2)}
     <h3 class="sez" style="margin-top:18px">Traguardi</h3>
     <div class="trofei" id="coll-trofei"></div>
     <div class="acts" style="margin-top:16px">
-      <button id="btn-coll-back" class="primary">Torna al roster</button>
+      <button id="btn-coll-back" class="ghost">Torna al roster</button>
     </div>
   </div>
 </section>
@@ -1039,7 +1096,7 @@ footer.note a{color:var(--accent2)}
       </div>
     </div>
     <div class="acts" style="margin-top:16px">
-      <button id="btn-cop-back" class="primary">Torna alle gabbie</button>
+      <button id="btn-cop-back" class="ghost">Torna alle gabbie</button>
       <button id="btn-cop-vuota">Togli la scelta</button>
     </div>
   </div>
@@ -1078,7 +1135,7 @@ footer.note a{color:var(--accent2)}
       </div>
     </div>
     <div class="acts" style="margin-top:16px">
-      <button id="btn-mondo-back" class="primary">Torna al roster</button>
+      <button id="btn-mondo-back" class="ghost">Torna al roster</button>
     </div>
   </div>
 </section>
@@ -1754,6 +1811,35 @@ const inGabbia = id => S.zoo.filter(e => e.id === id).length;
 /* =========================================================================
    GRAFICA — SVG originali, una silhouette per famiglia
    ========================================================================= */
+/* Le icone: dodici, disegnate qui come gli Insector, nessun file. Un colore
+   solo (`currentColor`), 16x16, angoli morbidi come le sagome. Prendono il
+   posto delle parole ripetute -- `hp`, `str`, `def`, «fra 2 partite» -- che
+   allungavano le righe e le facevano andare a capo a meta'. Sono decorative:
+   accanto c'e' sempre il testo o un nome accessibile che dice la stessa cosa.
+   Scudo, fulmine e uovo aspettano gli stati sulle pedine e l'allevamento. */
+const ICONE = {
+  vita:     "M8 14.2 2.6 9A3.3 3.3 0 0 1 8 4.4 3.3 3.3 0 0 1 13.4 9Z",
+  forza:    "M12.5 1.5 14.5 3.5 6 12 4 10ZM3 9.5 6.5 13 5.5 14 4.2 12.7 2.6 14.3 1.7 13.4 3.3 11.8 2 10.5Z",
+  difesa:   "M8 1.5 13.5 3.5V8c0 3.2-2.5 5.4-5.5 6.5C5 13.4 2.5 11.2 2.5 8V3.5Z",
+  scudo:    "M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2Zm0 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z",
+  trappola: "M4 2h8v2h-1v1.5c1.8.8 3 2.4 3 4.5 0 2.8-2.7 4.5-6 4.5S2 12.8 2 10c0-2.1 1.2-3.7 3-4.5V4H4Z",
+  esca:     "M8 4.5c1.2-1 2.5-1.3 3.6-1 2.2.6 3 3 2.4 5.6-.7 3.1-3 5.4-6 4.4-3 1-5.3-1.3-6-4.4-.6-2.6.2-5 2.4-5.6 1.1-.3 2.4 0 3.6 1ZM8 4.5C8 3 8.6 1.8 10 1.2l.5.8C9.4 2.6 9 3.4 9 4.6Z",
+  moneta:   "M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2Zm0 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8ZM7 5.5h2v5H7Z",
+  rank:     "M8 1.5 9.9 5.5 14.3 6 11 9 11.9 13.4 8 11.2 4.1 13.4 5 9 1.7 6 6.1 5.5Z",
+  uovo:     "M8 1.5c2.8 0 5 4 5 7.3 0 3.2-2.2 5.7-5 5.7s-5-2.5-5-5.7C3 5.5 5.2 1.5 8 1.5Z",
+  larva:    "M3.5 7a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5ZM8 6a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm4.5 0a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z",
+  clessidra:"M3.5 1.5h9V3h-1c0 2.3-1.4 3.8-2.6 5 1.2 1.2 2.6 2.7 2.6 5h1v1.5h-9V13h1c0-2.3 1.4-3.8 2.6-5C5.9 6.8 4.5 5.3 4.5 3h-1Z",
+  fulmine:  "M9.5 1 3 9h4l-1 6 6.5-8H8.5Z"
+};
+/* Scudo e moneta sono anelli: il foro lo fa `evenodd`. Alle altre servirebbe
+   il contrario -- la larva, coi segmenti sovrapposti, si bucherebbe. */
+const ICONE_ANELLO = { scudo:1, moneta:1 };
+function ico(n){
+  return '<svg class="ic ic-' + n + '" viewBox="0 0 16 16" aria-hidden="true" focusable="false">' +
+    '<path fill="currentColor"' + (ICONE_ANELLO[n] ? ' fill-rule="evenodd"' : '') +
+    ' d="' + ICONE[n] + '"/></svg>';
+}
+
 let GRAD_SEQ = 0;
 function shade(hex, amt){
   const n = parseInt(hex.slice(1), 16);
@@ -3457,8 +3543,8 @@ function drawPoste(){
     b.disabled = !pronta;
     b.innerHTML = '<span class="grow"><b>' + (l ? l.nome : "?") + '</b>' +
       '<span class="st">' + trapDi(p.t).nome + ' \u00b7 esca: ' + p.esca + '</span></span>' +
-      '<span class="q">' + (pronta ? "Raccogli" :
-        "fra " + manca + (manca === 1 ? " partita" : " partite")) + '</span>';
+      '<span class="q">' + (pronta ? ico("trappola") + "Raccogli" :
+        ico("clessidra") + "fra " + manca + (manca === 1 ? " partita" : " partite")) + '</span>';
     b.onclick = () => raccogli(p.n);
     box.appendChild(b);
   });
@@ -3487,7 +3573,7 @@ function drawSpedizione(){
     '<div class="scelte" id="sc-trap">' +
       TRAPPOLE.map(t => '<button data-trap="' + t.id + '"' +
         (S.trapSel === t.id ? ' class="on"' : '') +
-        (S.mondo.trappole[t.id] > 0 ? '' : ' disabled') + '>' + t.nome +
+        (S.mondo.trappole[t.id] > 0 ? '' : ' disabled') + '>' + ico("trappola") + t.nome +
         ' \u00d7' + (S.mondo.trappole[t.id]|0) + '</button>').join("") +
     '</div>' +
     '<p class="notarella" style="margin-top:0">' + trapDi(S.trapSel).nome +
@@ -3497,7 +3583,7 @@ function drawSpedizione(){
     '<div class="scelte" id="sc-esca">' +
       (esche.length
         ? esche.map(n => '<button data-esca="' + n + '"' +
-            (S.escaSel === n ? ' class="on"' : '') + '>' + n +
+            (S.escaSel === n ? ' class="on"' : '') + '>' + ico("esca") + n +
             (escaGiusta(l, n) ? ' \u2713' : '') + ' \u00d7' + S.dispensa[n] + '</button>').join("")
         : '<span class="nessuno">Dispensa vuota: l\u2019esca si vince conquistando i rank.</span>') +
     '</div>' +
@@ -3613,6 +3699,30 @@ function lockNote(u){
   }
   return "Si sblocca avanzando nel torneo.";
 }
+/* Il metro di ogni barra e' il migliore del rank: un R1 pieno e' forte fra
+   gli R1. Folgore e' R1 sulla carta ma ha il doppio di tutti -- e' il premio
+   del Rank S -- e se facesse da metro ogni R1 sembrerebbe a mezza barra: resta
+   fuori, come resta fuori dai sorteggi. Lui e gli allevati possono superare
+   il metro, e la barra si ferma al pieno. */
+let STAT_MAX = null;
+function statMax(rank){
+  if (!STAT_MAX){
+    STAT_MAX = {};
+    UNITS.filter(u => u.id !== "dark_emperor").forEach(u => {
+      const m = STAT_MAX[u.rank] || (STAT_MAX[u.rank] = { hp:1, str:1, def:1 });
+      ["hp","str","def"].forEach(k => { if (u[k] > m[k]) m[k] = u[k]; });
+    });
+  }
+  return STAT_MAX[rank] || STAT_MAX[1];
+}
+function statBarre(st, rank){
+  const m = statMax(rank);
+  const una = (k, cls) => '<span class="sb sb-' + cls + '">' + ico(cls) + '<b>' + st[k] + '</b>' +
+    '<u><i style="width:' + Math.min(100, Math.round(100 * st[k] / m[k])) + '%"></i></u></span>';
+  return '<span class="st3" aria-hidden="true">' + una("hp", "vita") + una("str", "forza") +
+    una("def", "difesa") + '</span>' +
+    '<span class="sr">vita ' + st.hp + ', forza ' + st.str + ', difesa ' + st.def + '</span>';
+}
 function drawRoster(){
   const r = $("#roster");
   /* Il roster si ridisegna tutto a ogni scelta, e con lui sparisce la scheda
@@ -3639,9 +3749,10 @@ function drawRoster(){
       + (adulto(e) ? "" : " larva") + (S.look === rif ? " look" : "");
     b.innerHTML = art(u.fam, false, u.rank) +
       '<span class="grow"><span class="nm">' + u.name + ' <i>allevato</i></span>' +
-      '<span class="st">' + (adulto(e)
-        ? st.hp + "hp \u00b7 " + st.str + "str \u00b7 " + st.def + "def"
-        : "larva \u00b7 ancora " + (VITA_ADULTO - e.speso) + " punti") + '</span></span>';
+      (adulto(e)
+        ? statBarre(st, u.rank)
+        : '<span class="st">' + ico("larva") + "larva \u00b7 ancora " + (VITA_ADULTO - e.speso) +
+          " punti</span>") + '</span>';
     b.dataset.id = rif;
     pressione(b, () => tocconRoster(rif), () => apriUnita(rif));
     r.appendChild(b);
@@ -3650,9 +3761,9 @@ function drawRoster(){
     const b = document.createElement("button");
     b.className = "mon" + (S.team.includes(u.id) ? " sel" : "") + (S.look === u.id ? " look" : "");
     b.innerHTML = art(u.fam, false, u.rank) +
-      '<span class="grow"><span class="nm">' + u.name + '</span>' +
-      '<span class="st">R' + u.rank + " \u00b7 " + u.hp + "hp \u00b7 " + u.str + "str \u00b7 " +
-        u.def + 'def</span></span>';
+      '<span class="grow"><span class="nm"><span class="nmt">' + u.name + '</span><span class="rk">R' + u.rank +
+        '</span></span>' +
+      statBarre(u, u.rank) + '</span>';
     b.dataset.id = u.id;
     pressione(b, () => tocconRoster(u.id), () => apriUnita(u.id));
     r.appendChild(b);
@@ -5162,7 +5273,7 @@ function drawSfida(){
         : "Stessa squadra e stesso avversario per tutti, una volta sola. Non tocca il torneo.") +
       '</span></div>' +
       (f ? '<button id="btn-sfida-cond">Copia il risultato</button>'
-         : '<button id="btn-sfida-go" class="primary">Gioca la sfida</button>') +
+         : '<button id="btn-sfida-go" class="accento">Gioca la sfida</button>') +
     '</div>';
   const go = $("#btn-sfida-go");
   if (go) go.onclick = () => { suona("clic"); avviaSfida(); };
@@ -5475,14 +5586,16 @@ function drawCard(){
     const b = document.createElement("button");
     b.textContent = label; b.disabled = !on;
     b.onclick = () => { S.mode = mode; draw(); };
-    if (mode === "spec") b.className = "primary";
+    /* La speciale spicca, ma non e' un secondo giallo pieno: in campo il
+       primario e' «Fine turno», e due pulsanti uguali si contendevano il dito. */
+    if (mode === "spec") b.className = "accento";
     acts.appendChild(b);
   };
   mkb(u.moved ? "Gi\u00e0 mossa" : "Muovi", "move", !u.moved && moves(u).length > 0);
   mkb("Attacca", "atk", foesAdj(u).length > 0);
   if (selfCast(u)){
     const b = document.createElement("button");
-    b.className = "primary";
+    b.className = "accento";
     b.textContent = f.spn + (u.cd ? " \u00b7 fra " + u.cd : "");
     b.disabled = !canSpecial(u);
     b.onclick = () => { doSpecial(u, null); u.acted = true; S.sel = null; S.mode = "idle"; draw(); };
@@ -5552,7 +5665,7 @@ function show(id){
 function updBadges(){
   const sfida = inSfida();
   const duo = S.matchMode === "hvh" || sfida, pc = S.matchMode === "pvp";
-  $("#b-rank").innerHTML = "Rank <b>" + RANKS[S.rankIdx].id + "</b>";
+  $("#b-rank").innerHTML = ico("rank") + "Rank <b>" + RANKS[S.rankIdx].id + "</b>";
   $("#b-round").innerHTML = "Round <b>" + (S.round+1) + "</b>/5";
   /* Rank, round e azzeramento riguardano il torneo: mentre giocano due persone
      non vogliono dire niente e spariscono. */

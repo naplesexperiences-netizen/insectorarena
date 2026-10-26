@@ -21,7 +21,7 @@ documentazione del minigioco **Insectron** di *Rogue Galaxy* (PS2, Level-5 / Son
 | `img/` | le schermate della vetrina (le uniche immagini del progetto: dentro al gioco non c'è un solo file immagine) |
 | `insectors.json` | dataset grezzo estratto dal wiki |
 | `ROADMAP.md`, `PIANO-*.md` | dove siamo, e i piani per quello che manca |
-| `prove-automatiche/` | le 31 suite, 816 controlli |
+| `prove-automatiche/` | le 32 suite, 890 controlli |
 | `sprite-da-migliorare/` | il materiale per far ridisegnare gli Insector |
 | `telemetria/` | worker, schema e prova. Spenta |
 | `prove/` | i confronti fra strumenti grafici |
@@ -1243,13 +1243,13 @@ sui titoli.
 - Le suite stanno in **[`prove-automatiche/`](prove-automatiche/)**, col loro README:
   `sh prove-automatiche/batteria.sh` le lancia tutte. Girano in Chromium vero sul
   `gioca.html` che viene pubblicato, non su una copia di prova
-- Totale dei controlli automatici sul gioco: **816** (meccaniche 30, schieramento 20,
+- Totale dei controlli automatici sul gioco: **890** (meccaniche 30, schieramento 20,
   schede 30, accessibilità 14, difficoltà 10, regola del movimento 13, passaggio del mouse 14,
   Human vs Human 32, modalità e PC vs PC 44, rotazione 18, animazione 13, salvataggi 25,
   allevamento 28, mondo e cattura 44, edizione demo 14, eco e telemetria 44, suono 23,
   guida 19, musica 31, menu 17, telefono 30, riproduzione 32, sfida del giorno 40,
   collezione 20, resistenze 39, nomenclatura 23, schermata unica 52, spiegazioni 48,
-  gesto e campo 39, sprite 10),
+  gesto e campo 39, sprite 10, interfaccia 74),
   più 21 sulla landing e sull'informativa, 19 sul sito installabile (manifest, icone,
   service worker e prova offline con la rete staccata) e 19 sull'endpoint della
   telemetria, che gira in un contesto vuoto con un D1 finto e senza toccare la rete
