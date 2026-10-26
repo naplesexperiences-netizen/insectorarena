@@ -39,7 +39,8 @@ done
 [ $i -ge 50 ] && { echo "il server statico non risponde sulla porta $PORTA" >&2; exit 1; }
 
 TUTTE="mech deploy a11y move move2 diff cards hover duo modes rot motion salva alleva mondo demo
-eco suono guida musica menu mobile ripro sfida coll resist nomi ux spiega tocco sprite"
+eco suono guida musica menu mobile ripro sfida coll resist nomi ux spiega tocco sprite
+interfaccia arena mondografica"
 [ $# -gt 0 ] && TUTTE="$*"
 
 cd "$QUI"
