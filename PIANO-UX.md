@@ -12,7 +12,7 @@ leggibilità del campo viene prima della bellezza**.
 | Fase | Che cosa | Giorni | Stato |
 |---|---|---:|---|
 | 1. Fondamenta | scala tipografica, superfici, un primario per schermata, icone, statistiche a barre, pressione e dissolvenza | 2–3 | **fatta** (26 ottobre) |
-| 2. Arena e insetti | bordo-precipizio, metà campo tinte, terreno per rank, mirino e anteprima della speciale, contorno degli sprite, anelli di squadra con due forme, numeri di danno leggibili, badge di stato | 3–4 | da fare |
+| 2. Arena e insetti | bordo-precipizio, metà campo tinte, terreno per rank, mirino e anteprima della speciale, contorno degli sprite, anelli di squadra con due forme, numeri di danno leggibili, badge di stato | 3–4 | **fatta** (26 ottobre) |
 | 3. Mondo | mappa SVG dei cinque luoghi con nebbia e trappole posate, scheda del luogo con sagome e arco della probabilità, rivelazione della cattura | 3–4 | da fare |
 | 4. Illustrazioni generate | fondale, luoghi, ritratti: è `PIANO-GRAFICA.md` | dopo il pilota | da fare |
 
@@ -49,8 +49,8 @@ icone e numeri su una riga.
 trappola, esca, moneta, rank, uovo, larva, clessidra, fulmine. 16×16, `currentColor`,
 `aria-hidden`. Classe `.ic`, perché `.ico` era già delle icone della scelta della
 partita. Oggi sono usate nel roster, nella testata (rank) e nel Mondo (trappole, esche,
-attesa); scudo, fulmine, uovo e moneta aspettano i badge di stato della Fase 2 e
-l'allevamento.
+attesa); dalla Fase 2 clessidra e scudo fanno anche da distintivi di stato sulle pedine.
+Fulmine, uovo e moneta aspettano l'allevamento e il Mondo.
 
 **Pressione e dissolvenza.** `scale(.97)` sotto il dito, caselle del campo escluse; le
 schermate entrano con una dissolvenza di 160 ms. **Solo opacità**, non lo scorrimento di
@@ -68,23 +68,62 @@ siano e col movimento ridotto no. Le 816 prove di prima passano tutte.
 
 ---
 
-## Fase 2 — Arena e insetti
+## Fase 2 — com'è stata fatta
 
-| Lavoro | Dove |
-|---|---|
-| Cornice-precipizio intorno al campo, caduta nel vuoto | `.board`, `@keyframes ringout` |
-| Metà campo tinte (`ally-deep` #1a2a3e, `foe-deep` #2f1c25: più sature si confondevano con le caselle di movimento) | `.cell.home`, `.cell.away` |
-| Terreno SVG a contrasto bassissimo, diverso per rank | sfondo di `.board` |
-| Mirino a quattro angoli sulle caselle d'attacco, anteprima della portata della speciale | `.cell.tg`, gestione della speciale |
-| Contorno scuro e riflesso negli sprite | `art()` |
-| Anello di squadra: pieno per l'alleato, tratteggiato per il nemico | `.tok` |
-| Segni di rank sull'anello, badge di stato con le icone | `.tok` |
-| Numeri di danno sopra la pedina, contornati | lo strato `layer`, `@keyframes pop` |
-| Anticipo e arresto sull'impatto | `@keyframes lunge`, `hurt` |
+**Il bordo è un precipizio.** Intorno a `.board` una cornice scura incassata (`--void`
+#05070b, 9 px, più un filo chiaro e un'ombra sotto): il campo sembra un tavolo sospeso.
+Spinta fuori, la pedina **scivola di una casella oltre il bordo e lì cade**: rimpicciolisce
+e si spegne, con uno sbuffo di polvere (un'onda tratteggiata grigia). Prima volava via di
+quasi due caselle girando come una trottola.
 
-**Collaudo:** contrasto casella / movimento / attacco con tinte e terreno almeno quello di
-oggi; alleato e nemico distinguibili in scala di grigi; le misure di `misure/` sulle
-sagome passano ancora.
+Due difetti trovati strada facendo, e corretti: la direzione di uscita si calcolava sulla
+casella di gioco e non su quella a schermo, quindi **a scacchiera girata** (due giocatori)
+la pedina usciva dalla parte opposta; e spinta fuori da un lato usciva **in diagonale**,
+perché la direzione verticale di riserva si applicava sempre.
+
+**Metà campo tinte.** Le due file di casa prendono `--ally-deep` #172536 e `--foe-deep`
+#2a1a22; le linee salgono dal 32 al 45%. Le tinte del design system (#1a2a3e, #2f1c25)
+erano al limite: con queste, movimento e attacco contrastano con la tinta **più** che con
+la casella neutra di prima (movimento 1,42 e 1,51 contro 1,34; attacco 1,24 e 1,32 contro
+1,16). La prova lo ricalcola.
+
+**Terreno per rank.** Quattro motivi SVG scritti nel CSS come `data:`, sopra il gradiente
+di sempre: terra (E, D), corteccia (C, B), pietra (A), pietra con pagliuzze d'oro (S).
+Fuori dal torneo è terra. Senza motivo resta il gradiente.
+
+**Mirino e area della speciale.** Le caselle d'attacco hanno quattro angoli a mirino
+(`.cell.tg::before`). La novità vera è l'**area**: `specArea()` dà le caselle che la
+speciale tocca, vuote comprese (linea, croce, anello di 8, quadrato da 5 per l'Ira del
+Tonante), e `mostraArea()` le accende tratteggiate nel colore della famiglia passando sul
+pulsante, col mouse o col Tab, senza ridisegnare. Resta accesa mentre la speciale è scelta.
+È solo disegno: chi viene colpito lo decide ancora `specTargets()`, e la prova verifica su
+60 schieramenti a caso che ogni bersaglio vero stia dentro l'area mostrata.
+
+**La pedina.** L'ombra diventa la base: **anello pieno azzurro** per la tua squadra,
+**tratteggiato rosso** per l'avversario. Il rank in punti in alto a sinistra (1 fino
+all'R2, 2 fino all'R4, 3 oltre). Gli stati sono distintivi con icona — clessidra
+(immobile), scudo (protetto), «!» (scoperto) — invece delle emoji. Il contorno scuro
+attorno alla sagoma è un `drop-shadow` sul campo, **non in `art()`**: così sprite delle
+schede e misure sulle sagome restano quelli di prima.
+
+**Numeri di danno** nati in alto sulla casella, sopra la pedina, in `h2` con un contorno
+scuro di 3 px. Col movimento ridotto compaiono e spariscono senza salire.
+
+**Il colpo** aveva già l'anticipo (al 22% di `lunge` la pedina arretra): il piano lo dava
+per mancante. Si è aggiunto solo l'**arresto sull'impatto**, fermo fra il 48 e il 62%.
+
+**Un difetto vecchio in `art()`.** Rasoio, Bipenne e Trinciaferro avevano la barba destra
+disegnata a x=322 in un disegno largo 64: `bx` esce da `toFixed()` ed è testo, e
+`32 + bx` lo incollava («32» + «2.7»). Non si era mai visto perché fuori casella; col
+contorno nuovo, sulle pedine avversarie, compariva una scheggia lontana dalla pedina. La
+prova degli sprite non poteva accorgersene: rasterizza su 64 px, e quel che cade fuori non
+c'è. Adesso la suite `arena` controlla le coordinate di tutti i 34 sprite, anche capovolti.
+
+**Rimasto fuori**, di proposito: il riflesso chiaro sul dorso (andava in `art()`, e avrebbe
+cambiato gli sprite delle schede), il filo di luce sugli R5–R6 (i punti di rank dicono già
+il grado), i badge per la Malia (non lascia uno stato sulla pedina: la converte).
+
+**Collaudo:** suite `arena`, 31 controlli. Le prove di prima passano tutte.
 
 ## Fase 3 — Mondo
 

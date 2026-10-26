@@ -7,7 +7,7 @@ lavoro, non di calendario.
 generati da codice — e dal 5 ottobre ogni Insector ha il suo disegno, perché la figura
 segue il grado dentro la famiglia e non più il rank assoluto — gabbie e allevamento, mondo e cattura con semi condivisibili,
 salvataggi esportabili, eco, edizione demo, nomenclatura tutta nostra e le due schermate
-prima della partita che stanno in una finestra sola. 890 controlli automatici, equilibrio
+prima della partita che stanno in una finestra sola. 921 controlli automatici, equilibrio
 misurato a simulazione. Quel che manca non sono pezzi rotti: sono pezzi mancanti.
 
 **La decisione che riordina tutto** *(27 settembre 2026)*: la demo si ferma finché il
@@ -152,6 +152,20 @@ barre** rispetto al migliore del rank (Folgore escluso dal metro, come dai sorte
 telefono, dove le schede sono righe da 44 px, restano icone e numeri. **Dodici icone**
 disegnate da codice. La scheda scelta **sale di un piano**. Pressione e dissolvenza fra
 le schermate, spente col movimento ridotto. Nessun file nuovo. 74 controlli nuovi.
+
+## ~~Grafica, Fase 2 — Arena e insetti~~ · **fatta** (26 ottobre)
+
+**Il bordo si legge come precipizio**: una cornice di vuoto attorno al campo, e chi viene
+spinto fuori scivola oltre il bordo e cade, invece di volare via girando. **Le metà campo
+hanno la tinta di chi ci sta**, scelta coi numeri perché movimento e attacco spicchino più
+di prima. **Il terreno sale col torneo**: terra, corteccia, pietra, pietra e oro.
+**L'area della speciale si vede prima di sceglierla**, nel colore della famiglia, e i
+bersagli hanno un mirino. **Le squadre si distinguono anche senza colore**: anello pieno
+per la tua, tratteggiato per l'altra. Rank in punti e stati come distintivi sulla pedina,
+**numeri di danno sopra lo sprite** e non sul corpo, un istante di arresto sull'impatto.
+Corretti tre difetti trovati strada facendo: la caduta che a scacchiera girata usciva dalla
+parte opposta, quella che dai lati usciva in diagonale, e la barba di tre Lamidi disegnata
+a x=322 su 64 (`32 + "2.7"`). 31 controlli nuovi.
 
 ## Priorità 6 — Quando si esce di casa
 

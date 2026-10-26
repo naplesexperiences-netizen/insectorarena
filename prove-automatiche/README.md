@@ -1,6 +1,6 @@
 # Le prove automatiche
 
-890 controlli sul gioco, più 59 su contorno e infrastruttura. Girano in Chromium
+921 controlli sul gioco, più 59 su contorno e infrastruttura. Girano in Chromium
 vero tramite Playwright, sul file `gioca.html` che sta qui accanto: non c'è un
 ambiente di test separato da tenere allineato, quello che passa è il gioco che
 viene pubblicato.
@@ -15,7 +15,7 @@ node sprite.js                 # una sola, con l'elenco dei controlli
 Se Playwright sta altrove: `PLAYWRIGHT_PATH=/percorso/a/playwright sh batteria.sh`.
 Serve anche `python3`, per il server statico e per i due script in `strumenti/`.
 
-## Le 32 suite
+## Le 33 suite
 
 | | controlli | che cosa verifica |
 |---|---:|---|
@@ -50,6 +50,7 @@ Serve anche `python3`, per il server statico e per i due script in `strumenti/`.
 | `tocco` | 39 | il gesto unico (tocco breve / pressione lunga) e il campo illuminato |
 | `sprite` | 10 | che nessun Insector abbia il disegno di un altro, e che nessuno sbordi |
 | `interfaccia` | 74 | la Fase 1 del piano grafico: sette gradini di testo e nessuno sotto il pavimento, un primario per schermata, le dodici icone, le statistiche a barre, pressione e dissolvenza spente col movimento ridotto |
+| `arena` | 31 | la Fase 2: bordo-precipizio, metà campo tinte senza perdere contrasto, terreno per rank, area della speciale coerente coi bersagli veri, anelli di squadra con due forme, rank e stati sulla pedina, numeri di danno, caduta nel vuoto dalla parte giusta, e nessuna coordinata di sprite fuori dal disegno |
 
 Fuori batteria, in coda: `land` (21, landing e informativa), `pwa` (19, sito
 installabile e prova offline) e `../telemetria/prova.mjs` (19, l'endpoint in un
