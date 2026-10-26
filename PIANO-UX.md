@@ -13,7 +13,7 @@ leggibilità del campo viene prima della bellezza**.
 |---|---|---:|---|
 | 1. Fondamenta | scala tipografica, superfici, un primario per schermata, icone, statistiche a barre, pressione e dissolvenza | 2–3 | **fatta** (26 ottobre) |
 | 2. Arena e insetti | bordo-precipizio, metà campo tinte, terreno per rank, mirino e anteprima della speciale, contorno degli sprite, anelli di squadra con due forme, numeri di danno leggibili, badge di stato | 3–4 | **fatta** (26 ottobre) |
-| 3. Mondo | mappa SVG dei cinque luoghi con nebbia e trappole posate, scheda del luogo con sagome e arco della probabilità, rivelazione della cattura | 3–4 | da fare |
+| 3. Mondo | mappa SVG dei cinque luoghi con nebbia e trappole posate, scheda del luogo con sagome e arco della probabilità, rivelazione della cattura | 3–4 | **fatta** (26 ottobre) |
 | 4. Illustrazioni generate | fondale, luoghi, ritratti: è `PIANO-GRAFICA.md` | dopo il pilota | da fare |
 
 ---
@@ -125,15 +125,50 @@ il grado), i badge per la Malia (non lascia uno stato sulla pedina: la converte)
 
 **Collaudo:** suite `arena`, 31 controlli. Le prove di prima passano tutte.
 
-## Fase 3 — Mondo
+## Fase 3 — com'è stata fatta
 
-| Lavoro | Dove |
-|---|---|
-| Mappa SVG con i cinque luoghi su un sentiero, nebbia sui luoghi chiusi | schermata Mondo, `HABITAT` |
-| Trappole posate visibili sulla mappa, con le tacche delle partite | la stessa |
-| Scheda del luogo: intestazione nella tinta del luogo, sagome di chi si può prendere, trappola ed esca come carte, arco della probabilità | `drawSpedizione` |
-| Rivelazione della cattura, saltabile | `raccogli` |
+**La mappa.** `#luoghi` non è più un elenco: è una mappa con un sentiero tratteggiato, e
+i cinque luoghi sono **gli stessi cinque pulsanti di prima**, posati sopra (si
+raggiungono col Tab, hanno un nome parlato, `aria-pressed` sul luogo scelto). Ogni luogo
+ha una scena disegnata da codice in `SCENE` — albero coi frutti, massi, forno con la
+brace, canne e acqua, cerchio di luce — e la sua tinta (`--biome-*`). Su schermo largo il
+sentiero va in orizzontale in 21:9, sotto i 560 px scende a zig-zag in 4:5. Dai 360 px in
+su nessun luogo esce o ne copre un altro.
 
-**Collaudo:** la mappa sta a 360×640 senza scorrere di lato; il numero mostrato è quello
-che decide l'esito; peso aggiunto sotto i 12 KB; la rivelazione si salta e col movimento
-ridotto non c'è.
+**La nebbia, cambiata rispetto al piano.** Il piano voleva coprire i luoghi «che il rank
+non ha ancora aperto»: nel gioco non ce ne sono, i cinque luoghi sono sempre aperti. La
+seconda idea, «qui al tuo rank non c'è niente da prendere», è stata scritta e poi
+misurata su migliaia di semi e su tutti e sei i rank: **non capita mai**, perché ogni
+luogo ha sempre una famiglia di rango 1. Era una funzione morta. La nebbia copre invece i
+luoghi **dove in questo mondo non hai ancora posato una trappola**: è vero, si dirada
+giocando, e cambiando mondo torna tutto da scoprire. Si salva come un numero di 5 bit
+(`S.mondo.e`): una lista di nomi faceva superare al codice di salvataggio i 400
+caratteri, e la prova `salva` se n'è accorta. I salvataggi di prima lo ricavano dalle
+trappole in giro.
+
+**Le trappole sulla mappa.** Una pillola sul luogo con una tacca per partita, piena per
+quelle già giocate; pronta, pulsa in verde. L'elenco «Trappole posate» resta sotto.
+
+**La scheda del luogo.** Una testata nella tinta del luogo con sei particelle che salgono
+piano. Sotto, **chi ci abita come sagome**: a colori le famiglie che hai già incontrato,
+nere con un «?» le altre, col bordo verde quelle attirate dall'esca scelta — il Mondo
+parla con la collezione. Trappole ed esche sono **carte** con l'icona, l'esca giusta col
+bordo verde. La probabilità è un **arco da 270°** col numero al centro: il pieno è
+calcolato da `stimaCattura()`, la stessa funzione che decide l'esito, e la prova lo
+confronta col numero scritto su tre combinazioni.
+
+**La rivelazione.** Raccogliendo, sulla colonna dei luoghi la trappola trema due volte,
+poi una sagoma nera si accende nel colore della famiglia, col nome e «Nuovo nella
+collezione» se è la prima volta. Vuota, resta spenta con «Vuota». **L'esito è scritto
+subito** in `#mondo-esito` come prima: la scena è `aria-hidden` e non ritarda niente. Un
+tocco o un tasto la chiudono, se ne va da sola dopo 2–3 secondi, sparisce cambiando
+schermata. Col movimento ridotto non c'è.
+
+**Peso.** `gioca.html` cresce di 15,8 KB, 13,0 KB senza commenti: **oltre** il tetto di
+12 KB che il piano si era dato. Compresso, cioè quanto viaggia davvero, sono +4,8 KB.
+Nessun file nuovo.
+
+**Rimasto fuori:** lo sbuffo di polvere sulla trappola vuota, e camminare dentro un luogo
+(era già segnato come idea per dopo: cambia la logica, non solo la grafica).
+
+**Collaudo:** suite `mondografica`, 44 controlli. Le prove di prima passano tutte.

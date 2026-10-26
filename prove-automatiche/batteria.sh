@@ -40,7 +40,7 @@ done
 
 TUTTE="mech deploy a11y move move2 diff cards hover duo modes rot motion salva alleva mondo demo
 eco suono guida musica menu mobile ripro sfida coll resist nomi ux spiega tocco sprite
-interfaccia arena"
+interfaccia arena mondografica"
 [ $# -gt 0 ] && TUTTE="$*"
 
 cd "$QUI"

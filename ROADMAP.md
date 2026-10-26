@@ -7,7 +7,7 @@ lavoro, non di calendario.
 generati da codice — e dal 5 ottobre ogni Insector ha il suo disegno, perché la figura
 segue il grado dentro la famiglia e non più il rank assoluto — gabbie e allevamento, mondo e cattura con semi condivisibili,
 salvataggi esportabili, eco, edizione demo, nomenclatura tutta nostra e le due schermate
-prima della partita che stanno in una finestra sola. 921 controlli automatici, equilibrio
+prima della partita che stanno in una finestra sola. 965 controlli automatici, equilibrio
 misurato a simulazione. Quel che manca non sono pezzi rotti: sono pezzi mancanti.
 
 **La decisione che riordina tutto** *(27 settembre 2026)*: la demo si ferma finché il
@@ -166,6 +166,17 @@ per la tua, tratteggiato per l'altra. Rank in punti e stati come distintivi sull
 Corretti tre difetti trovati strada facendo: la caduta che a scacchiera girata usciva dalla
 parte opposta, quella che dai lati usciva in diagonale, e la barba di tre Lamidi disegnata
 a x=322 su 64 (`32 + "2.7"`). 31 controlli nuovi.
+
+## ~~Grafica, Fase 3 — Il Mondo~~ · **fatta** (26 ottobre)
+
+**Il Mondo è una mappa**: un sentiero coi cinque luoghi, ognuno con la sua scena e la sua
+tinta, che sul telefono scende a zig-zag. **I luoghi inesplorati stanno nella nebbia** e
+si diradano posandoci una trappola — la nebbia «per rank» del piano non poteva esistere,
+perché nel gioco nessun luogo è chiuso. **Le trappole posate si vedono sulla mappa**, con
+una tacca per partita. Nella scheda del luogo **chi ci abita compare come sagoma**, a
+colori se l'hai già incontrato; trappole ed esche sono carte; **la probabilità è un arco**
+che si riempie del numero vero. **La cattura si scopre**: la trappola trema, la sagoma si
+accende. 44 controlli nuovi.
 
 ## Priorità 6 — Quando si esce di casa
 
