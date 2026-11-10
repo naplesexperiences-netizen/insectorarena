@@ -7,7 +7,7 @@ lavoro, non di calendario.
 generati da codice — e dal 5 ottobre ogni Insector ha il suo disegno, perché la figura
 segue il grado dentro la famiglia e non più il rank assoluto — gabbie e allevamento, mondo e cattura con semi condivisibili,
 salvataggi esportabili, eco, edizione demo, nomenclatura tutta nostra e le due schermate
-prima della partita che stanno in una finestra sola. 1024 controlli automatici, equilibrio
+prima della partita che stanno in una finestra sola. 1100 controlli automatici, equilibrio
 misurato a simulazione. Quel che manca non sono pezzi rotti: sono pezzi mancanti.
 
 **La decisione che riordina tutto** *(27 settembre 2026)*: la demo si ferma finché il
@@ -189,9 +189,29 @@ campo non si restringe più a ogni pedina scelta. E fra un round e l'altro **«P
 round»** salta roster, riepilogo e schieramento. 59 controlli nuovi, dettaglio in
 `DOCUMENTAZIONE.md`.
 
-**Rimasto fuori**, di proposito: la sconfitta che azzera il rank (tocca l'equilibrio, va
-rimisurata), la schermata di fine partita coi numeri, il primo minuto con tre aiuti
-insieme, vibrazione e margini per la tacca.
+## ~~Fuori fila — Il primo minuto, e il telefono~~ · **fatta** (10 novembre)
+
+**La prima visita offre «Gioca subito»**: una partita già pronta invece di una domanda su
+modalità e difficoltà, che arrivano dalla seconda visita. **Un aiuto alla volta**: finché
+c'è la guida le nuvolette non si aprono da sole, e sul telefono la riga della guida sta
+anche sotto al campo, dove si vede. **Nello schieramento ogni pedina dice il suo ruolo**
+invece della stessa frase sul movimento. Sul telefono **la testata in battaglia sta su una
+riga**, **un colpo vibra** (si spegne dal menu) e **i margini tengono conto della tacca** —
+questi ultimi non verificati su un telefono vero. 47 controlli nuovi.
+
+## ~~Fuori fila — Una sconfitta non butta via il rank~~ · **fatta** (10 novembre)
+
+**Ogni rank perdona una sconfitta**: la prima fa rigiocare il round, la seconda fa
+ripartire dal primo avversario. Prima bastava perdere al quinto round per buttarne via
+quattro. Non tocca la singola battaglia ma quante partite servono per rank: calcolato dalle
+percentuali già misurate, al Rank B si passa da 17 a 12 partite attese, al Rank A da 28 a
+17, e il Rank S senza allevare resta chiuso (tabella in `DOCUMENTAZIONE.md`). Sta in una
+costante, `SECONDA`. **Il risultato mostra i cinque round e quattro numeri** della partita:
+turni, pedine rimaste, danni inflitti e subiti. 29 controlli nuovi.
+
+**Da guardare quando ci sarà la telemetria**: se con la seconda possibilità i rank alti
+restano una salita o diventano una formalità per chi gioca davvero. La tabella è calcolata
+sull'IA che gioca al posto del giocatore.
 
 ## Priorità 6 — Quando si esce di casa
 

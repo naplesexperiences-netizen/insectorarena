@@ -21,7 +21,7 @@ documentazione del minigioco **Insectron** di *Rogue Galaxy* (PS2, Level-5 / Son
 | `img/` | le schermate della vetrina (le uniche immagini del progetto: dentro al gioco non c'è un solo file immagine) |
 | `insectors.json` | dataset grezzo estratto dal wiki |
 | `ROADMAP.md`, `PIANO-*.md` | dove siamo, e i piani per quello che manca |
-| `prove-automatiche/` | le 35 suite, 1024 controlli |
+| `prove-automatiche/` | le 37 suite, 1100 controlli |
 | `sprite-da-migliorare/` | il materiale per far ridisegnare gli Insector |
 | `telemetria/` | worker, schema e prova. Spenta |
 | `prove/` | i confronti fra strumenti grafici |
@@ -716,6 +716,102 @@ si ricorda in memoria, non nel salvataggio: ricaricando la pagina si riparte dal
 40 campi a caso ogni casella colpibile dopo una mossa sta nel tratteggio; i danni scritti
 nel riepilogo sono quelli presi; la barra non copre mai l'ultima fila.
 
+### Una sconfitta non butta via il rank
+
+Aggiunto il 10 novembre. La regola era: cinque vittorie di fila, e una sconfitta — anche
+al quinto round — riporta al primo avversario. Adesso **ogni rank perdona una sconfitta**:
+la prima fa rigiocare lo stesso round e i round vinti restano; la seconda fa ripartire il
+rank, e la possibilità torna intera. Si rinnova anche conquistando il rank. Sta in una
+costante, `SECONDA`: a `false` torna la regola di prima.
+
+Nella testata, accanto a «Round 3/5», un cuore dice se è ancora disponibile; il testo della
+sconfitta dice che cosa è successo e che cosa succede alla prossima. Nel salvataggio è un
+campo solo, `x`, scritto soltanto quando la possibilità è spesa: lo schema non cambia e i
+salvataggi di prima si leggono come sono.
+
+**Che cosa sposta.** Non tocca la singola battaglia — statistiche, IA e premi sono quelli
+di prima — ma quante partite servono per chiudere un rank. Calcolato (non simulato) dalle
+percentuali di vittoria già misurate qui sopra, come numero atteso di partite per rank:
+
+| Rank | vittorie | regola di prima | con la seconda possibilità | ripartendo dal round perso |
+|---|---:|---:|---:|---:|
+| E | 99% | 5,2 | 5,1 | 5,1 |
+| D | 97% | 5,5 | 5,2 | 5,2 |
+| C | 84% | 8,7 | 6,9 | 6,0 |
+| B | 69% | 17,4 | 11,7 | 7,2 |
+| A | 61% | 27,8 | 17,1 | 8,2 |
+| S, allevando (47%) | 47% | 80,4 | 42,7 | 10,6 |
+| S, senza allevare | 23% | 2017 | 831 | 21,7 |
+
+Ai rank alti le partite attese scendono di un terzo o di metà, e il Rank S senza allevare
+resta in pratica chiuso: l'allevamento continua a servire. La terza colonna — ripartire
+sempre dal round perso — è stata scartata proprio per questo: porterebbe il Rank S a una
+ventina di partite anche senza allevare. Due conseguenze da tenere d'occhio: i premi di
+rank (cibo e trappola) arrivano più spesso per partita giocata, e le trappole, che si
+raccolgono contando le partite, fanno meno giri per rank. Le percentuali della tabella sono
+quelle dell'IA che gioca al posto del giocatore: una persona vera si misura con la
+telemetria, quando sarà accesa.
+
+### Il risultato coi numeri
+
+La schermata di fine partita era un titolo e un paragrafo. Nel torneo adesso mostra **la
+barra dei cinque round** (pieni quelli vinti, col bordo quello che viene, accanto il cuore
+della seconda possibilità) e **quattro numeri**: turni, pedine rimaste, danni inflitti e
+subiti. I danni si contano in `raw()`, dove si tolgono, e il colpo di grazia vale la vita
+che restava, non il danno pieno. Non entrano nel salvataggio. Sfida, due giocatori e PC
+contro PC restano com'erano.
+
+**Collaudo:** suite `esito`, 29 controlli: la prima sconfitta non azzera e la seconda sì,
+il salvataggio lo ricorda e ricaricando resta, il rank nuovo comincia con la possibilità
+intera, i numeri sono quelli della partita, e su un telefono da 360 px sta tutto nella
+scheda.
+
+### Il primo minuto, e il telefono
+
+Aggiunto il 10 novembre.
+
+**La prima visita non chiede niente.** La schermata d'apertura chiedeva modalità e
+difficoltà a chi non aveva ancora visto il gioco. La prima volta adesso dice in due righe
+che gioco è e offre **«Gioca subito»**: squadra proposta (la stessa di «Squadra rapida»),
+Re il più resistente, pedine già schierate, dritto al primo turno. Accanto resta «Scelgo io
+la squadra», che fa quello che faceva «Scegli la squadra». Dalla seconda visita la scelta
+della partita è quella di sempre, e dal roster «Cambia» la apre come prima. «Prima visita»
+vuol dire: guida ancora viva (nessun torneo in corso) e nessun `insectron-avvio` in
+`localStorage`. La sfida del giorno, che sta nella scelta della partita, la prima volta
+non si vede: arriva dalla seconda.
+
+**Un aiuto alla volta.** Al primo ingresso nel roster comparivano insieme la riga della
+guida, la nuvoletta del gesto e il banner della modalità: su un telefono restava una riga
+e mezza di roster. Finché la guida ha una riga a video le nuvolette **non si aprono da
+sole**: arrivano alla visita dopo, e dal punto interrogativo si aprono sempre. Chi entra da
+«Gioca subito» vede una riga sola, «Come si gioca» invece di «4 di 4», che dice anche quali
+sono le sue pedine. Sul telefono quella riga sta in cima alla pagina, e la pagina scorre
+per far stare il campo: finiva fuori dallo schermo proprio quando serviva. Adesso compare
+anche **sotto al campo**.
+
+**Nello schieramento, il ruolo.** Quattro righe su cinque dicevano «1 casella in tutte le
+direzioni (3×3)». Adesso ogni pedina dice che cosa è — «Danno ad area», «Lanciatore»,
+«Re» — cioè la prima parola della sua descrizione, e il movimento in due parole.
+
+**La testata in battaglia sta su una riga** (telefono): il titolo del gioco lì non serve.
+Da 110 a 60 px.
+
+**Vibrazione.** Un colpo vibra 12 ms, una speciale 18, un KO e un ring-out con un ritmo
+loro. Passa da `suona()`, quindi non c'è un secondo elenco di momenti da tenere allineato.
+Solo dove il browser la offre (Android; Safari no), mai nelle partite fra computer, e si
+spegne dal menu: la voce «Vibrazione» compare solo dove il puntatore è un dito.
+
+**Tacca e barra dei gesti.** `viewport-fit=cover`, e margini della pagina, barra delle
+azioni e riga dei pulsanti d'apertura usano `env(safe-area-inset-*)`. Dove non ci sono vale
+zero e non cambia niente. **Non verificato su un telefono vero**: Chromium da riga di
+comando non ha tacche, e la prova controlla solo che le regole ci siano.
+
+**Collaudo:** suite `primo`, 47 controlli. Le altre suite partono da chi il benvenuto l'ha
+già visto: lo fa `comune.js`, chiamando la funzione del gioco dopo il caricamento. Una
+prima versione lo faceva scrivendo in `localStorage` da uno script d'avvio, e su `file://`
+dopo un ricaricamento il salvataggio a volte spariva (4 volte su 16): era la prova a
+rompersi, non il gioco, ed è lo stesso difetto che aveva fatto fermare `esito` in silenzio.
+
 ## Spiegazioni in contesto: le nuvolette
 
 Gabbie e Mondo sono le due schermate che hanno regole vere da capire — un budget di
@@ -1305,13 +1401,13 @@ sui titoli.
 - Le suite stanno in **[`prove-automatiche/`](prove-automatiche/)**, col loro README:
   `sh prove-automatiche/batteria.sh` le lancia tutte. Girano in Chromium vero sul
   `gioca.html` che viene pubblicato, non su una copia di prova
-- Totale dei controlli automatici sul gioco: **1024** (meccaniche 30, schieramento 20,
+- Totale dei controlli automatici sul gioco: **1100** (meccaniche 30, schieramento 20,
   schede 30, accessibilità 14, difficoltà 10, regola del movimento 13, passaggio del mouse 14,
   Human vs Human 32, modalità e PC vs PC 44, rotazione 18, animazione 13, salvataggi 25,
   allevamento 28, mondo e cattura 44, edizione demo 14, eco e telemetria 44, suono 23,
   guida 19, musica 31, menu 17, telefono 30, riproduzione 32, sfida del giorno 40,
   collezione 20, resistenze 39, nomenclatura 23, schermata unica 52, spiegazioni 48,
-  gesto e campo 39, sprite 10, interfaccia 74, arena 31, mondo grafica 44, turno 59),
+  gesto e campo 39, sprite 10, interfaccia 74, arena 31, mondo grafica 44, turno 59, esito 29, primo 47),
   più 21 sulla landing e sull'informativa, 19 sul sito installabile (manifest, icone,
   service worker e prova offline con la rete staccata) e 19 sull'endpoint della
   telemetria, che gira in un contesto vuoto con un D1 finto e senza toccare la rete

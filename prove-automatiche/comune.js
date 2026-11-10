@@ -62,11 +62,38 @@ function senzaServiceWorker(chromium){
   return Object.assign(Object.create(chromium), {
     async launch(opt){
       const b = await chromium.launch(opt);
-      const conDifesa = f => (o = {}) =>
-        f.call(b, Object.assign({ serviceWorkers: 'block' }, o));
-      const np = b.newPage, nc = b.newContext;
-      b.newPage = conDifesa(np);
-      b.newContext = conDifesa(nc);
+      /* La prima visita in assoluto apre il benvenuto con «Gioca subito», e
+         la scelta della modalita' arriva dalla seconda. Quasi tutte le prove
+         cominciano proprio da quella scelta: partono quindi da chi il
+         benvenuto l'ha gia' visto. Chi vuole provarlo -- primo.js -- lo chiede
+         con { benvenuto: true }.
+         Lo si segna DOPO il caricamento, chiamando la funzione del gioco, e
+         non con uno script d'avvio che scrive in localStorage: su file://
+         una scrittura fatta prima che la pagina parta, dopo un ricaricamento,
+         a volte si porta via il salvataggio (misurato: 4 volte su 16). */
+      const nc = b.newContext;
+      const giaVisto = pg => {
+        ['goto', 'reload'].forEach(m => {
+          const f = pg[m].bind(pg);
+          pg[m] = async (...a) => {
+            const r = await f(...a);
+            await pg.evaluate(() => { if (typeof avvioVisto === 'function') avvioVisto(); }).catch(() => {});
+            return r;
+          };
+        });
+        return pg;
+      };
+      const contesto = async (o = {}) => {
+        const { benvenuto, ...resto } = o;
+        const c = await nc.call(b, Object.assign({ serviceWorkers: 'block' }, resto));
+        if (!benvenuto){
+          const np = c.newPage.bind(c);
+          c.newPage = async (...a) => giaVisto(await np(...a));
+        }
+        return c;
+      };
+      b.newContext = contesto;
+      b.newPage = async o => (await contesto(o)).newPage();
       return b;
     }
   });
