@@ -7,7 +7,7 @@ lavoro, non di calendario.
 generati da codice — e dal 5 ottobre ogni Insector ha il suo disegno, perché la figura
 segue il grado dentro la famiglia e non più il rank assoluto — gabbie e allevamento, mondo e cattura con semi condivisibili,
 salvataggi esportabili, eco, edizione demo, nomenclatura tutta nostra e le due schermate
-prima della partita che stanno in una finestra sola. 965 controlli automatici, equilibrio
+prima della partita che stanno in una finestra sola. 1024 controlli automatici, equilibrio
 misurato a simulazione. Quel che manca non sono pezzi rotti: sono pezzi mancanti.
 
 **La decisione che riordina tutto** *(27 settembre 2026)*: la demo si ferma finché il
@@ -177,6 +177,21 @@ una tacca per partita. Nella scheda del luogo **chi ci abita compare come sagoma
 colori se l'hai già incontrato; trappole ed esche sono carte; **la probabilità è un arco**
 che si riempie del numero vero. **La cattura si scopre**: la trappola trema, la sagoma si
 accende. 44 controlli nuovi.
+
+## ~~Fuori fila — Il turno si legge sul campo, e il round dopo parte subito~~ · **fatta** (10 novembre)
+
+Da una partita giocata su un telefono. **Il colpo sta scritto sul bersaglio** prima di
+darlo, con «KO» solo quando è sicuro. **La mossa si ritira** finché non si è colpito.
+**«Fine turno» dice quante pedine possono ancora agire** e chi ha un bersaglio a tiro.
+**Le caselle sotto tiro** si accendono da un pulsante. **Il turno avversario lascia una
+scia e una riga di riepilogo.** Sul telefono **la barra delle azioni è alta la metà** e il
+campo non si restringe più a ogni pedina scelta. E fra un round e l'altro **«Prossimo
+round»** salta roster, riepilogo e schieramento. 59 controlli nuovi, dettaglio in
+`DOCUMENTAZIONE.md`.
+
+**Rimasto fuori**, di proposito: la sconfitta che azzera il rank (tocca l'equilibrio, va
+rimisurata), la schermata di fine partita coi numeri, il primo minuto con tre aiuti
+insieme, vibrazione e margini per la tacca.
 
 ## Priorità 6 — Quando si esce di casa
 

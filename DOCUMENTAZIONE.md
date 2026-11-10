@@ -21,7 +21,7 @@ documentazione del minigioco **Insectron** di *Rogue Galaxy* (PS2, Level-5 / Son
 | `img/` | le schermate della vetrina (le uniche immagini del progetto: dentro al gioco non c'è un solo file immagine) |
 | `insectors.json` | dataset grezzo estratto dal wiki |
 | `ROADMAP.md`, `PIANO-*.md` | dove siamo, e i piani per quello che manca |
-| `prove-automatiche/` | le 34 suite, 965 controlli |
+| `prove-automatiche/` | le 35 suite, 1024 controlli |
 | `sprite-da-migliorare/` | il materiale per far ridisegnare gli Insector |
 | `telemetria/` | worker, schema e prova. Spenta |
 | `prove/` | i confronti fra strumenti grafici |
@@ -654,6 +654,68 @@ a colpo d'occhio si vede quale dei cinque può usarla, senza selezionarle una pe
 stesso numero sta sul pulsante («Danza delle falci · fra 2») e per esteso nella scheda
 («pronta fra 2 turni»).
 
+## Il turno si legge sul campo
+
+Aggiunto il 10 novembre, dopo una partita giocata su un telefono da 390×780. Sei cose,
+tutte dentro `gioca.html`, nessuna che tocchi le regole, il caso o il salvataggio.
+
+**Il colpo sta scritto sul bersaglio, prima di darlo.** Scelta una pedina, ogni bersaglio
+a portata porta una targhetta col danno stimato (`estDmg()`, la stessa stima che usa
+l'avversario) e sulla sua barra lampeggia il tratto di vita che se ne andrà. Il danno vero
+oscilla del ±10%: per questo **«KO» compare solo se il bersaglio cade anche col tiro più
+basso** (`floor(stima × 0,9) ≥ vita`). Vale anche per le speciali a bersaglio; quelle senza
+danno (Proiezione, Raggio di malia) e quelle che partono dal pulsante (Danza delle falci,
+Colpo d'ali, Doppio calcio)
+non hanno numero, e resta la loro area tratteggiata. La stima sta anche nel nome parlato
+della casella («colpo stimato 24», «il colpo lo abbatte»).
+
+**La mossa si ritira.** Il tocco su una casella blu sposta subito, e su un telefono il
+dito sbaglia. Finché la pedina non ha colpito, al posto di «Già mossa» c'è **«Annulla
+mossa»**: la riporta dov'era, con la mossa di nuovo da spendere. Un colpo qualsiasi, di
+chiunque, chiude la possibilità — altrimenti si potrebbe spostare, guardare come va un
+attacco e poi tornare indietro. Si ricorda una mossa sola, l'ultima.
+
+**«Fine turno» dice chi può ancora agire.** Un numero sull'angolo del pulsante (e nel suo
+nome parlato), e sotto al campo la riga «Possono ancora agire: 3 · con un bersaglio a
+tiro: Tenaglia». Quando hanno agito tutte il numero sparisce e il pulsante pulsa. Non
+chiede conferma: lasciare ferma una pedina è una scelta normale, e un «sei sicuro?» a ogni
+turno sarebbe peggio della dimenticanza.
+
+**Le caselle sotto tiro.** Il pulsante col mirino nella barra del turno tratteggia in rosso
+le caselle dove l'avversario può arrivare a colpire al prossimo turno: attacco normale da
+ogni casella che può raggiungere, più l'area della speciale se sarà carica (`sottoTiro()`).
+Chi è immobilizzato non conta, perché salterà il turno. Parte spento, la scelta si ricorda
+(`insectron-pericolo` in `localStorage`). È una stima per eccesso: non sa delle spinte a
+catena, e nelle prime mosse copre quasi tutto il centro, che è vero.
+
+**Il turno avversario lascia traccia.** Cinque pedine che agiscono in due secondi e mezzo
+non si seguono. Adesso ogni pedina che si è mossa lascia una **scia** (cerchio di partenza,
+filo tratteggiato, punta d'arrivo) che resta fino alla tua prima azione, e sotto al campo
+c'è **una riga**: «Turno avversario: Bastione −33 · 3 pedine mosse · il tuo Re è a tiro».
+Solo contro il computer: in due sullo stesso schermo l'altro ha appena guardato.
+
+**Sul telefono la barra è bassa.** La scheda ancorata in basso portava riquadri, stime e
+azioni: fino a 40vh, e per farle posto il campo si restringeva a ogni pedina scelta (da 66
+a 49 px di casella su un 390×780) — e l'ultima fila finiva comunque sotto. In battaglia
+adesso porta nome, tre numeri su una riga e le azioni: circa 170 px. Su un 390×780 **il
+campo non cambia più misura**; su un 360×640 le caselle passano da 37 a 47 px. Riquadri,
+stime e resistenze restano nel tocco lungo. Lo schieramento usa ancora la barra alta, che
+lì serve.
+
+### Prossimo round
+
+Fra un round e l'altro c'erano quattro schermate: risultato, roster, riepilogo,
+schieramento da rifare. Dopo una vittoria il risultato offre **«Prossimo round»** (dopo
+una sconfitta **«Riprova subito»**): stessa squadra, stesso Re, stesse caselle, dritto in
+battaglia. «Continua» diventa «Cambia squadra» e fa quello che faceva. A rank conquistato
+la scorciatoia non c'è: ci sono premi e reclute nuove da andare a vedere. Lo schieramento
+si ricorda in memoria, non nel salvataggio: ricaricando la pagina si riparte dal roster.
+
+**Collaudo:** suite `turno`, 59 controlli, su schermo largo e su tre telefoni (390×780,
+360×640, 320×700). Fra gli altri: dove c'è scritto KO il bersaglio cade 40 colpi su 40; su
+40 campi a caso ogni casella colpibile dopo una mossa sta nel tratteggio; i danni scritti
+nel riepilogo sono quelli presi; la barra non copre mai l'ultima fila.
+
 ## Spiegazioni in contesto: le nuvolette
 
 Gabbie e Mondo sono le due schermate che hanno regole vere da capire — un budget di
@@ -1243,13 +1305,13 @@ sui titoli.
 - Le suite stanno in **[`prove-automatiche/`](prove-automatiche/)**, col loro README:
   `sh prove-automatiche/batteria.sh` le lancia tutte. Girano in Chromium vero sul
   `gioca.html` che viene pubblicato, non su una copia di prova
-- Totale dei controlli automatici sul gioco: **965** (meccaniche 30, schieramento 20,
+- Totale dei controlli automatici sul gioco: **1024** (meccaniche 30, schieramento 20,
   schede 30, accessibilità 14, difficoltà 10, regola del movimento 13, passaggio del mouse 14,
   Human vs Human 32, modalità e PC vs PC 44, rotazione 18, animazione 13, salvataggi 25,
   allevamento 28, mondo e cattura 44, edizione demo 14, eco e telemetria 44, suono 23,
   guida 19, musica 31, menu 17, telefono 30, riproduzione 32, sfida del giorno 40,
   collezione 20, resistenze 39, nomenclatura 23, schermata unica 52, spiegazioni 48,
-  gesto e campo 39, sprite 10, interfaccia 74, arena 31, mondo grafica 44),
+  gesto e campo 39, sprite 10, interfaccia 74, arena 31, mondo grafica 44, turno 59),
   più 21 sulla landing e sull'informativa, 19 sul sito installabile (manifest, icone,
   service worker e prova offline con la rete staccata) e 19 sull'endpoint della
   telemetria, che gira in un contesto vuoto con un D1 finto e senza toccare la rete

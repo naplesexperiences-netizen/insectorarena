@@ -24,8 +24,11 @@ const { chromium, GIOCA } = require('./comune');
 
   await sel();
   const m2 = await btn('Muovi');
-  const gia = await btn('Già mossa');
-  ck('il pulsante diventa "Già mossa" e disattivato', !m2 && !!gia && await gia.isDisabled());
+  /* Finche' non si e' colpito la mossa si puo' ritirare: al posto di «Muovi»
+     c'e' «Annulla mossa». «Già mossa», disattivato, torna dopo un colpo: lo
+     verifica turno.js. */
+  const ann = await btn('Annulla mossa');
+  ck('al posto di "Muovi" c\'e\' "Annulla mossa"', !m2 && !!ann && !(await ann.isDisabled()));
 
   // forzo comunque la modalita movimento: non deve restare alcuna casella cliccabile
   await p.evaluate(u => { S.sel = S.units.find(v=>v.uid===u); S.mode='move'; draw(); }, uid);
