@@ -1,4 +1,10 @@
 const { chromium, GIOCA } = require('./comune');
+/* Se la suite si ferma a meta' lo dice come un controllo fallito: senza,
+   la batteria leggerebbe zero controlli e zero errori, cioe' un silenzio. */
+process.on('unhandledRejection', e => {
+  console.log('  KO  la suite si e\' fermata: ' + String(e && e.message || e).split('\n').slice(0, 3).join(' / '));
+  process.exit(1);
+});
 /* Il turno si legge sul campo: il colpo scritto sul bersaglio prima di darlo,
    la mossa che si ritira, le caselle sotto tiro, la scia e il riepilogo del
    turno avversario, «Fine turno» che dice chi puo' ancora agire, la barra

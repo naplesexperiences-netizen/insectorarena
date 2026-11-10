@@ -1,6 +1,6 @@
 # Le prove automatiche
 
-1024 controlli sul gioco, più 59 su contorno e infrastruttura. Girano in Chromium
+1053 controlli sul gioco, più 59 su contorno e infrastruttura. Girano in Chromium
 vero tramite Playwright, sul file `gioca.html` che sta qui accanto: non c'è un
 ambiente di test separato da tenere allineato, quello che passa è il gioco che
 viene pubblicato.
@@ -15,7 +15,7 @@ node sprite.js                 # una sola, con l'elenco dei controlli
 Se Playwright sta altrove: `PLAYWRIGHT_PATH=/percorso/a/playwright sh batteria.sh`.
 Serve anche `python3`, per il server statico e per i due script in `strumenti/`.
 
-## Le 35 suite
+## Le 36 suite
 
 | | controlli | che cosa verifica |
 |---|---:|---|
@@ -53,6 +53,7 @@ Serve anche `python3`, per il server statico e per i due script in `strumenti/`.
 | `arena` | 31 | la Fase 2: bordo-precipizio, metà campo tinte senza perdere contrasto, terreno per rank, area della speciale coerente coi bersagli veri, anelli di squadra con due forme, rank e stati sulla pedina, numeri di danno, caduta nel vuoto dalla parte giusta, e nessuna coordinata di sprite fuori dal disegno |
 | `mondografica` | 44 | la Fase 3: la mappa dei luoghi che sta da 360 px in su, la nebbia sugli inesplorati e la sua memoria nel salvataggio, le trappole sulla mappa, sagome, carte, l'arco che dice la probabilità vera, la rivelazione della cattura e il movimento ridotto |
 | `turno` | 59 | il turno che si legge sul campo: il colpo scritto sul bersaglio (e KO solo quando è sicuro), la mossa che si ritira, «Fine turno» che dice chi può ancora agire, le caselle sotto tiro coerenti con le regole, scia e riepilogo del turno avversario, la barra bassa sul telefono che non copre né rimpicciolisce il campo, e «Prossimo round» con la stessa squadra e lo stesso schieramento |
+| `esito` | 29 | la sconfitta e il risultato: un rank perdona una sconfitta prima di ripartire, il salvataggio lo ricorda, il rank nuovo la rinnova; e la schermata di fine partita coi cinque round e i numeri veri della battaglia |
 
 Fuori batteria, in coda: `land` (21, landing e informativa), `pwa` (19, sito
 installabile e prova offline) e `../telemetria/prova.mjs` (19, l'endpoint in un

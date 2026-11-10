@@ -1043,6 +1043,23 @@ button.spento{opacity:.55;text-decoration:line-through}
 .result h2{font-size:var(--fs-display);margin-bottom:10px}
 .result .win{color:var(--ok)} .result .lose{color:var(--foe)}
 .result p{color:var(--muted);line-height:1.7;margin-bottom:18px;font-size:var(--fs-body)}
+/* I cinque round del rank, a colpo d'occhio: pieni quelli vinti, col bordo
+   quello che viene adesso. Accanto, la seconda possibilita'. */
+.tappe{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 14px;
+  font-size:var(--fs-small);color:var(--muted)}
+.tappe .pt{display:flex;gap:6px}
+.tappe .pt i{width:26px;height:9px;border-radius:999px;background:var(--panel2);border:1px solid var(--line)}
+.tappe .pt i.v{background:var(--ok);border-color:var(--ok)}
+.tappe .pt i.ora{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.bis{display:inline-flex;align-items:center;gap:4px;color:var(--ok)}
+.bis.usata{color:var(--muted);opacity:.55}
+.bis .ic{width:13px;height:13px}
+.badge .bis{margin-left:6px;vertical-align:-2px}
+.cifre{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 18px;
+  font-size:var(--fs-caption);color:var(--muted);text-align:center}
+.cifre div{background:var(--panel2);border-radius:8px;padding:8px 3px;line-height:1.35}
+.cifre b{display:block;color:var(--text);font-size:var(--fs-h2);font-variant-numeric:tabular-nums}
+@media(max-width:420px){ .cifre{grid-template-columns:repeat(2,1fr)} }
 
 footer.note{
   margin-top:20px;padding:14px 16px;background:var(--panel);border:1px solid var(--line);
@@ -1497,7 +1514,9 @@ footer.note a{color:var(--accent2)}
 <section id="s-result" class="screen">
   <div class="result card">
     <h2 id="r-title">—</h2>
+    <div class="tappe" id="r-tappe" hidden></div>
     <p id="r-text">—</p>
+    <div class="cifre" id="r-cifre" hidden></div>
     <div class="acts">
       <button id="btn-newteams" hidden>Cambia squadra</button>
       <button id="btn-next" class="primary">Continua</button>
@@ -2589,6 +2608,7 @@ const S = {
   mondo: null,                                    /* seme, trappole in magazzino, trappole posate */
   luogo: null, trapSel: 1, escaSel: null,         /* la spedizione che si sta preparando */
   gratis: 0, giocate: 0,                          /* esemplari regalati; partite di torneo giocate */
+  usata: false,                                   /* la seconda possibilita' di questo rank e' gia' spesa */
   career: { team: [], king: null }
 };
 const duoMode = () => S.vs === "hvh";
@@ -2633,6 +2653,7 @@ function datiSalvataggio(){
     v: S.careerHeld && S.career.vs ? S.career.vs : S.vs,
     z: S.zoo, p: S.dispensa,                      /* gabbie e dispensa (schema 2) */
     m: S.mondo, g: S.gratis|0, gi: S.giocate|0,   /* mondo, esemplari regalati, partite giocate (schema 3) */
+    x: S.usata ? 1 : undefined,                   /* seconda possibilita' spesa: c'e' solo quando serve */
     f: S.sfida, vs: S.visti, tr: S.trofei         /* sfida, collezione e traguardi (schema 5) */
   };
 }
@@ -2691,7 +2712,8 @@ function migra(v){
            c: v.c ? 1 : 0, a: (v.a|0) || 0, ap: (v.ap|0) || 0, v: v.v, f: sf,
            vs: visti, tr: trofei,
            z: zoo, p: disp, m: mondoSano(v.m),
-           g: Math.max(0, Math.min(ALLEVA_GRATIS, v.g|0)), gi: Math.max(0, v.gi|0) };
+           g: Math.max(0, Math.min(ALLEVA_GRATIS, v.g|0)), gi: Math.max(0, v.gi|0),
+           x: v.x ? 1 : undefined };
 }
 /* Il mondo si salva come seme piu' quello che hai in giro: mai una mappa.
    Qui si ripulisce quello che arriva da fuori, perche' un codice puo' essere
@@ -2726,6 +2748,7 @@ function applica(d){
   S.dispensa = d.p || {};
   S.mondo = d.m || mondoNuovo();
   S.gratis = d.g|0; S.giocate = d.gi|0;
+  S.usata = !!d.x;
   S.sfida = d.f || null;
   S.visti = d.vs || {}; S.trofei = d.tr || {};
   /* gli identificativi degli esemplari devono restare unici anche dopo un
@@ -4705,6 +4728,7 @@ function buildEnemy(){
 }
 function startBattle(sfida){
   S.matchMode = sfida ? "sfida" : "hvp";
+  PART = { turni: 0, dati: 0, presi: 0 };
   const R = profRank();
   S.units = [];
   S.team.forEach(ref => S.units.push(mk(ref, "p", ref === S.kingId, 1)));
@@ -5061,6 +5085,9 @@ function reggeConfusione(t){
   return true;
 }
 
+/* I numeri della partita in corso, per la schermata del risultato: non
+   entrano nel salvataggio e non decidono niente. */
+let PART = { turni: 0, dati: 0, presi: 0 };
 function raw(t, amount, why){
   if (t.guard > 0){
     t.guard--;
@@ -5069,6 +5096,7 @@ function raw(t, amount, why){
   }
   /* scoperto dopo una carica, oppure ribaltato a pancia in su: incassa il 30% in più */
   const dmg = Math.max(1, Math.round(amount * (t.exposed || t.stun > 0 ? 1.3 : 1)));
+  PART[t.side === "e" ? "dati" : "presi"] += Math.min(dmg, Math.max(0, t.hp));
   t.hp -= dmg; fx(t, "-" + dmg); anim(t, "hurt", 420);
   return dmg;
 }
@@ -5294,6 +5322,7 @@ function newTurn(side){
   });
   S.units.filter(u => u.alive && u.side !== side).forEach(u => { u.acted = true; u.moved = true; });
   if (side === "p") S.turni = (S.turni|0) + 1;    /* per il punteggio della sfida */
+  if (side === "p") PART.turni++;
   S.turn = side;
   $("#turnpill").className = "pill " + side;
   $("#turnpill").textContent = duoMode() || pcMode()
@@ -5545,10 +5574,14 @@ function finish(win){
     if (alive("p").length === 5) trofeo("invitto");
   }
   const R = RANKS[S.rankIdx];
+  const rimaste = Math.min(5, alive("p").length);
+  let vinti = 0;                                  /* i round da mostrare pieni nella barra */
   if (win){
     S.round++;
+    vinti = S.round;
     if (S.round >= 5){
       S.round = 0;
+      S.usata = false;                            /* rank nuovo, seconda possibilita' nuova */
       const last = S.rankIdx >= RANKS.length - 1;
       $("#r-title").innerHTML = '<span class="win">Rank ' + R.id + ' conquistato!</span>';
       let premi = "";
@@ -5581,11 +5614,25 @@ function finish(win){
     }
   } else {
     $("#r-title").innerHTML = '<span class="lose">Il tuo Re \u00e8 caduto</span>';
-    $("#r-text").innerHTML = "Sconfitta al round " + (S.round+1) + " del Rank " + R.id +
-      ". Il rank riparte dal primo avversario: rivedi la squadra o cambia il Re.";
-    S.round = 0;
+    /* Cinque vittorie di fila con un solo errore concesso: la prima sconfitta
+       del rank fa rigiocare il round, la seconda lo fa ripartire. Prima bastava
+       una sconfitta al quinto round per buttarne via quattro. */
+    if (SECONDA && !S.usata){
+      S.usata = true;
+      vinti = S.round;
+      $("#r-text").innerHTML = "Sconfitta al round " + (S.round+1) + " del Rank " + R.id +
+        ". Hai speso la <b>seconda possibilit\u00e0</b> di questo rank: il round si rigioca contro <b>" +
+        R.names[S.round] + "</b>, e quelli gi\u00e0 vinti restano. Alla prossima sconfitta il rank riparte dal primo avversario.";
+    } else {
+      $("#r-text").innerHTML = "Sconfitta al round " + (S.round+1) + " del Rank " + R.id +
+        ". Il rank riparte dal primo avversario: rivedi la squadra o cambia il Re." +
+        (SECONDA ? " La seconda possibilit\u00e0 torna disponibile." : "");
+      S.round = 0; S.usata = false;
+    }
   }
   save(); updBadges();
+  mostraTappe(vinti, win && vinti >= 5 ? -1 : S.round);
+  mostraCifre(rimaste);
   /* Fra un round e l'altro la squadra di solito non cambia: si riparte con lo
      stesso schieramento, e chi vuole cambiare ha il pulsante accanto. A rank
      conquistato no: ci sono premi e reclute nuove da andare a vedere. */
@@ -5868,6 +5915,31 @@ function riepilogaTurno(){
     (SCIA.length ? ' \u00b7 ' + SCIA.length + (SCIA.length === 1 ? " pedina mossa" : " pedine mosse") : "") +
     (addosso ? ' \u00b7 <b class="hit">il tuo Re \u00e8 a tiro</b>' : "");
   PRIMA = null;
+}
+/* Quante sconfitte perdona un rank prima di ripartire dal primo avversario.
+   false = la regola di prima, una sconfitta e si ricomincia. */
+const SECONDA = true;
+const bisHtml = () => !SECONDA ? "" :
+  '<span class="bis' + (S.usata ? " usata" : "") + '" role="img" aria-label="Seconda possibilit\u00e0 ' +
+  (S.usata ? "gi\u00e0 usata" : "disponibile") + '" title="Seconda possibilit\u00e0 ' +
+  (S.usata ? "gi\u00e0 usata: alla prossima sconfitta il rank riparte" : "disponibile: la prima sconfitta del rank fa rigiocare il round") +
+  '">' + ico("vita") + '</span>';
+/* La barra dei cinque round sulla schermata del risultato. `ora` e' il round
+   che si gioca adesso, -1 se il rank e' chiuso. */
+function mostraTappe(vinti, ora){
+  const el = $("#r-tappe"); if (!el) return;
+  let pt = "";
+  for (let i = 0; i < 5; i++) pt += '<i class="' + (i < vinti ? "v" : (i === ora ? "ora" : "")) + '"></i>';
+  el.innerHTML = '<span class="pt" role="img" aria-label="Round vinti: ' + vinti + ' su 5">' + pt + '</span>' + bisHtml();
+  el.hidden = false;
+}
+function mostraCifre(rimaste){
+  const el = $("#r-cifre"); if (!el) return;
+  el.innerHTML = '<div><b>' + PART.turni + '</b>' + (PART.turni === 1 ? "turno" : "turni") + '</div>' +
+    '<div><b>' + rimaste + '/5</b>pedine rimaste</div>' +
+    '<div><b>' + PART.dati + '</b>danni inflitti</div>' +
+    '<div><b>' + PART.presi + '</b>danni subiti</div>';
+  el.hidden = false;
 }
 /* Il pulsante di fine partita che salta roster, riepilogo e schieramento. */
 function offriSubito(on, testo){
@@ -6281,7 +6353,8 @@ function updBadges(){
   const sfida = inSfida();
   const duo = S.matchMode === "hvh" || sfida, pc = S.matchMode === "pvp";
   $("#b-rank").innerHTML = ico("rank") + "Rank <b>" + RANKS[S.rankIdx].id + "</b>";
-  $("#b-round").innerHTML = "Round <b>" + (S.round+1) + "</b>/5";
+  $("#b-round").innerHTML = "Round <b>" + (S.round+1) + "</b>/5" + bisHtml();
+  ["#r-tappe", "#r-cifre"].forEach(id => { const e = $(id); if (e) e.hidden = true; });
   /* Rank, round e azzeramento riguardano il torneo: mentre giocano due persone
      non vogliono dire niente e spariscono. */
   ["#b-rank", "#b-round", "#btn-reset", "#btn-mreset"].forEach(id => { const e = $(id); if (e) e.hidden = duo; });
@@ -6657,7 +6730,7 @@ $("#btn-reset").onclick = () => {
   if (avanti && !window.confirm(
       "Azzerare il torneo? Perdi il Rank " + RANKS[S.rankIdx].id +
       " e torni al roster delle sole forme base. L'operazione non si annulla.")) return;
-  S.rankIdx = 0; S.round = 0; S.team = []; S.kingId = null; S.champion = false;
+  S.rankIdx = 0; S.round = 0; S.team = []; S.kingId = null; S.champion = false; S.usata = false;
   save(); updBadges(); drawRoster(); drawSlots(); show("s-team");
 };
 

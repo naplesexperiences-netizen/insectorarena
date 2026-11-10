@@ -21,7 +21,7 @@ documentazione del minigioco **Insectron** di *Rogue Galaxy* (PS2, Level-5 / Son
 | `img/` | le schermate della vetrina (le uniche immagini del progetto: dentro al gioco non c'è un solo file immagine) |
 | `insectors.json` | dataset grezzo estratto dal wiki |
 | `ROADMAP.md`, `PIANO-*.md` | dove siamo, e i piani per quello che manca |
-| `prove-automatiche/` | le 35 suite, 1024 controlli |
+| `prove-automatiche/` | le 36 suite, 1053 controlli |
 | `sprite-da-migliorare/` | il materiale per far ridisegnare gli Insector |
 | `telemetria/` | worker, schema e prova. Spenta |
 | `prove/` | i confronti fra strumenti grafici |
@@ -716,6 +716,56 @@ si ricorda in memoria, non nel salvataggio: ricaricando la pagina si riparte dal
 40 campi a caso ogni casella colpibile dopo una mossa sta nel tratteggio; i danni scritti
 nel riepilogo sono quelli presi; la barra non copre mai l'ultima fila.
 
+### Una sconfitta non butta via il rank
+
+Aggiunto il 10 novembre. La regola era: cinque vittorie di fila, e una sconfitta — anche
+al quinto round — riporta al primo avversario. Adesso **ogni rank perdona una sconfitta**:
+la prima fa rigiocare lo stesso round e i round vinti restano; la seconda fa ripartire il
+rank, e la possibilità torna intera. Si rinnova anche conquistando il rank. Sta in una
+costante, `SECONDA`: a `false` torna la regola di prima.
+
+Nella testata, accanto a «Round 3/5», un cuore dice se è ancora disponibile; il testo della
+sconfitta dice che cosa è successo e che cosa succede alla prossima. Nel salvataggio è un
+campo solo, `x`, scritto soltanto quando la possibilità è spesa: lo schema non cambia e i
+salvataggi di prima si leggono come sono.
+
+**Che cosa sposta.** Non tocca la singola battaglia — statistiche, IA e premi sono quelli
+di prima — ma quante partite servono per chiudere un rank. Calcolato (non simulato) dalle
+percentuali di vittoria già misurate qui sopra, come numero atteso di partite per rank:
+
+| Rank | vittorie | regola di prima | con la seconda possibilità | ripartendo dal round perso |
+|---|---:|---:|---:|---:|
+| E | 99% | 5,2 | 5,1 | 5,1 |
+| D | 97% | 5,5 | 5,2 | 5,2 |
+| C | 84% | 8,7 | 6,9 | 6,0 |
+| B | 69% | 17,4 | 11,7 | 7,2 |
+| A | 61% | 27,8 | 17,1 | 8,2 |
+| S, allevando (47%) | 47% | 80,4 | 42,7 | 10,6 |
+| S, senza allevare | 23% | 2017 | 831 | 21,7 |
+
+Ai rank alti le partite attese scendono di un terzo o di metà, e il Rank S senza allevare
+resta in pratica chiuso: l'allevamento continua a servire. La terza colonna — ripartire
+sempre dal round perso — è stata scartata proprio per questo: porterebbe il Rank S a una
+ventina di partite anche senza allevare. Due conseguenze da tenere d'occhio: i premi di
+rank (cibo e trappola) arrivano più spesso per partita giocata, e le trappole, che si
+raccolgono contando le partite, fanno meno giri per rank. Le percentuali della tabella sono
+quelle dell'IA che gioca al posto del giocatore: una persona vera si misura con la
+telemetria, quando sarà accesa.
+
+### Il risultato coi numeri
+
+La schermata di fine partita era un titolo e un paragrafo. Nel torneo adesso mostra **la
+barra dei cinque round** (pieni quelli vinti, col bordo quello che viene, accanto il cuore
+della seconda possibilità) e **quattro numeri**: turni, pedine rimaste, danni inflitti e
+subiti. I danni si contano in `raw()`, dove si tolgono, e il colpo di grazia vale la vita
+che restava, non il danno pieno. Non entrano nel salvataggio. Sfida, due giocatori e PC
+contro PC restano com'erano.
+
+**Collaudo:** suite `esito`, 29 controlli: la prima sconfitta non azzera e la seconda sì,
+il salvataggio lo ricorda e ricaricando resta, il rank nuovo comincia con la possibilità
+intera, i numeri sono quelli della partita, e su un telefono da 360 px sta tutto nella
+scheda.
+
 ## Spiegazioni in contesto: le nuvolette
 
 Gabbie e Mondo sono le due schermate che hanno regole vere da capire — un budget di
@@ -1305,13 +1355,13 @@ sui titoli.
 - Le suite stanno in **[`prove-automatiche/`](prove-automatiche/)**, col loro README:
   `sh prove-automatiche/batteria.sh` le lancia tutte. Girano in Chromium vero sul
   `gioca.html` che viene pubblicato, non su una copia di prova
-- Totale dei controlli automatici sul gioco: **1024** (meccaniche 30, schieramento 20,
+- Totale dei controlli automatici sul gioco: **1053** (meccaniche 30, schieramento 20,
   schede 30, accessibilità 14, difficoltà 10, regola del movimento 13, passaggio del mouse 14,
   Human vs Human 32, modalità e PC vs PC 44, rotazione 18, animazione 13, salvataggi 25,
   allevamento 28, mondo e cattura 44, edizione demo 14, eco e telemetria 44, suono 23,
   guida 19, musica 31, menu 17, telefono 30, riproduzione 32, sfida del giorno 40,
   collezione 20, resistenze 39, nomenclatura 23, schermata unica 52, spiegazioni 48,
-  gesto e campo 39, sprite 10, interfaccia 74, arena 31, mondo grafica 44, turno 59),
+  gesto e campo 39, sprite 10, interfaccia 74, arena 31, mondo grafica 44, turno 59, esito 29),
   più 21 sulla landing e sull'informativa, 19 sul sito installabile (manifest, icone,
   service worker e prova offline con la rete staccata) e 19 sull'endpoint della
   telemetria, che gira in un contesto vuoto con un D1 finto e senza toccare la rete
