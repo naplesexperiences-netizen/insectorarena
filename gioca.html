@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0d1117">
 <title>Insectron Arena — Demo Tattica</title>
 <meta name="description" content="Battaglia tattica a turni 5v5 su griglia: cinque pedine, un Re da proteggere, tredici mosse speciali. Da soli contro il computer o in due sullo stesso schermo. Demo prodotta da Experiences Srl.">
@@ -45,6 +45,13 @@ body{
 h1,h2,h3{text-wrap:balance}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
 .wrap{max-width:1180px;margin:0 auto;padding:16px}
+/* La pagina arriva fino ai bordi dello schermo (viewport-fit=cover), e i
+   margini tengono conto di tacca, angoli tondi e barra dei gesti. Dove non
+   ci sono, env() vale zero e resta tutto com'era. */
+.wrap{
+  padding:max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+          max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left))
+}
 header.top{
   display:flex;align-items:center;gap:14px;flex-wrap:wrap;
   padding:14px 16px;background:var(--panel);border:1px solid var(--line);
@@ -107,7 +114,7 @@ body.fisso .wrap{height:100dvh}
      squadra il riquadro e' corto e `sticky` non avrebbe spazio in cui stare. */
   #s-mode .acts{
     position:sticky;bottom:0;z-index:20;
-    margin:14px -12px -12px;padding:10px 12px;
+    margin:14px -12px -12px;padding:10px 12px max(10px, env(safe-area-inset-bottom));
     background:var(--panel);border-top:1px solid var(--line)
   }
 }
@@ -188,6 +195,16 @@ button:not(.cell):active:not(:disabled){transform:scale(.97)}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px}
 .card h2{font-size:var(--fs-h2);margin-bottom:4px;color:var(--accent)}
 .card p.hint{font-size:var(--fs-small);color:var(--muted);margin-bottom:12px;line-height:1.5}
+/* La prima volta la schermata d'apertura non chiede niente: dice che gioco
+   e', e offre una partita gia' pronta. Modalita' e difficolta' restano a un
+   tocco, e tornano qui dalla seconda visita. */
+#s-mode .benv,#btn-gioca-subito{display:none}
+#s-mode.benvenuto .benv{display:block}
+#s-mode.benvenuto #btn-gioca-subito{display:inline-block}
+#s-mode.benvenuto .solomodi,#s-mode.benvenuto #mode-scroll{display:none}
+#s-mode.benvenuto .card::after{display:none}
+.benv p{color:var(--muted);line-height:1.6;font-size:var(--fs-body);margin-bottom:10px}
+.benv p b{color:var(--text)}
 .roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:9px;max-height:56vh;overflow:auto;padding-right:4px}
 .mon{
   background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px;
@@ -353,6 +370,7 @@ button:not(.cell):active:not(:disabled){transform:scale(.97)}
 .dep.cur{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
 .dep.done{opacity:.5}
 .dep .art{width:30px;height:30px;flex:0 0 30px}
+.dep .ruolo{color:var(--text);font-weight:normal}
 .cell.away{border-top:2px solid rgba(255,107,107,.45);background:var(--foe-deep)}
 .cell.mv{background:#16405c;border-color:var(--accent2);cursor:pointer}
 .cell.mv::after{
@@ -581,6 +599,8 @@ button:not(.cell):active:not(:disabled){transform:scale(.97)}
   border-left:3px solid var(--foe);background:var(--panel2);border-radius:7px
 }
 .riep .hit{color:var(--foe)}
+.riep.guidaqui{border-left-color:var(--accent2)}
+.riep.guidaqui b{color:var(--accent2)}
 .dafare{margin-top:5px}
 .dafare b{color:var(--text)}
 /* «Fine turno» dice quante pedine possono ancora agire, e si fa notare solo
@@ -1205,7 +1225,9 @@ footer.note a{color:var(--accent2)}
      sono li' sotto il pollice. Senza, servivano trecento pixel di scorrimento
      per ogni singola mossa — misurati. */
   .unitcard.ancorata{
-    position:fixed;left:8px;right:8px;bottom:8px;z-index:35;
+    position:fixed;z-index:35;
+    left:max(8px, env(safe-area-inset-left));right:max(8px, env(safe-area-inset-right));
+    bottom:max(8px, env(safe-area-inset-bottom));
     max-height:var(--barra);overflow:auto;padding:10px;
     border-color:var(--accent2);box-shadow:0 -12px 34px rgba(0,0,0,.6)
   }
@@ -1237,7 +1259,11 @@ footer.note a{color:var(--accent2)}
   /* spazio sotto, altrimenti la barra copre il diario e la guida */
   body.conBarra{padding-bottom:calc(var(--barra) + 20px)}
   .conScheda.bassa .board{max-width:min(460px, calc((100vh - var(--barra-bassa) - 146px) * 5 / 7))}
-  body.conBarra.bassa{padding-bottom:calc(var(--barra-bassa) + 20px)}
+  body.conBarra.bassa{padding-bottom:calc(var(--barra-bassa) + 20px + env(safe-area-inset-bottom))}
+  /* In battaglia il titolo del gioco non serve: la testata sta su una riga
+     e il campo sale di una cinquantina di pixel. */
+  body.inCampo header.top{padding:7px 10px;margin-bottom:9px}
+  body.inCampo header.top h1{display:none}
   /* Il mirino sta sulla riga del nome dell'avversario: la prima e' gia' piena. */
   .turnbar #b-opp{flex:1 1 calc(100% - 60px);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .turnbar #btn-pericolo{order:4;margin-left:0}
@@ -1270,6 +1296,7 @@ footer.note a{color:var(--accent2)}
       <button id="btn-zoo" role="menuitem">Gabbie</button>
       <button id="btn-coll" role="menuitem">Collezione</button>
       <div class="sep" id="menu-sep"></div>
+      <button id="btn-vibra" role="menuitemcheckbox" aria-checked="true" hidden><span class="grow">Vibrazione</span><span class="st" id="st-vibra">accesa</span></button>
       <button id="btn-audio" role="menuitemcheckbox" aria-checked="true"><span class="grow">Suono</span><span class="st" id="st-audio">acceso</span></button>
       <button id="btn-musica" role="menuitemcheckbox" aria-checked="true"><span class="grow">Musica</span><span class="st" id="st-musica">accesa</span></button>
       <!-- Sul telefono la testata non regge sei comandi: questi due scendono qui
@@ -1418,8 +1445,14 @@ footer.note a{color:var(--accent2)}
 <!-- ============ CHI GIOCA: MODALITA E DIFFICOLTA ============ -->
 <section id="s-mode" class="screen on">
   <div class="card">
-    <h2>Chi gioca questa partita?</h2>
-    <p class="hint">Prima di comporre la squadra: decidi chi muove le pedine in basso e chi
+    <div class="benv">
+      <h2>Cinque insetti, un Re da difendere</h2>
+      <p>Si gioca a turni su una scacchiera: muovi, colpisci, e <b>abbatti il Re avversario</b>
+        prima che cada il tuo.</p>
+      <p>La prima partita è già pronta: la squadra te la do io. Dalla prossima la scegli tu.</p>
+    </div>
+    <h2 class="solomodi">Chi gioca questa partita?</h2>
+    <p class="hint solomodi">Prima di comporre la squadra: decidi chi muove le pedine in basso e chi
       ha in mano l’altra metà del campo. Si cambia quando vuoi, dal roster.</p>
     <div class="scorre" id="mode-scroll">
       <div class="modes" id="modes" role="group" aria-label="Modalità di gioco"></div>
@@ -1429,6 +1462,7 @@ footer.note a{color:var(--accent2)}
     <div class="acts" style="margin-top:16px">
       <button id="btn-modeback" hidden>Torna alla squadra</button>
       <button id="btn-modego" class="primary">Entra in arena</button>
+      <button id="btn-gioca-subito" class="primary">Gioca subito</button>
     </div>
   </div>
 </section>
@@ -3000,6 +3034,7 @@ function musicaVisibilita(nascosta){
    ========================================================================= */
 const GUIDA_CHIAVE = "insectron-guida";
 let guidaViva = true;
+let guidaOra = null;                              /* il passo a video adesso, se c'e' */
 const visibile = id => { const e = $("#" + id); return !!e && e.classList.contains("on"); };
 const GUIDA = [
   { id:"squadra",
@@ -3028,6 +3063,7 @@ function guidaSpegni(){
 function guidaAggiorna(){
   const g = $("#guida");
   if (!g) return;
+  guidaOra = null;
   if (!guidaViva){ g.hidden = true; return; }
   const passo = GUIDA.filter(p => p.quando())[0];
   if (!passo){
@@ -3038,8 +3074,13 @@ function guidaAggiorna(){
     return;
   }
   passo.fatto = true;
-  $("#guida-n").textContent = (GUIDA.indexOf(passo) + 1) + " di " + GUIDA.length;
-  $("#guida-testo").innerHTML = passo.testo;
+  guidaOra = passo.id;
+  /* Chi e' entrato da «Gioca subito» ha saltato roster, Re e schieramento:
+     dirgli «4 di 4» sarebbe contare passi che non ha visto. */
+  $("#guida-n").textContent = avvioRapido ? "Come si gioca"
+    : (GUIDA.indexOf(passo) + 1) + " di " + GUIDA.length;
+  $("#guida-testo").innerHTML = (avvioRapido && passo.id === "muovi"
+    ? "Le tue pedine sono quelle <b>in basso</b>, con l\u2019anello azzurro; la corona segna il Re. " : "") + passo.testo;
   g.hidden = false;
 }
 
@@ -3173,6 +3214,10 @@ function apriSpiega(chiave, forzato){
      campo invece ci sono, e il gesto va spiegato li' come altrove. */
   if (demo() && (chiave === "zoo" || chiave === "mondo")) return false;
   if (!forzato && spiegaFatte[chiave]) return false;
+  /* Un aiuto alla volta: finche' la guida del primo minuto ha una riga a
+     video, le nuvolette non si aprono da sole. Arrivano alla visita dopo, e
+     dal punto interrogativo si aprono sempre. */
+  if (!forzato && guidaViva && $("#guida") && !$("#guida").hidden) return false;
   const vivi = passiVivi(chiave);
   if (!vivi.length) return false;
   if (!giroAperto) spiegaPrima = document.activeElement;
@@ -3274,6 +3319,68 @@ $("#nuvola").onkeydown = ev => {
   else if (ev.key === "ArrowLeft"){ ev.preventDefault(); vaiSpiega(-1); }
 };
 
+/* --- la prima visita ---------------------------------------------------
+   La schermata d'apertura chiedeva modalita' e difficolta' a chi non aveva
+   ancora visto il gioco. La prima volta adesso offre una partita pronta:
+   squadra proposta, Re il piu' resistente, pedine gia' in campo. */
+const AVVIO_CHIAVE = "insectron-avvio";
+let benvenuto = false, avvioRapido = false;
+function avvioCarica(){
+  let visto = false;
+  try { visto = localStorage.getItem(AVVIO_CHIAVE) === "visto"; } catch(e){}
+  benvenuto = !visto && guidaViva && !saveFuturo;
+  avvioDisegna();
+}
+function avvioDisegna(){
+  const sez = $("#s-mode"), go = $("#btn-modego");
+  if (!sez || !go) return;
+  sez.classList.toggle("benvenuto", benvenuto);
+  go.classList.toggle("primary", !benvenuto);      /* un primario per schermata */
+  if (benvenuto) go.textContent = "Scelgo io la squadra";
+}
+function avvioVisto(){
+  if (!benvenuto) return;
+  benvenuto = false;
+  try { localStorage.setItem(AVVIO_CHIAVE, "visto"); } catch(e){}
+  avvioDisegna(); drawModes();
+}
+function giocaSubito(){
+  avvioVisto();
+  avvioRapido = true;
+  S.vs = "hvp"; S.setup = "p";
+  squadraRapida(); save();
+  tappa("squadra"); conta(S.vs);
+  startBattle(); randomDeploy(); beginFight();
+}
+/* --- vibrazione: un colpo si sente anche nel pollice ---------------------
+   Solo dove c'e' (i telefoni Android; Safari non la offre), mai nelle partite
+   che il computer gioca da solo, e si spegne dal menu. */
+const VIBRA_CHIAVE = "insectron-vibra";
+const VIBRA = { colpo:12, speciale:18, ko:[26,36,26], fuori:[40,30,40] };
+let vibraOn = true;
+const vibraPuo = () => typeof navigator !== "undefined" && typeof navigator.vibrate === "function";
+function vibra(nome){
+  if (!vibraOn || !VIBRA[nome] || !vibraPuo() || pcMode()) return;
+  try { navigator.vibrate(VIBRA[nome]); } catch(e){}
+}
+function vibraImposta(on){
+  vibraOn = !!on;
+  const b = $("#btn-vibra");
+  if (b){
+    b.setAttribute("aria-checked", vibraOn ? "true" : "false");
+    b.classList.toggle("spento", !vibraOn);
+    const st = $("#st-vibra"); if (st) st.textContent = vibraOn ? "accesa" : "spenta";
+  }
+  try { localStorage.setItem(VIBRA_CHIAVE, vibraOn ? "1" : "0"); } catch(e){}
+}
+function vibraCarica(){
+  let on = true;
+  try { on = localStorage.getItem(VIBRA_CHIAVE) !== "0"; } catch(e){}
+  vibraImposta(on);
+  /* La voce di menu c'e' solo dove serve: un telefono che sa vibrare. */
+  const b = $("#btn-vibra");
+  if (b) b.hidden = !(vibraPuo() && window.matchMedia && window.matchMedia("(pointer:coarse)").matches);
+}
 /* Chi torna con una partita in corso non e' un principiante: niente guida. */
 function guidaCarica(){
   let fatta = false;
@@ -3369,6 +3476,7 @@ function voce(c, v, bus, quando){
 }
 /* Torna true se il suono e' davvero partito: e' quello che i controlli guardano. */
 function suona(nome){
+  vibra(nome);
   if (!audioOn || !SUONI[nome]) return false;
   const c = audioCtx();
   if (!c) return false;
@@ -4352,6 +4460,13 @@ function scrivUnita(rif){
 function moveBreve(mv){
   return { step:"1 casella", fly:"volo 3", diag:"diagonale 3", charge:"1, o 2 dritto" }[mv];
 }
+/* Nello schieramento la frase intera sul movimento era la stessa su quattro
+   righe su cinque. Li' serve sapere che pedina e': il ruolo e' la prima
+   parola della sua descrizione, e il movimento sta in due parole. */
+const ruoloDi = d => String(d.desc || "").split(".")[0];
+function mossaBreve(mv){
+  return { step:"1 casella", fly:"vola fino a 3", diag:"3 in diagonale", charge:"1, o 2 in linea" }[mv];
+}
 function moveLabel(mv){
   return { step:"1 casella in tutte le direzioni (3\u00d73)",
            fly:"volo, fino a 3 caselle scavalcando gli altri (7\u00d77)",
@@ -4502,6 +4617,7 @@ const LIVELLI = [[0,"Automatica (segue il rank)"],[1,"Principiante"],[2,"Normale
    prima ancora di comporre la squadra. Dal roster ci si torna col pulsante "Cambia",
    e in quel caso compare anche la via di ritorno. */
 function openModes(dalRoster){
+  avvioVisto();
   $("#btn-modeback").hidden = !dalRoster;
   drawModes(); show("s-mode"); sfumaModi();
 }
@@ -4573,7 +4689,8 @@ function drawModeOpts(){
     if (s2) s2.onchange = ev => { S.lvl[side] = parseInt(ev.target.value, 10) || 0; save(); lvDesc(); };
   });
   const go = $("#btn-modego");
-  go.textContent = duoMode() ? "Scegliete le squadre" : "Scegli la squadra";
+  go.textContent = benvenuto ? "Scelgo io la squadra"
+    : (duoMode() ? "Scegliete le squadre" : "Scegli la squadra");
   lvDesc();
 }
 function lvDesc(){
@@ -4588,6 +4705,7 @@ function lvDesc(){
 /* Confermata la modalita' si passa al roster. La partita comincia piu' tardi, dal
    riepilogo, quando la squadra (o le squadre) sono pronte. */
 function modeGo(){
+  avvioVisto();
   if (duoMode()){
     const leggi = (id, def) => (($(id) && $(id).value) || "").trim().slice(0,16) || def;
     S.names.p = leggi("#n1", "Giocatore 1");
@@ -4835,7 +4953,8 @@ function drawDeploy(){
     b.innerHTML = art(u.d.fam, false, u.d.rank) +
       '<span class="grow"><b>' + (u.isKing ? "\u265B " : "") + u.d.name + '</b><br>' +
       '<span class="sotto">' +
-      (placed(u) ? "in campo" : "in panchina") + ' \u00b7 ' + moveLabel(u.isKing ? "step" : u.d.mv) +
+      (placed(u) ? "in campo" : "in panchina") + ' \u00b7 <b class="ruolo">' +
+      (u.isKing ? "Re" : ruoloDi(u.d)) + '</b> \u00b7 ' + mossaBreve(u.isKing ? "step" : u.d.mv) +
       '</span></span>';
     b.onclick = () => { if (placed(u)){ u.x = -1; u.y = -1; } S.pick = u; draw(); };
     list.appendChild(b);
@@ -6236,7 +6355,12 @@ function drawCard(){
         '</div>';
       else dafare = '<div class="fam dafare">Hanno agito tutte: <b>chiudi il turno</b>.</div>';
     }
-    el.innerHTML = (RIEP && !duoMode() && !pcMode() ? '<div class="riep">' + RIEP + '</div>' : "") +
+    /* Sul telefono la riga della guida sta in cima alla pagina, e per far
+       stare il campo la pagina scorre: finisce fuori dallo schermo proprio
+       quando serve. La stessa riga compare quindi qui, sotto al campo. */
+    const qui = guidaOra === "muovi" && telefono()
+      ? '<div class="riep guidaqui">' + $("#guida-testo").innerHTML + '</div>' : "";
+    el.innerHTML = qui + (RIEP && !duoMode() && !pcMode() ? '<div class="riep">' + RIEP + '</div>' : "") +
       '<div class="fam">' + (duoMode()
       ? esc(nameOf(S.turn)) + ": tocca una tua pedina per selezionarla."
       : "Tocca un tuo Insector per selezionarlo.") + '</div>' + dafare;
@@ -6327,6 +6451,7 @@ function fissa(id){
 function show(id){
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("on"));
   $("#" + id).classList.add("on");
+  document.body.classList.toggle("inCampo", id === "s-battle");
   if (id !== "s-battle") ancora(false);
   /* Finche' la schermata e' nascosta misura zero, e il calcolo dello spazio non
      puo' funzionare: si riprova appena e' a video. */
@@ -6429,7 +6554,8 @@ $("#btn-next").onclick = () => {
   leaveMatch(); drawRoster(); drawSlots(); detail(S.look); show("s-team");
 };
 $("#btn-clear").onclick = () => { S.team = []; S.kingId = null; drawRoster(); drawSlots(); detail(S.look); save(); };
-$("#btn-auto").onclick = () => {
+$("#btn-auto").onclick = () => { squadraRapida(); drawRoster(); drawSlots(); detail(S.look); save(); };
+function squadraRapida(){
   const pool = UNITS.filter(unlocked);
   S.team = []; S.kingId = null;
   const wanted = ["Sferidi","Coccinidi","Falcidi","Bastidi","Bombardidi","Tenaglidi","Lamidi"];
@@ -6445,8 +6571,9 @@ $("#btn-auto").onclick = () => {
   /* Re proposto: il più resistente. Resta modificabile nel riepilogo. */
   S.kingId = S.team.slice().sort((a,b) => statsOf(b).hp - statsOf(a).hp)[0];
   S.look = S.team[0];
-  drawRoster(); drawSlots(); detail(S.look); save();
-};
+}
+$("#btn-gioca-subito").onclick = giocaSubito;
+$("#btn-vibra").onclick = () => { vibraImposta(!vibraOn); if (vibraOn) vibra("colpo"); suona("clic"); };
 /* --- finestra del salvataggio ------------------------------------------- */
 let fuocoPrima = null;
 function apriSalvataggio(){
@@ -6755,6 +6882,8 @@ load();
 if (!S.mondo) S.mondo = mondoNuovo();
 guidaCarica();
 spiegaCarica();
+avvioCarica();
+vibraCarica();
 updBadges(); drawRoster(); drawSlots(); detail(null); drawModes();
 fissa("s-mode");                                  /* la prima schermata e' questa */
 sfumaModi();

@@ -15,9 +15,11 @@ process.on('unhandledRejection', e => {
   const p = await b.newPage({ viewport:{ width:1280, height:950 } });
   p.on('pageerror', e=>errs.push(e.message));
   p.on('console', m=>{ if(m.type()==='error') errs.push(m.text()); });
-  await p.addInitScript(() => { try { if (!sessionStorage.getItem('gia')) { localStorage.clear(); sessionStorage.setItem('gia', '1'); }
-    localStorage.setItem('insectron-spiega', JSON.stringify({ squadra:true, campo:true, zoo:true, mondo:true })); } catch(e){} });
-  await p.goto(GIOCA); await p.waitForTimeout(300);
+  /* Niente script d'avvio che scrive in localStorage: su file://, dopo un
+     ricaricamento, a volte si porta via il salvataggio (vedi comune.js). Le
+     nuvolette si segnano come viste da dentro la pagina. */
+  const zitte = () => p.evaluate(() => { spiegaFatte.squadra = spiegaFatte.campo = true; chiudiSpiega(); });
+  await p.goto(GIOCA); await p.waitForTimeout(300); await zitte();
   if (await p.$('#s-mode.on')) await p.click('#btn-modego');
   await p.click('#btn-auto');
   const entra = async () => {
@@ -64,6 +66,7 @@ process.on('unhandledRejection', e => {
 
   // ---------- ricaricando resta spesa
   await p.reload(); await p.waitForTimeout(300);
+  await zitte();
   chk(await p.evaluate(() => S.usata === true && S.round === 2), 'ricaricando la pagina resta spesa, e il round e’ ancora il terzo');
   if (await p.$('#s-mode.on')) await p.click('#btn-modego');
 

@@ -127,7 +127,8 @@ async function premiLungo(p, sel, ms){
   await p.click('#btn-menu'); await p.waitForTimeout(200);
   const vociMenu = await p.evaluate(() =>
     [...document.querySelectorAll('#menu-box button')].filter(e => e.getBoundingClientRect().height > 0).length);
-  chk(vociMenu === 7, 'il menu del telefono ha sette voci, non cinque (' + vociMenu + ')');
+  /* Otto con «Vibrazione», che compare solo dove il puntatore e' un dito. */
+  chk(vociMenu === 8, 'il menu del telefono ha otto voci, non cinque (' + vociMenu + ')');
   await p.click('#btn-msave'); await p.waitForTimeout(250);
   chk(await p.evaluate(() => !document.querySelector('#save-box').hidden),
       'e la voce Salvataggio apre davvero la finestra del salvataggio');
