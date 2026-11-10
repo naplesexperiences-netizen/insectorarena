@@ -14,6 +14,7 @@
   --ally:#4bc3ff; --foe:#ff6b6b; --ok:#5ddb8f; --warn:#ffa94d;
   --r:12px; --font:'Trebuchet MS',Verdana,sans-serif;
   --barra:40vh;                                    /* altezza massima della barra sul telefono */
+  --barra-bassa:168px;                             /* in battaglia la barra porta solo le azioni */
   /* Sette gradini di testo e non uno di piu'. Prima erano 33 valori fra .56 e
      1.8rem: la gerarchia non si leggeva e molte scritte scendevano sotto i
      10 px. `micro` e' il pavimento: sotto non si va, nemmeno sulle pedine. */
@@ -546,7 +547,57 @@ button:not(.cell):active:not(:disabled){transform:scale(.97)}
   25%{transform:translate(-50%,-55%) scale(1.15);opacity:1}
   100%{transform:translate(-50%,-135%) scale(1);opacity:0}
 }
+/* --- Il turno si legge sul campo ---------------------------------------
+   Quanto toglie il colpo sta scritto sul bersaglio, prima di darlo: il
+   tratto di vita che se ne andra' lampeggia, e sopra c'e' il numero (o KO,
+   quando lo abbatte anche tirando basso). */
+.hpbar{position:relative}
+.hpbar b{position:absolute;top:0;bottom:0;width:0;background:#fff;opacity:0;pointer-events:none}
+.tok.mira .hpbar b{opacity:.9;animation:mira .9s ease-in-out infinite}
+@keyframes mira{0%,100%{opacity:.95}50%{opacity:.2}}
+.tok .prev{
+  position:absolute;top:1%;left:50%;transform:translateX(-50%);z-index:2;
+  padding:0 5px;border-radius:999px;background:#05070b;border:1px solid var(--foe);color:#fff;
+  font-size:var(--fs-micro);font-weight:bold;line-height:15px;white-space:nowrap;
+  font-variant-numeric:tabular-nums;pointer-events:none
+}
+.tok .prev:empty{display:none}
+.tok .prev.ko{background:var(--foe);color:#1d0a0a;border-color:#fff}
+/* Dove l'avversario puo' arrivare a colpire al prossimo turno: un tratteggio
+   sopra al colore della casella, cosi' una casella blu resta blu ma dice
+   anche che li' si prende. Si accende dal pulsante col mirino. */
+.cell.risk:not(.area){background-image:
+  repeating-linear-gradient(135deg,rgba(255,107,107,.2) 0 3px,transparent 3px 9px)}
+.tondo[aria-pressed="true"]{border-color:var(--foe);color:var(--foe);background:#3a1a1f}
+#btn-pericolo svg{width:16px;height:16px;display:block}
+/* Le mosse dell'ultimo turno avversario: un cerchio da dove e' partita, un
+   filo tratteggiato e una punta verso dove e' arrivata. */
+#scie{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#scie line{stroke:var(--foe);stroke-width:.06;stroke-linecap:round;stroke-dasharray:.01 .15;opacity:.8}
+#scie circle{fill:none;stroke:var(--foe);stroke-width:.045;opacity:.8}
+#scie path{fill:var(--foe);opacity:.85}
+.riep{
+  font-size:var(--fs-small);line-height:1.45;margin-bottom:8px;padding:7px 10px;
+  border-left:3px solid var(--foe);background:var(--panel2);border-radius:7px
+}
+.riep .hit{color:var(--foe)}
+.dafare{margin-top:5px}
+.dafare b{color:var(--text)}
+/* «Fine turno» dice quante pedine possono ancora agire, e si fa notare solo
+   quando non ne resta nessuna. */
+#btn-end{position:relative}
+#btn-end[data-resto]::after{
+  content:attr(data-resto);position:absolute;top:-8px;right:-6px;
+  min-width:19px;height:19px;padding:0 4px;border-radius:999px;
+  background:var(--panel);border:1px solid var(--accent);color:var(--accent);
+  font-size:var(--fs-micro);line-height:17px;font-weight:bold;text-align:center;
+  font-variant-numeric:tabular-nums
+}
+#btn-end.pronto:not(:disabled){animation:pronto 1.5s ease-in-out infinite}
+@keyframes pronto{0%,100%{box-shadow:0 0 0 0 rgba(255,194,75,0)}50%{box-shadow:0 0 0 6px rgba(255,194,75,.32)}}
+.unitcard .mini{display:none}
 @media(prefers-reduced-motion:reduce){
+  .tok.mira .hpbar b,#btn-end.pronto{animation:none!important}
   .tok,.tok .inner,.tok .art,.tok .shadow,.art .wing,.tok.sel .inner::after,
   .cell.mv::after{animation:none!important;transition:none!important}
   .wave,.bullet{display:none}
@@ -1151,11 +1202,28 @@ footer.note a{color:var(--accent2)}
   .unitcard.ancorata .acts{margin-top:7px;gap:6px}
   .unitcard.ancorata .acts button{padding:14px 8px;font-size:var(--fs-small);min-height:46px}
   .unitcard.ancorata .deploylist{max-height:calc(var(--barra) - 84px)}
+  /* In battaglia la barra porta il nome, tre numeri e le azioni: il resto --
+     riquadri, stime, resistenze -- lo dice il campo (il danno sta scritto sul
+     bersaglio) o il tocco lungo. Cosi' e' alta la meta', e il campo non deve
+     piu' rimpicciolirsi a ogni pedina che si sceglie. */
+  .unitcard.ancorata .stats,.unitcard.ancorata .moves,.unitcard.ancorata .resi{display:none}
+  .unitcard.ancorata .row .fam{display:none}
+  .unitcard.ancorata .mini{
+    display:flex;gap:11px;align-items:center;margin-top:3px;
+    font-size:var(--fs-caption);color:var(--muted);font-variant-numeric:tabular-nums
+  }
+  .unitcard.ancorata .mini span{display:inline-flex;gap:3px;align-items:center}
+  .unitcard.ancorata .mini b{color:var(--text)}
   /* La scacchiera si restringe quel tanto che basta a stare tutta sopra alla
      barra: meglio un campo piu' piccolo che un campo da inseguire scorrendo. */
   .conScheda .board{max-width:min(460px, calc((100vh - var(--barra) - 124px) * 5 / 7))}
   /* spazio sotto, altrimenti la barra copre il diario e la guida */
   body.conBarra{padding-bottom:calc(var(--barra) + 20px)}
+  .conScheda.bassa .board{max-width:min(460px, calc((100vh - var(--barra-bassa) - 146px) * 5 / 7))}
+  body.conBarra.bassa{padding-bottom:calc(var(--barra-bassa) + 20px)}
+  /* Il mirino sta sulla riga del nome dell'avversario: la prima e' gia' piena. */
+  .turnbar #b-opp{flex:1 1 calc(100% - 60px);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .turnbar #btn-pericolo{order:4;margin-left:0}
 }
 </style>
 <link rel="canonical" href="https://naplesexperiences-netizen.github.io/insectorarena/gioca.html">
@@ -1403,6 +1471,12 @@ footer.note a{color:var(--accent2)}
         <span class="pill p" id="turnpill">Il tuo turno</span>
         <span class="badge" id="b-opp">Avversario: <b>—</b></span>
         <div class="spacer"></div>
+        <button class="tondo" id="btn-pericolo" aria-pressed="false"
+          aria-label="Mostra le caselle sotto tiro"
+          title="Caselle dove l’avversario può colpire al prossimo turno"><svg
+          viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="none"
+          stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+          d="M8 3.6a4.4 4.4 0 1 0 0 8.8 4.4 4.4 0 0 0 0-8.8ZM8 .8v3.4M8 11.8v3.4M.8 8h3.4M11.8 8h3.4"/></svg></button>
         <button class="tondo aiuto" id="btn-aiuto-campo"
           aria-label="Come si gioca il turno">?</button>
         <button id="btn-quit" hidden>Torna al roster</button>
@@ -1427,6 +1501,7 @@ footer.note a{color:var(--accent2)}
     <div class="acts">
       <button id="btn-newteams" hidden>Cambia squadra</button>
       <button id="btn-next" class="primary">Continua</button>
+      <button id="btn-subito" class="primary" hidden>Prossimo round</button>
     </div>
     <p class="invito" id="eco-invito" hidden></p>
   </div>
@@ -4688,6 +4763,8 @@ function beginFight(){
     return;
   }
   S.phase = "battle"; S.pick = null; S.sel = null;
+  if (S.matchMode === "hvp" && !duoMode() && !pcMode())
+    SCHIERA = { k: chiaveSquadra(), pos: S.units.filter(u => u.side === "p").map(u => [u.x, u.y]) };
   if (!pcMode()) requestAnimationFrame(() => apriSpiega("campo", false));
   log("Schieramento completato. <b>Abbatti il Re avversario per vincere.</b>");
   if (duoMode()){
@@ -5013,6 +5090,7 @@ function strike(a, t, mult, label){
    l'avversario e lo spinge indietro di una casella, con rimbalzo a catena e
    possibile uscita dal campo. */
 function basicAttack(a, t){
+  ANNULLA = null;
   const d = strike(a, t, 1, "attacca");
   if (!d || !t.alive || a.d.fam !== "Tonantidi") return d;
   if (!reggeConfusione(t)){
@@ -5107,6 +5185,7 @@ function hurl(t, dx, dy, src){
   return "ok";
 }
 function doSpecial(u, target){
+  ANNULLA = null;
   const sp = FAMS[u.d.fam].sp, nm = FAMS[u.d.fam].spn;
   const col = FAMS[u.d.fam].col;
   log('<b>' + u.d.name + '</b> usa <b>' + nm + '</b>!');
@@ -5206,6 +5285,7 @@ function doSpecial(u, target){
    TURNI
    ========================================================================= */
 function newTurn(side){
+  ANNULLA = null;
   S.units.filter(u => u.alive && u.side === side).forEach(u => {
     u.exposed = false; u.moved = false;
     if (u.cd > 0) u.cd--;
@@ -5232,6 +5312,7 @@ function endPlayerTurn(){
     passTo(nxt, "Tocca a te", "Passa il dispositivo a " + nameOf(nxt) + ".", () => draw());
     return;
   }
+  fotoTurno();
   newTurn("e"); draw();
   S.busy = true;
   setTimeout(aiStep, 420);
@@ -5246,10 +5327,14 @@ function aiStep(){
       setTimeout(aiStep, 520);
       return;
     }
+    riepilogaTurno();
     S.busy = false; newTurn("p"); draw();
     return;
   }
-  aiAct(u); u.acted = true; draw();
+  const da = { x:u.x, y:u.y };
+  aiAct(u); u.acted = true;
+  if (!pcMode() && u.alive && (u.x !== da.x || u.y !== da.y)) SCIA.push({ da:da, a:{ x:u.x, y:u.y } });
+  draw();
   setTimeout(aiStep, 420);
 }
 /* =========================================================================
@@ -5500,7 +5585,13 @@ function finish(win){
       ". Il rank riparte dal primo avversario: rivedi la squadra o cambia il Re.";
     S.round = 0;
   }
-  save(); updBadges(); mostraInvito(win); show("s-result");
+  save(); updBadges();
+  /* Fra un round e l'altro la squadra di solito non cambia: si riparte con lo
+     stesso schieramento, e chi vuole cambiare ha il pulsante accanto. A rank
+     conquistato no: ci sono premi e reclute nuove da andare a vedere. */
+  offriSubito(!!SCHIERA && SCHIERA.k === chiaveSquadra() && !(win && S.round === 0),
+    win ? "Prossimo round" : "Riprova subito");
+  mostraInvito(win); show("s-result");
 }
 /* L'invito compare una volta sola, dopo la prima vittoria, e si puo' spegnere.
    Chiederlo a ogni partita sarebbe molestia, non ricerca. */
@@ -5706,7 +5797,87 @@ function initBoard(){
 }
 function resetBoard(){
   BOARD_READY = false; initBoard();
+  ANNULLA = null; SCIA = []; RIEP = null; PRIMA = null; MIRA = new Map();
 }
+/* --- Il turno si legge sul campo -------------------------------------------
+   Niente di questo entra nel salvataggio ne' tocca il caso: sono cose che si
+   vedono, non cose che succedono. */
+let ANNULLA = null;          /* l'ultima mossa del giocatore, finche' si puo' ritirare */
+let SCIA = [];               /* da dove a dove si e' mosso l'avversario nell'ultimo turno */
+let RIEP = null;             /* che cosa ha fatto, in una riga */
+let PRIMA = null;            /* la vita delle tue pedine prima del turno avversario */
+let MIRA = new Map();        /* uid del bersaglio -> { d, ko }: il colpo prima di darlo */
+let SCHIERA = null;          /* l'ultimo schieramento del torneo, per il round dopo */
+let PERICOLO = false;
+try { PERICOLO = localStorage.getItem("insectron-pericolo") === "1"; } catch(e){}
+/* Le caselle dove chi non ha il turno puo' arrivare a colpire al prossimo:
+   attacco normale da ogni casella che puo' raggiungere, piu' l'area della
+   speciale se sara' carica. Chi e' immobilizzato non conta: saltera' il turno. */
+function sottoTiro(){
+  const mio = meSide(), set = new Set();
+  const segna = (x,y) => { if (inB(x,y)) set.add(x + "," + y); };
+  S.units.filter(e => e.alive && e.side !== mio && e.x >= 0 && !(e.stun > 0)).forEach(e => {
+    const ox = e.x, oy = e.y, sp = FAMS[e.d.fam].sp;
+    const spOk = sp !== "healing_jig" && sp !== "fill_hole" && (e.cd <= 1 || sp === "emperors_rage");
+    [{x:ox, y:oy}].concat(moves(e)).forEach(p => {
+      for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) if (dx || dy) segna(p.x+dx, p.y+dy);
+      if (spOk){ e.x = p.x; e.y = p.y; specArea(e).forEach(q => segna(q.x, q.y)); e.x = ox; e.y = oy; }
+    });
+  });
+  return set;
+}
+function disegnaScie(){
+  const fl = fxLayer(); if (!fl) return;
+  let s = document.getElementById("scie");
+  if (!SCIA.length || S.phase === "deploy"){ if (s) s.remove(); return; }
+  if (!s){
+    s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    s.id = "scie"; s.setAttribute("viewBox", "0 0 " + NX + " " + NY);
+    s.setAttribute("preserveAspectRatio", "none");
+    fl.insertBefore(s, fl.firstChild);
+  }
+  s.innerHTML = SCIA.map(m => {
+    const x1 = vX(m.da.x) + .5, y1 = vY(m.da.y) + .5, x2 = vX(m.a.x) + .5, y2 = vY(m.a.y) + .5;
+    const L = Math.hypot(x2-x1, y2-y1) || 1, ux = (x2-x1)/L, uy = (y2-y1)/L;
+    const tx = x2 - ux*.36, ty = y2 - uy*.36, bx = tx - ux*.2, by = ty - uy*.2;
+    const f = n => n.toFixed(2);
+    return '<circle cx="' + f(x1) + '" cy="' + f(y1) + '" r=".13"/>' +
+      '<line x1="' + f(x1 + ux*.13) + '" y1="' + f(y1 + uy*.13) + '" x2="' + f(bx) + '" y2="' + f(by) + '"/>' +
+      '<path d="M' + f(tx) + ' ' + f(ty) + 'L' + f(bx - uy*.11) + ' ' + f(by + ux*.11) +
+      'L' + f(bx + uy*.11) + ' ' + f(by - ux*.11) + 'Z"/>';
+  }).join("");
+}
+/* Prima che muova l'avversario si fotografa la vita delle tue pedine; quando
+   ha finito, la differenza diventa una riga. */
+function fotoTurno(){
+  PRIMA = S.units.filter(u => u.alive && u.side === "p").map(u => ({ u:u, hp:u.hp }));
+  SCIA = []; RIEP = null;
+}
+function riepilogaTurno(){
+  if (!PRIMA) return;
+  const pezzi = [];
+  PRIMA.forEach(q => {
+    const n = '<b>' + q.u.d.name + '</b>';
+    if (!q.u.alive) pezzi.push(n + ' <span class="hit">KO</span>');
+    else if (q.u.side !== "p") pezzi.push(n + ' <span class="hit">ammaliata</span>');
+    else if (q.u.hp < q.hp) pezzi.push(n + ' <span class="hit">\u2212' + (q.hp - q.u.hp) + '</span>');
+  });
+  const re = kingOf("p");
+  const addosso = re ? S.units.filter(e => e.alive && e.side === "e" && cheb(e.x,e.y,re.x,re.y) === 1).length : 0;
+  RIEP = '<b>Turno avversario:</b> ' + (pezzi.length ? pezzi.join(", ") : "nessun danno") +
+    (SCIA.length ? ' \u00b7 ' + SCIA.length + (SCIA.length === 1 ? " pedina mossa" : " pedine mosse") : "") +
+    (addosso ? ' \u00b7 <b class="hit">il tuo Re \u00e8 a tiro</b>' : "");
+  PRIMA = null;
+}
+/* Il pulsante di fine partita che salta roster, riepilogo e schieramento. */
+function offriSubito(on, testo){
+  const b = $("#btn-subito"), n = $("#btn-next");
+  if (!b || !n) return;
+  b.hidden = !on;
+  n.classList.toggle("primary", !on);
+  if (on){ b.textContent = testo; n.textContent = "Cambia squadra"; }
+}
+const chiaveSquadra = () => JSON.stringify([S.team, S.kingId]);
 const cellEl = (x,y) => document.querySelector('[data-xy="' + x + "," + y + '"]');
 function boardKeys(ev){
   const step = { ArrowLeft:[-1,0], ArrowRight:[1,0], ArrowUp:[0,-1], ArrowDown:[0,1] }[ev.key];
@@ -5733,8 +5904,8 @@ function cellLabel(x, y, u, opts){
   const zona = (y >= NY-2 || (duoMode() && y <= 1)) ? ", zona di schieramento" : "";
   if (!u){
     if (opts.drop) return dove + ", libera, casella di schieramento";
-    if (opts.mv)   return dove + ", libera, raggiungibile";
-    return dove + ", libera" + zona;
+    if (opts.mv)   return dove + ", libera, raggiungibile" + (opts.risk ? ", sotto tiro" : "");
+    return dove + ", libera" + zona + (opts.risk ? ", sotto tiro" : "");
   }
   const stati = [];
   if (u.isKing) stati.push("Re");
@@ -5744,6 +5915,8 @@ function cellLabel(x, y, u, opts){
   if (u.acted && u.side === viewSide() && S.phase !== "deploy") stati.push("ha gia agito");
   else if (u.moved && u.side === viewSide() && S.phase !== "deploy") stati.push("gia spostata, puo ancora agire");
   if (opts.tg)  stati.push("bersaglio disponibile");
+  if (opts.colpo) stati.push(opts.colpo.ko ? "il colpo lo abbatte" : "colpo stimato " + opts.colpo.d);
+  if (opts.risk) stati.push("sotto tiro");
   return dove + ", " + u.d.name + ", " + (u.side === viewSide() ? "tua pedina" : "avversario") +
     ", " + Math.max(0, u.hp) + " punti vita su " + u.maxHp +
     (stati.length ? ", " + stati.join(", ") : "");
@@ -5774,6 +5947,28 @@ function draw(){
   const vive = !dep && sel && !sel.acted && sel.side === meSide() && S.turn === meSide() && !S.busy;
   const mvSet = vive && !sel.moved ? moves(sel) : [];
   const tgSet = vive ? (S.mode === "spec" ? specTargets(sel) : foesAdj(sel)) : [];
+  /* Il colpo, prima di darlo. Il danno vero oscilla del 10%: «KO» si scrive
+     solo se il bersaglio cade anche col tiro piu' basso. */
+  MIRA = new Map();
+  if (vive){
+    const mult = S.mode === "spec" ? (SP_MULT[FAMS[sel.d.fam].sp] || 0) : 1;
+    if (mult > 0) tgSet.forEach(t => {
+      const d = estDmg(sel, t, mult);
+      MIRA.set(t.uid, { d:d, ko: d > 0 && Math.floor(d * .9) >= t.hp });
+    });
+  }
+  const mioTurno = !dep && !pcMode() && S.turn === meSide() && !S.busy && !S.over;
+  const rischio = PERICOLO && mioTurno ? sottoTiro() : null;
+  const bp = $("#btn-pericolo");
+  if (bp){ bp.hidden = dep || pcMode(); bp.setAttribute("aria-pressed", PERICOLO ? "true" : "false"); }
+  const be = $("#btn-end");
+  const resto = mioTurno ? S.units.filter(u => u.alive && u.side === meSide() && !u.acted).length : 0;
+  if (resto){
+    be.dataset.resto = resto;
+    be.setAttribute("aria-label", "Fine turno, " + resto +
+      (resto === 1 ? " pedina pu\u00f2 ancora agire" : " pedine possono ancora agire"));
+  } else { delete be.dataset.resto; be.removeAttribute("aria-label"); }
+  be.classList.toggle("pronto", mioTurno && !resto);
 
   for (let vy = 0; vy < NY; vy++) for (let vx = 0; vx < NX; vx++){
     const c = document.querySelector('[data-vxy="' + vx + "," + vy + '"]');
@@ -5784,12 +5979,14 @@ function draw(){
     const o = {
       drop: dep && inZone({side:depSide()}, y) && !u,
       mv:   mvSet.some(p => p.x === x && p.y === y),
-      tg:   !!(u && tgSet.includes(u))
+      tg:   !!(u && tgSet.includes(u)),
+      colpo: u ? MIRA.get(u.uid) : null,
+      risk: !!(rischio && rischio.has(x + "," + y))
     };
     c.className = "cell" + ((x+y) % 2 ? " dark" : "")
       + (y >= NY-2 ? " home" : "") + (y <= 1 ? " away" : "")   /* la tinta segue il proprietario,
                                                                   come il colore delle pedine */
-      + (o.drop ? " drop" : "") + (o.mv ? " mv" : "") + (o.tg ? " tg" : "")
+      + (o.drop ? " drop" : "") + (o.mv ? " mv" : "") + (o.tg ? " tg" : "") + (o.risk ? " risk" : "")
       + (u && sel === u ? " cur" : "");
     c.setAttribute("aria-label", cellLabel(vx, vy, u, o));
     c.setAttribute("aria-selected", u && sel === u ? "true" : "false");
@@ -5799,6 +5996,7 @@ function draw(){
   /* Il terreno sale col torneo; nelle partite fuori torneo resta la terra. */
   $("#board").dataset.terreno = terreno();
   drawTokens();
+  disegnaScie();
   if (dep) drawDeploy(); else drawCard();
   if (vive && S.mode === "spec") mostraArea(sel, true);
 }
@@ -5821,7 +6019,8 @@ function drawTokens(){
       e.dataset.uid = u.uid;
       e.innerHTML = '<div class="inner">' + art(u.d.fam, u.side === topSide(), u.d.rank) + '</div>' +
         '<div class="shadow"></div>' +
-        '<div class="hpbar"><i></i></div>' +
+        '<div class="hpbar"><i></i><b></b></div>' +
+        '<span class="prev" aria-hidden="true"></span>' +
         (u.isKing ? '<span class="kmark" aria-hidden="true">&#9819;</span>' : '') +
         '<span class="rkm" aria-hidden="true">' + "<i></i>".repeat(Math.ceil(u.d.rank / 2)) + '</span>' +
         '<span class="status" aria-hidden="true"></span>' +
@@ -5840,7 +6039,13 @@ function drawTokens(){
     e.className = "tok " + u.side
       + (u.acted && u.side === meSide() && S.turn === meSide() && S.phase !== "deploy" ? " done" : "")
       + (S.sel === u && S.phase !== "deploy" ? " sel" : "")
-      + (S.pick === u ? " pick" : "");
+      + (S.pick === u ? " pick" : "")
+      + (MIRA.has(u.uid) ? " mira" : "");
+    const colpo = MIRA.get(u.uid), pv = e.querySelector(".prev"), tr = e.querySelector(".hpbar b");
+    pv.className = "prev" + (colpo && colpo.ko ? " ko" : "");
+    pv.textContent = colpo ? (colpo.ko ? "KO" : "\u2212" + colpo.d) : "";
+    tr.style.left = colpo ? (Math.max(0, u.hp - colpo.d) / u.maxHp * 100) + "%" : "0";
+    tr.style.width = colpo ? (Math.min(colpo.d, Math.max(0, u.hp)) / u.maxHp * 100) + "%" : "0";
     e.style.left = (vX(u.x) * PX) + "%";
     e.style.top  = (vY(u.y) * PY) + "%";
     e.querySelector(".hpbar").className = "hpbar " + u.side;
@@ -5859,12 +6064,14 @@ function drawTokens(){
    e il JS la chiede a lui invece di indovinarla. */
 const telefono = () => window.matchMedia && window.matchMedia("(max-width:900px)").matches;
 /* Ancora o sgancia la barra, e lascia sotto lo spazio che occupa. */
-function ancora(attiva){
+function ancora(attiva, bassa){
   const el = $("#ucard"), sez = $("#s-battle");
   if (!el || !sez) return;
   const on = !!attiva && telefono();
   el.classList.toggle("ancorata", on);
   sez.classList.toggle("conScheda", on);
+  sez.classList.toggle("bassa", on && !!bassa);
+  document.body.classList.toggle("bassa", on && !!bassa);
   /* Lo spazio va lasciato sotto **tutta la pagina**, non solo sotto l'arena: la
      guida del primo minuto sta fuori dalle sezioni, e la barra gliela copriva. */
   document.body.classList.toggle("conBarra", on);
@@ -5903,11 +6110,14 @@ function corpoScheda(u){
            : Math.round(u.str * 2 * (SP_MULT[sp] || 1)) + ' indicativo');
   return '<div class="row">' + art(u.d.fam, false, u.d.rank) +
       '<div><h3 id="uni-nome">' + (u.isKing ? "\u265b " : "") + u.d.name + '</h3><div class="fam">' +
-      u.d.fam + ' \u00b7 rank ' + u.d.rank + '</div></div></div>' +
+      u.d.fam + ' \u00b7 rank ' + u.d.rank + '</div>' +
+      '<div class="mini"><span>' + ico("vita") + '<b>' + Math.max(0,u.hp) + '</b>/' + u.maxHp + '</span>' +
+      '<span>' + ico("forza") + '<b>' + u.str + '</b></span>' +
+      '<span>' + ico("difesa") + '<b>' + u.dfn + '</b></span></div></div></div>' +
     '<div class="stats"><div>VITA<b>' + Math.max(0,u.hp) + '</b></div><div>FORZA<b>' +
       u.str + '</b></div><div>DIFESA<b>' + u.dfn + '</b></div></div>' +
     (RES.some(k => (u.res[k]|0) !== 0)
-      ? '<div class="fam" style="margin:-2px 0 7px">Resistenze: ' +
+      ? '<div class="fam resi" style="margin:-2px 0 7px">Resistenze: ' +
         RES.filter(k => u.res[k]).map(k => RES_NOME[k] + " " + (u.res[k] > 0 ? "+" : "") + u.res[k]).join(" \u00b7 ") +
         '</div>'
       : '') +
@@ -5943,14 +6153,26 @@ function drawCard(){
   const el = $("#ucard"), u = S.sel;
   if (!u){
     ancora(false);
-    el.innerHTML = '<div class="fam">' + (duoMode()
+    /* Chi puo' ancora fare qualcosa, e chi ha un bersaglio a portata: e' la
+       cosa che si dimentica prima di chiudere il turno. */
+    let dafare = "";
+    if (!pcMode() && S.turn === meSide() && !S.busy && !S.over){
+      const liberi = S.units.filter(q => q.alive && q.side === meSide() && !q.acted);
+      const atiro = liberi.filter(q => foesAdj(q).length > 0);
+      if (liberi.length) dafare = '<div class="fam dafare">Possono ancora agire: <b>' + liberi.length + '</b>' +
+        (atiro.length ? ' \u00b7 con un bersaglio a tiro: <b>' + atiro.map(q => q.d.name).join(", ") + '</b>' : "") +
+        '</div>';
+      else dafare = '<div class="fam dafare">Hanno agito tutte: <b>chiudi il turno</b>.</div>';
+    }
+    el.innerHTML = (RIEP && !duoMode() && !pcMode() ? '<div class="riep">' + RIEP + '</div>' : "") +
+      '<div class="fam">' + (duoMode()
       ? esc(nameOf(S.turn)) + ": tocca una tua pedina per selezionarla."
-      : "Tocca un tuo Insector per selezionarlo.") + '</div>';
+      : "Tocca un tuo Insector per selezionarlo.") + '</div>' + dafare;
     return;
   }
   /* La barra serve mentre si decide: se la pedina non e' tua, o ha gia' agito,
      resta una scheda normale e non ruba spazio al campo. */
-  ancora(u.side === meSide() && S.turn === meSide() && !u.acted && !S.busy);
+  ancora(u.side === meSide() && S.turn === meSide() && !u.acted && !S.busy, true);
   avvicinaCampo();
   const f = FAMS[u.d.fam];                        /* serve ai pulsanti qui sotto */
   el.innerHTML = corpoScheda(u) + '<div class="acts" id="acts"></div>';
@@ -5968,6 +6190,17 @@ function drawCard(){
     }
     acts.appendChild(b);
   };
+  /* Mossa fatta e nessun colpo ancora dato: si puo' ritirare. Il tocco su una
+     casella sposta subito, e su un telefono il dito sbaglia. */
+  if (ANNULLA && ANNULLA.u === u && u.moved && !at(ANNULLA.x, ANNULLA.y)){
+    const b = document.createElement("button");
+    b.id = "btn-annulla"; b.textContent = "Annulla mossa";
+    b.onclick = () => {
+      u.x = ANNULLA.x; u.y = ANNULLA.y; u.moved = false; ANNULLA = null;
+      S.mode = "idle"; suona("seleziona"); draw();
+    };
+    acts.appendChild(b);
+  } else
   mkb(u.moved ? "Gi\u00e0 mossa" : "Muovi", "move", !u.moved && moves(u).length > 0);
   mkb("Attacca", "atk", foesAdj(u).length > 0);
   if (selfCast(u)){
@@ -5982,7 +6215,7 @@ function drawCard(){
     mkb(f.spn + (u.cd ? " \u00b7 fra " + u.cd : ""), "spec", canSpecial(u));
   }
   const p = document.createElement("button");
-  p.textContent = "Passa"; p.onclick = () => { u.acted = true; S.sel = null; S.mode = "idle"; draw(); };
+  p.textContent = "Passa"; p.onclick = () => { ANNULLA = null; SCIA = []; u.acted = true; S.sel = null; S.mode = "idle"; draw(); };
   acts.appendChild(p);
 }
 function click(x, y){
@@ -5994,12 +6227,15 @@ function click(x, y){
      chi gioca da tastiera -- ma non sono piu' di strada. */
   const libero = S.mode === "idle" || S.mode === "move";
   if (S.sel && libero && !S.sel.moved && moves(S.sel).some(p => p.x === x && p.y === y)){
+    ANNULLA = { u:S.sel, x:S.sel.x, y:S.sel.y }; SCIA = [];
     S.sel.x = x; S.sel.y = y; S.sel.moved = true; S.mode = "idle"; suona("passo"); draw(); passo(S.sel); return;
   }
   if (S.sel && (S.mode === "atk" || S.mode === "idle") && u && foesAdj(S.sel).includes(u)){
+    SCIA = [];
     basicAttack(S.sel, u); S.sel.acted = true; S.sel = null; S.mode = "idle"; draw(); return;
   }
   if (S.sel && S.mode === "spec" && u && specTargets(S.sel).includes(u)){
+    SCIA = [];
     doSpecial(S.sel, u); S.sel.acted = true; S.sel = null; S.mode = "idle"; draw(); return;
   }
   if (u && u.side === meSide() && !u.acted){ S.sel = u; S.mode = "idle"; suona("seleziona"); draw(); return; }
@@ -6052,6 +6288,7 @@ function updBadges(){
   /* La sfida si gioca una volta al giorno: proporre \u00abRivincita\u00bb o \u00abCambia
      squadra\u00bb sarebbe promettere una cosa che il gioco poi rifiuta. */
   $("#btn-newteams").hidden = sfida || !(duo || pc);
+  offriSubito(false);
   $("#btn-next").textContent = sfida ? "Torna al roster"
     : (duo ? "Rivincita" : (pc ? "Un'altra partita" : "Continua"));
 }
@@ -6096,6 +6333,19 @@ $("#btn-quit").onclick = () => {
   leaveMatch(); drawRoster(); drawSlots(); detail(S.look || null); show("s-team");
 };
 $("#btn-rand").onclick = randomDeploy;
+$("#btn-pericolo").onclick = () => {
+  PERICOLO = !PERICOLO;
+  try { localStorage.setItem("insectron-pericolo", PERICOLO ? "1" : "0"); } catch(e){}
+  draw();
+};
+/* Stessa squadra, stesso Re, stesse caselle: dal risultato si torna in campo. */
+$("#btn-subito").onclick = () => {
+  const s = SCHIERA;
+  startBattle();
+  if (!s || s.k !== chiaveSquadra()) return;       /* la squadra e' cambiata: si schiera a mano */
+  alive("p").forEach((u, i) => { u.x = s.pos[i][0]; u.y = s.pos[i][1]; });
+  beginFight();
+};
 $("#btn-fight").onclick = beginFight;
 $("#btn-next").onclick = () => {
   if (inSfida()){                                /* dalla sfida si torna al torneo */
